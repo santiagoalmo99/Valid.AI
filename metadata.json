@@ -1,0 +1,7 @@
+{
+  "name": "VALID.AI 1",
+  "description": "A comprehensive, AI-powered validation platform for business ideas. Conduct interviews, interpret qualitative data, and visualize validation metrics with advanced scoring and insights.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
