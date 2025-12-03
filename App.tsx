@@ -531,21 +531,34 @@ const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, 
                       }
 
                       try {
-                         await FirebaseService.deleteInterview(id);
-                         // Update local state
+                         // Try Firebase delete with 3s timeout
+                         const deletePromise = FirebaseService.deleteInterview(id);
+                         const timeoutPromise = new Promise((_, reject) => 
+                            setTimeout(() => reject(new Error("Timeout: Firebase blocked or offline")), 3000)
+                         );
+                         
+                         await Promise.race([deletePromise, timeoutPromise]);
+                         
+                         // Success: Update local state
                          setInterviews(prev => prev.filter(i => i.id !== id));
-                         // Update offline storage
                          const offlineKey = `offline_interviews_${project.id}`;
                          const offline = JSON.parse(localStorage.getItem(offlineKey) || '[]');
                          const newOffline = offline.filter((i: any) => i.id !== id);
                          localStorage.setItem(offlineKey, JSON.stringify(newOffline));
                       } catch (e: any) {
                          console.error("Delete failed", e);
-                         if (e.code === 'permission-denied') {
+                         
+                         // FORCE LOCAL DELETE if timeout or blocked
+                         if (e.message && e.message.includes("Timeout")) {
+                            console.warn("⚠️ Firebase timeout, forcing local delete");
+                            setInterviews(prev => prev.filter(i => i.id !== id));
+                            const offlineKey = `offline_interviews_${project.id}`;
+                            const offline = JSON.parse(localStorage.getItem(offlineKey) || '[]');
+                            const newOffline = offline.filter((i: any) => i.id !== id);
+                            localStorage.setItem(offlineKey, JSON.stringify(newOffline));
+                            alert("⚠️ Eliminado LOCALMENTE.\n\nTu navegador bloqueó la conexión a Firebase.\nDesactiva el bloqueador de anuncios para sincronizar.");
+                         } else if (e.code === 'permission-denied') {
                             alert("No tienes permiso para eliminar esta entrevista.");
-                         } else if (e.message && e.message.includes('offline')) {
-                            // If offline, maybe allow local delete? For now just alert.
-                            alert("Error de conexión. No se pudo eliminar de la nube.");
                          } else {
                             alert("Error al eliminar. Si usas un bloqueador de anuncios, desactívalo para este sitio.");
                          }
@@ -563,12 +576,29 @@ const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, 
 
                       const ids = interviews.map(i => i.id);
                       try {
-                         await FirebaseService.deleteInterviewsBatch(ids);
+                         // Try batch delete with 5s timeout
+                         const deletePromise = FirebaseService.deleteInterviewsBatch(ids);
+                         const timeoutPromise = new Promise((_, reject) => 
+                            setTimeout(() => reject(new Error("Timeout: Firebase blocked or offline")), 5000)
+                         );
+                         
+                         await Promise.race([deletePromise, timeoutPromise]);
+                         
+                         // Success
                          setInterviews([]);
                          localStorage.removeItem(`offline_interviews_${project.id}`);
                       } catch (e: any) {
                          console.error("Batch delete failed", e);
-                         alert("Error al eliminar todo. Verifica tu conexión o desactiva el bloqueador de anuncios.");
+                         
+                         // FORCE LOCAL DELETE if timeout
+                         if (e.message && e.message.includes("Timeout")) {
+                            console.warn("⚠️ Firebase timeout, forcing local delete all");
+                            setInterviews([]);
+                            localStorage.removeItem(`offline_interviews_${project.id}`);
+                            alert("⚠️ Eliminado LOCALMENTE.\n\nTu navegador bloqueó Firebase.\nDesactiva el bloqueador de anuncios para sincronizar con la nube.");
+                         } else {
+                            alert("Error al eliminar todo. Verifica tu conexión o desactiva el bloqueador de anuncios.");
+                         }
                       }
                    }}
                    onRetry={async (interview: Interview) => {
