@@ -382,8 +382,16 @@ const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, 
   };
 
   // FIRESTORE SUBSCRIPTION FOR INTERVIEWS
+  const [deletionInProgress, setDeletionInProgress] = useState(false);
+  
   useEffect(() => {
      const unsubscribe = FirebaseService.subscribeToInterviews(project.id, (data) => {
+         // IGNORE updates during deletion to prevent restore
+         if (deletionInProgress) {
+            console.log("🔒 Deletion in progress, ignoring Firestore update");
+            return;
+         }
+         
          // Merge with offline data
          const offlineKey = `offline_interviews_${project.id}`;
          const offlineData = JSON.parse(localStorage.getItem(offlineKey) || '[]');
@@ -417,7 +425,7 @@ const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, 
          setInterviews(merged);
       });
      return () => unsubscribe();
-  }, [project.id]);
+  }, [project.id, deletionInProgress]);
 
   const handleExport = () => {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({project, interviews}, null, 2));
@@ -530,6 +538,9 @@ const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, 
                          return;
                       }
 
+                      // LOCK subscription to prevent restore
+                      setDeletionInProgress(true);
+                      
                       try {
                          // Try Firebase delete with 3s timeout
                          const deletePromise = FirebaseService.deleteInterview(id);
@@ -539,29 +550,29 @@ const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, 
                          
                          await Promise.race([deletePromise, timeoutPromise]);
                          
-                         // Success: Update local state
-                         setInterviews(prev => prev.filter(i => i.id !== id));
-                         const offlineKey = `offline_interviews_${project.id}`;
-                         const offline = JSON.parse(localStorage.getItem(offlineKey) || '[]');
-                         const newOffline = offline.filter((i: any) => i.id !== id);
-                         localStorage.setItem(offlineKey, JSON.stringify(newOffline));
+                         console.log("✅ Firebase delete successful");
                       } catch (e: any) {
                          console.error("Delete failed", e);
                          
-                         // FORCE LOCAL DELETE if timeout or blocked
+                         // Show alert for blocked/timeout cases
                          if (e.message && e.message.includes("Timeout")) {
                             console.warn("⚠️ Firebase timeout, forcing local delete");
-                            setInterviews(prev => prev.filter(i => i.id !== id));
-                            const offlineKey = `offline_interviews_${project.id}`;
-                            const offline = JSON.parse(localStorage.getItem(offlineKey) || '[]');
-                            const newOffline = offline.filter((i: any) => i.id !== id);
-                            localStorage.setItem(offlineKey, JSON.stringify(newOffline));
                             alert("⚠️ Eliminado LOCALMENTE.\n\nTu navegador bloqueó la conexión a Firebase.\nDesactiva el bloqueador de anuncios para sincronizar.");
                          } else if (e.code === 'permission-denied') {
                             alert("No tienes permiso para eliminar esta entrevista.");
                          } else {
                             alert("Error al eliminar. Si usas un bloqueador de anuncios, desactívalo para este sitio.");
                          }
+                      } finally {
+                         // Update local state AND unlock after small delay
+                         setInterviews(prev => prev.filter(i => i.id !== id));
+                         const offlineKey = `offline_interviews_${project.id}`;
+                         const offline = JSON.parse(localStorage.getItem(offlineKey) || '[]');
+                         const newOffline = offline.filter((i: any) => i.id !== id);
+                         localStorage.setItem(offlineKey, JSON.stringify(newOffline));
+                         
+                         // Unlock after 1 second to allow delete to propagate
+                         setTimeout(() => setDeletionInProgress(false), 1000);
                       }
                    }}
                    onDeleteAll={async () => {
@@ -574,6 +585,9 @@ const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, 
                          return;
                       }
 
+                      // LOCK subscription to prevent restore
+                      setDeletionInProgress(true);
+
                       const ids = interviews.map(i => i.id);
                       try {
                          // Try batch delete with 5s timeout
@@ -584,21 +598,24 @@ const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, 
                          
                          await Promise.race([deletePromise, timeoutPromise]);
                          
-                         // Success
-                         setInterviews([]);
-                         localStorage.removeItem(`offline_interviews_${project.id}`);
+                         console.log("✅ Firebase batch delete successful");
                       } catch (e: any) {
                          console.error("Batch delete failed", e);
                          
-                         // FORCE LOCAL DELETE if timeout
+                         // Show alert for blocked/timeout cases
                          if (e.message && e.message.includes("Timeout")) {
                             console.warn("⚠️ Firebase timeout, forcing local delete all");
-                            setInterviews([]);
-                            localStorage.removeItem(`offline_interviews_${project.id}`);
                             alert("⚠️ Eliminado LOCALMENTE.\n\nTu navegador bloqueó Firebase.\nDesactiva el bloqueador de anuncios para sincronizar con la nube.");
                          } else {
                             alert("Error al eliminar todo. Verifica tu conexión o desactiva el bloqueador de anuncios.");
                          }
+                      } finally {
+                         // Update local state AND unlock after small delay
+                         setInterviews([]);
+                         localStorage.removeItem(`offline_interviews_${project.id}`);
+                         
+                         // Unlock after 2 seconds to allow batch delete to propagate
+                         setTimeout(() => setDeletionInProgress(false), 2000);
                       }
                    }}
                    onRetry={async (interview: Interview) => {
