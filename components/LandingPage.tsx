@@ -1,11 +1,10 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { motion, useScroll, useTransform, useSpring, useInView } from 'framer-motion';
-import { ArrowRight, CheckCircle2, Zap, Brain, Shield, Globe, ChevronDown, Play, Star, Sparkles, Target, BarChart3 } from 'lucide-react';
+import React, { useRef } from 'react';
+import { motion, useScroll, useSpring } from 'framer-motion';
+import { ArrowRight, CheckCircle2, Brain, Shield, ChevronDown, Play, Sparkles, Target } from 'lucide-react';
 
 // --- ASSETS & CONSTANTS ---
-const HERO_VIDEO = "https://cdn.coverr.co/videos/coverr-abstract-digital-tunnel-4446/1080p.mp4"; // Placeholder abstract tech video
-const SCREENSHOT_DASHBOARD = "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=2000&q=80"; // Placeholder for dashboard
-const SCREENSHOT_MOBILE = "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=800&q=80"; // Placeholder for mobile
+const HERO_VIDEO = "https://cdn.coverr.co/videos/coverr-abstract-digital-tunnel-4446/1080p.mp4"; 
+const SCREENSHOT_DASHBOARD = "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=2000&q=80"; 
 
 // --- COMPONENTS ---
 
@@ -27,26 +26,18 @@ const FadeIn = ({ children, delay = 0, className = "" }: { children: React.React
   </motion.div>
 );
 
-const ParallaxText = ({ children, baseVelocity = 100 }: { children: string, baseVelocity: number }) => {
-  return (
-    <div className="parallax">
-      <motion.div className="scroller text-9xl font-bold text-white/5 whitespace-nowrap uppercase tracking-tighter" style={{ x: 0 }}>
-        <span>{children} </span>
-        <span>{children} </span>
-        <span>{children} </span>
-        <span>{children} </span>
-      </motion.div>
-    </div>
-  );
-};
-
-export const LandingPage = ({ onLogin }: { onLogin: () => void }) => {
+export const LandingPage = () => {
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 100,
     damping: 30,
     restDelta: 0.001
   });
+
+  const handleLaunch = () => {
+    // Redirect to main app
+    window.location.href = '/';
+  };
 
   return (
     <div className="bg-black text-white font-sans selection:bg-neon selection:text-black overflow-x-hidden">
@@ -89,7 +80,7 @@ export const LandingPage = ({ onLogin }: { onLogin: () => void }) => {
           <FadeIn delay={0.6}>
             <div className="flex flex-col md:flex-row items-center justify-center gap-6">
               <button 
-                onClick={onLogin}
+                onClick={handleLaunch}
                 className="group relative px-8 py-4 bg-white text-black rounded-full font-bold text-lg tracking-tight overflow-hidden transition-transform hover:scale-105"
               >
                 <span className="relative z-10 flex items-center gap-2">
@@ -151,11 +142,11 @@ export const LandingPage = ({ onLogin }: { onLogin: () => void }) => {
                    <span className="ml-auto text-xs text-slate-500 font-mono">failure_analysis.log</span>
                 </div>
                 <div className="space-y-4 font-mono text-sm text-red-400">
-                   <p>> Analyzing market fit...</p>
-                   <p>> ERROR: No demand detected.</p>
-                   <p>> WARNING: High customer churn.</p>
-                   <p>> CRITICAL: Runway depleted.</p>
-                   <p className="text-white animate-pulse">> SYSTEM SHUTDOWN...</p>
+                   <p>&gt; Analyzing market fit...</p>
+                   <p>&gt; ERROR: No demand detected.</p>
+                   <p>&gt; WARNING: High customer churn.</p>
+                   <p>&gt; CRITICAL: Runway depleted.</p>
+                   <p className="text-white animate-pulse">&gt; SYSTEM SHUTDOWN...</p>
                 </div>
              </div>
           </div>
@@ -307,7 +298,7 @@ export const LandingPage = ({ onLogin }: { onLogin: () => void }) => {
             </FadeIn>
             <FadeIn delay={0.4}>
                <button 
-                  onClick={onLogin}
+                  onClick={handleLaunch}
                   className="px-12 py-6 bg-white text-black rounded-full font-bold text-xl tracking-tight hover:scale-105 transition-transform shadow-[0_0_40px_rgba(255,255,255,0.3)] hover:shadow-[0_0_60px_rgba(58,255,151,0.5)]"
                >
                   Launch Valid.AI 2.0

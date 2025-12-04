@@ -370,7 +370,14 @@ const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, 
             ...interview,
             totalScore: analysis.scores?.totalScore || 0,
             summary: analysis.summary,
-            dimensionScores: analysis.scores?.dimensionScores || {},
+            dimensionScores: analysis.scores?.dimensionScores || {
+               problemIntensity: 0,
+               solutionFit: 0,
+               currentBehavior: 0,
+               painPoint: 0,
+               earlyAdopter: 0,
+               willingnessToPay: 0
+            },
             keyInsights: analysis.keyInsights,
             lastUpdated: Date.now() as any // Force new reference
          };
