@@ -83,6 +83,43 @@ export interface AIAnalysisResult {
   confidence: number;
 }
 
+// NEW: Enhanced Interview Analysis Result (Surgical-Level)
+export interface EnhancedAnalysisResult {
+  // Chain-of-Thought Reasoning
+  reasoning: {
+    step1_context: string;
+    step2_problem_validation: string;
+    step3_solution_fit: string;
+    step4_willingness_to_pay: string;
+    step5_red_flags: string[];
+  };
+  
+  // Scores with confidence
+  scores: {
+    totalScore: number; // 0-100
+    confidence: number; // 0.0-1.0
+    dimensionScores: Record<Dimension, number>;
+  };
+  
+  // Validation layer
+  validation: {
+    contradictions: Contradiction[];
+    evidenceQuality: 'strong' | 'moderate' | 'weak';
+    biasIndicators: string[];
+  };
+  
+  // Human-readable summary
+  summary: string;
+  keyInsights: string[];
+}
+
+export interface Contradiction {
+  type: 'logical' | 'behavioral' | 'temporal';
+  description: string;
+  severity: 'high' | 'medium' | 'low';
+  impactOnScore: number; // How much this reduces confidence
+}
+
 export interface Answer {
   questionId: string;
   rawValue: string;

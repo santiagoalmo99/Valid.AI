@@ -65,9 +65,51 @@ async function discoverAvailableModel(): Promise<string> {
   }
 }
 
-// Helper function for API calls
+import { requestCache } from './requestCache';
+
+// Retry with exponential backoff
+async function retryWithBackoff<T>(
+  fn: () => Promise<T>,
+  maxRetries: number = 3,
+  baseDelayMs: number = 2000
+): Promise<T> {
+  let lastError: Error | null = null;
+  
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (error: any) {
+      lastError = error;
+      
+      // Only retry on rate limit (429) or server errors (5xx)
+      const status = error.status || error.code;
+      const isRetryable = status === 429 || status === 503 || error.message?.includes('429');
+      
+      if (!isRetryable || attempt === maxRetries) {
+        throw error;
+      }
+      
+      // Exponential backoff: 2s, 4s, 8s
+      const delay = baseDelayMs * Math.pow(2, attempt);
+      console.log(`⏳ Rate limited. Retrying in ${delay/1000}s... (attempt ${attempt + 1}/${maxRetries})`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+  
+  throw lastError || new Error('Max retries exceeded');
+}
+
+// Helper function for API calls with retry
 async function callGeminiAPI(prompt: string, json: boolean = false): Promise<string> {
-  try {
+  // 1. Check Cache
+  const cached = requestCache.get<string>(prompt);
+  if (cached) {
+    console.log('⚡ Using cached AI response');
+    return cached;
+  }
+
+  // Wrap the actual API call in retry logic
+  const makeRequest = async (): Promise<string> => {
     const modelName = await discoverAvailableModel();
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${API_KEY}`;
     
@@ -94,9 +136,14 @@ async function callGeminiAPI(prompt: string, json: boolean = false): Promise<str
     });
 
     if (!response.ok) {
-      const error = await response.text();
-      console.error('Gemini API Error:', error);
-      throw new Error(`API Error: ${response.status} - ${error}`);
+      const error: any = new Error(`API Error: ${response.status}`);
+      error.status = response.status;
+      
+      if (response.status === 429) {
+        console.warn('⚠️ Rate limit hit (429)');
+      }
+      
+      throw error;
     }
 
     const data = await response.json();
@@ -107,8 +154,19 @@ async function callGeminiAPI(prompt: string, json: boolean = false): Promise<str
     }
 
     return text;
-  } catch (error) {
-    console.error('Gemini API call failed:', error);
+  };
+
+  try {
+    // Use retry with backoff for rate limits
+    const text = await retryWithBackoff(makeRequest, 3, 2000);
+    
+    // Cache successful response (10 minutes TTL)
+    requestCache.set(prompt, text, 10 * 60 * 1000);
+    
+    console.log('✅ AI response received and cached');
+    return text;
+  } catch (error: any) {
+    console.error('❌ Gemini API call failed after retries:', error.message);
     throw error;
   }
 }
@@ -259,9 +317,11 @@ export const performDeepResearch = async (project: ProjectTemplate, interviews: 
   }));
 
   try {
-    console.log(`🚀 Starting Deep Research for ${project.name} with ${interviews.length} interviews...`);
+    console.log(`🚀 Starting ENHANCED Deep Research for ${project.name} with ${interviews.length} interviews...`);
+    
+    // SURGICAL MULTI-PASS ANALYSIS PROMPT
     const prompt = `
-    ACT AS: Senior Venture Capital Analyst & Product Strategist (Y Combinator Level).
+    ACT AS: Senior Partner at Y Combinator + PhD Data Scientist
     
     PROJECT PROFILE:
     - Name: ${project.name}
@@ -269,39 +329,103 @@ export const performDeepResearch = async (project: ProjectTemplate, interviews: 
     - Target Audience: ${project.targetAudience}
     - Region: ${project.region || 'Global'}
     
-    INTERVIEW DATA (${interviews.length} interviews):
+    INTERVIEW DATA (${interviews.length} validated interviews):
     ${JSON.stringify(richInterviews, null, 2)}
     
     LANGUAGE: ${lang === 'es' ? 'Spanish (Latin American)' : 'English'}
     
-    TASK: Perform a deep validation analysis crossing all data points.
-    Generate quantitative and qualitative metrics for visualization.
+    📊 ANALYSIS FRAMEWORK - MULTI-PASS APPROACH:
+    
+    PASS 1: PATTERN RECOGNITION
+    - Cross-reference all ${interviews.length} interviews
+    - Identify consistent pain points mentioned by 50%+ respondents
+    - Detect contradictions between stated needs and actual behavior
+    - Flag social desirability bias or acquiescence patterns
+    
+    PASS 2: STATISTICAL VALIDATION
+    - Calculate average scores with confidence intervals
+    - Perform outlier detection (scores >2 std deviations)
+    - Segment respondents by viability score (High: 70+, Med: 40-69, Low: <40)
+    - Test for correlation: "willingness to pay" vs "problem intensity"
+    
+    PASS 3: STRATEGIC SYNTHESIS
+    - Define "ideal customer profile" based on top 20% performers
+    - Identify market gaps vs existing solutions (be specific: name competitors)
+    - Recommend 1-3 pivots if data suggests misalignment
+    - Provide go/pivot/no-go verdict with evidence
+    
+    CRITICAL SCORING RULES:
+    - viabilityScore: ONLY 70+ if clear product-market fit evidence
+    - 50-69: Potential with pivots needed
+    - <50: Fundamental issues detected
+    
+    MARKET VERDICT OPTIONS:
+    - "Go": Strong validation, clear monetization, minimal risks (viability >70)
+    - "Pivot": Some validation but misalignment detected (40-70)
+    - "No-Go": Weak validation, contradictions, or saturated market (<40)
+    
+    SWOT REQUIREMENTS (be brutally honest):
+    - Strengths: ONLY if backed by interview evidence
+    - Weaknesses: Flag ALL red flags (low WTP, vague needs, etc.)
+    - Opportunities: Based on unmet needs or underserved segments
+    - Threats: Name REAL competitors with market share
+    
+    BENCHMARK (3-5 real competitors):
+    - Use actual companies (e.g., "Slack", "Notion", "Figma")
+    - Include their pricing model and market position
+    - Explain what differentiates THIS product
+    
+    KEY INSIGHTS (3-5 actionable insights):
+    - Each must have "positive", "negative", or "neutral" type
+    - Be specific: cite interview patterns or metrics
+    - Focus on: monetization readiness, market timing, adoption barriers
+    
+    MARKET TRENDS (5 years: 2023-2027):
+    - Estimate market size growth based on industry (be realistic)
+    - For nascent markets: conservative growth
+    - For mature markets: modest 5-10% CAGR
+    
+    SENTIMENT ANALYSIS:
+    - Positive: % of high-viability interviews (score >70)
+    - Neutral: % of medium interviews (40-70)
+    - Negative: % of low interviews (<40)
+    
+    AUDIENCE DEMOGRAPHICS (3 segments):
+    - Segment by actual respondent profiles
+    - Example: "Early Adopter Founders (35%)", "Corporate Innovators (45%)", etc.
+    
+   RISK ASSESSMENT (0-100 scale, where 100 = highest risk):
+    - Market: Saturation, competition intensity
+    - Tech: Complexity, feasibility
+    - Legal: Regulatory barriers
+    - Financial: Capital requirements
+    - Adoption: User behavior change needed
     
     OUTPUT FORMAT (JSON ONLY):
     {
       "viabilityScore": number (0-100),
       "marketVerdict": "Go|Pivot|No-Go",
       "swot": {
-        "strengths": ["string"],
-        "weaknesses": ["string"],
+        "strengths": ["string with evidence"],
+        "weaknesses": ["string citing interview data"],
         "opportunities": ["string"],
-        "threats": ["string"]
+        "threats": ["string naming real competitors"]
       },
-      "earlyAdopterProfile": "string",
-      "strategicAdvice": ["string"],
+      "earlyAdopterProfile": "string (detailed ICP description)",
+      "strategicAdvice": ["actionable recommendation 1", "..."],
       "benchmark": [
         {
-          "name": "string",
-          "strength": "string",
-          "weakness": "string",
-          "priceModel": "string",
-          "differentiation": "string"
+          "name": "Real Competitor Name",
+          "strength": "Their key advantage",
+          "weakness": "Their gap/limitation",
+          "priceModel": "e.g., $99/mo SaaS",
+          "differentiation": "How THIS product differs"
         }
       ],
       "keyInsights": [
         {
-          "title": "string",
-          "description": "string",
+          "title": "Insight Title",
+          "description": "Evidence-based description",
           "type": "positive|negative|neutral"
         }
       ],
@@ -318,20 +442,18 @@ export const performDeepResearch = async (project: ProjectTemplate, interviews: 
         {"name": "Negative", "value": number, "fill": "#f87171"}
       ],
       "audienceDemographics": [
-        {"name": "Segment A", "value": number},
-        {"name": "Segment B", "value": number},
-        {"name": "Segment C", "value": number}
+        {"name": "Segment Name", "value": percentage}
       ],
       "riskAssessment": [
-        {"subject": "Market", "A": number (0-100)},
-        {"subject": "Tech", "A": number},
-        {"subject": "Legal", "A": number},
-        {"subject": "Financial", "A": number},
-        {"subject": "Adoption", "A": number}
+        {"subject": "Market", "A": risk score 0-100},
+        {"subject": "Tech", "A": risk score},
+        {"subject": "Legal", "A": risk score},
+        {"subject": "Financial", "A": risk score},
+        {"subject": "Adoption", "A": risk score}
       ]
     }
     
-    Return ONLY valid JSON.
+    CRITICAL: Be skeptical. If data is weak, say so. Return ONLY valid JSON.
   `;
 
   const response = await callGeminiAPI(prompt, true);
@@ -492,3 +614,9 @@ export const generatePersonaImage = async (summary: string) => {
   // Using external service for reliability
   return null;
 };
+
+// ===== NEW: ENHANCED AI SERVICES =====
+// Export surgical-level AI analysis and self-healing wrapper
+export { analyzeFullInterviewEnhanced } from './aiService.enhanced';
+export { analyzeWithRecovery } from './aiService.selfHealing';
+export type { EnhancedAnalysisResult, Contradiction } from '../types';

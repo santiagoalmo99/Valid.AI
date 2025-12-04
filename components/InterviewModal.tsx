@@ -47,7 +47,15 @@ export const InterviewModal: React.FC<InterviewModalProps> = ({ interview, proje
     return null;
   }
 
-  const isAnalysisFailed = interview.summary?.includes("Analysis failed") || interview.summary?.includes("Error") || interview.totalScore === 0;
+  // Detect if analysis failed or used fallback
+  const isAnalysisFailed = 
+    interview.summary?.includes("Analysis failed") || 
+    interview.summary?.includes("Error") || 
+    interview.summary?.includes("falló") ||
+    interview.summary?.includes("Revisar manualmente") ||
+    interview.summary?.includes("no pudo completar") ||
+    interview.totalScore === 0 ||
+    interview.totalScore === 50; // Fallback default score
 
   return (
     <AnimatePresence>
@@ -153,6 +161,27 @@ export const InterviewModal: React.FC<InterviewModalProps> = ({ interview, proje
                      <ScoreBar label="Solution" value={interview.dimensionScores?.solutionFit || 0} icon={<Target size={12}/>} />
                      <ScoreBar label="Willingness" value={interview.dimensionScores?.willingnessToPay || 0} icon={<DollarSign size={12}/>} />
                   </div>
+                  
+                  {/* Always show retry button */}
+                  {onRetryAnalysis && (
+                     <button 
+                        onClick={handleRetry} 
+                        disabled={isRetrying}
+                        className="mt-6 w-full bg-white/5 hover:bg-neon/20 text-slate-300 hover:text-neon border border-white/10 hover:border-neon/50 px-4 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                     >
+                        {isRetrying ? (
+                          <>
+                            <div className="w-3 h-3 border-2 border-neon border-t-transparent rounded-full animate-spin" />
+                            Analizando...
+                          </>
+                        ) : (
+                          <>
+                            <Zap size={14}/>
+                            Re-analizar
+                          </>
+                        )}
+                     </button>
+                  )}
                </div>
             </div>
 

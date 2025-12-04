@@ -1,18 +1,37 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { ProjectTemplate, Interview, Question, Answer, DeepAnalysisReport, Language, ProductType } from './types';
 import { TRANSLATIONS, INITIAL_PROJECTS, DEMO_PROJECT } from './constants';
 import * as Gemini from './services/aiService';
+import { getCoverByIdea } from './utils/projectCovers';
 import { Sparkles, Zap, Target, ArrowRight, CheckCircle2, ChevronRight, BarChart3, PieChart as PieChartIcon, TrendingUp, Activity, Plus, Play, Users, X, Search, FileText, MessageSquare, Cpu, Globe, Lock, ArrowLeft, RefreshCw, Trash2, LayoutGrid, Upload, Settings, Download, Sun, Moon, Smartphone, CheckCircle, Mail, Phone, MapPin } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Transition, Variant } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell, PieChart, Pie, LineChart, Line, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Legend } from 'recharts';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Onboarding } from './components/Onboarding';
 import { ProjectProfileModal } from './components/ProjectProfileModal';
 import { InterviewModal } from './components/InterviewModal';
-import { QuestionAnalysis } from './components/QuestionAnalysis';
-import { SmartChat } from './components/SmartChat';
+import { stateManager } from './services/stateManager';
+import { staggerContainer, staggerItem, fadeInUp, scaleIn } from './utils/animations';
+import { TemplateGallery } from './components/TemplateGallery';
+import { templateToProject } from './constants/templates';
+import { SmartQuestionWidget } from './components/SmartQuestionWidget';
+
+// Lazy Load Heavy Components
+const QuestionAnalysis = React.lazy(() => import('./components/QuestionAnalysis').then(module => ({ default: module.QuestionAnalysis })));
+const SmartChat = React.lazy(() => import('./components/SmartChat').then(module => ({ default: module.SmartChat })));
+const DocumentUploader = React.lazy(() => import('./components/DocumentUploader').then(module => ({ default: module.DocumentUploader })));
+const IdeaStudio = React.lazy(() => import('./components/IdeaStudio').then(module => ({ default: module.IdeaStudio })));
+
+// --- LOADING COMPONENT ---
+const LoadingSpinner = () => (
+  <div className="flex items-center justify-center h-full w-full min-h-[200px]">
+    <div className="relative w-12 h-12">
+      <div className="absolute inset-0 border-4 border-slate-700 rounded-full"></div>
+      <div className="absolute inset-0 border-4 border-neon border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  </div>
+);
 
 // --- STYLES ---
 const NEON_TEXT = "text-neon font-bold tracking-wide filter drop-shadow-[0_0_10px_rgba(0,255,148,0.5)]";
@@ -207,9 +226,20 @@ const SessionHub = ({ projects, onSelect, onCreate, onDelete, onUpdate, lang, us
           </div>
        </div>
 
-       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+       <motion.div 
+         key={`projects-${projects.length}`}
+         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+         variants={staggerContainer}
+         initial="initial"
+         animate="animate"
+       >
           {projects.map((p: ProjectTemplate) => (
-             <div key={p.id} onClick={() => onSelect(p)} className={`group glass-panel rounded-[24px] overflow-hidden hover:border-neon/50 transition-all cursor-pointer hover:-translate-y-2 duration-500 ${isDemo ? 'border-neon/30 shadow-[0_0_20px_rgba(58,255,151,0.1)]' : ''}`}>
+             <motion.div 
+               key={p.id} 
+               variants={staggerItem}
+               onClick={() => onSelect(p)} 
+               className={`group glass-panel rounded-[24px] overflow-hidden hover:border-neon/50 transition-all cursor-pointer hover:-translate-y-2 duration-500 ${isDemo ? 'border-neon/30 shadow-[0_0_20px_rgba(58,255,151,0.1)]' : ''}`}
+             >
                 <div className="h-56 overflow-hidden relative">
                    <div className="absolute inset-0 bg-gradient-to-t from-void via-transparent to-transparent z-10"></div>
                    <img src={p.coverImage} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt="cover" />
@@ -264,17 +294,12 @@ const SessionHub = ({ projects, onSelect, onCreate, onDelete, onUpdate, lang, us
                     </button>
                     
                     <button 
-                       onClick={async (e) => {
+                       onClick={(e) => {
                           e.stopPropagation();
-                          const btn = e.currentTarget;
-                          btn.classList.add('animate-spin');
-                          try {
-                             const newCover = await Gemini.generateProjectCover(p.name, p.description);
-                             onUpdate({ ...p, coverImage: newCover });
-                          } catch(err) {
-                             console.error(err);
-                          }
-                          btn.classList.remove('animate-spin');
+                          // No API call - instant cover change
+                          const newCover = getCoverByIdea(p.name + ' ' + p.description);
+                          onUpdate({ ...p, coverImage: newCover });
+                          console.log('✅ [Cover] Assigned without API call');
                        }}
                        className="p-2 bg-black/60 backdrop-blur-md hover:bg-neon/80 hover:text-black text-white rounded-full border border-white/10 transition-colors shadow-lg"
                        title="Regenerar Portada con IA"
@@ -282,9 +307,9 @@ const SessionHub = ({ projects, onSelect, onCreate, onDelete, onUpdate, lang, us
                        <RefreshCw size={14} />
                     </button>
                  </div>
-              </div>
+              </motion.div>
            ))}
-       </div>
+       </motion.div>
     </div>
   );
 };
@@ -322,17 +347,17 @@ const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, 
             tiktok: interview.respondentTikTok
          };
 
-         // Run Analysis
-         console.log('🤖 Calling Gemini API...');
-         const analysis = await Gemini.analyzeFullInterview(project, interview.answers, regData);
-         console.log('✅ Analysis completed:', analysis);
+         // Run Enhanced Analysis with Chain-of-Thought
+         console.log('🤖 Calling Enhanced Gemini API with surgical analysis...');
+         const analysis = await Gemini.analyzeFullInterviewEnhanced(project, interview.answers, regData);
+         console.log('✅ Enhanced analysis completed:', analysis);
          
          // Update Interview Object with TIMESTAMP to force React update
          const updatedInterview: Interview = {
             ...interview,
-            totalScore: analysis.totalScore,
+            totalScore: analysis.scores?.totalScore || 0,
             summary: analysis.summary,
-            dimensionScores: analysis.dimensionScores,
+            dimensionScores: analysis.scores?.dimensionScores || {},
             keyInsights: analysis.keyInsights,
             lastUpdated: Date.now() as any // Force new reference
          };
@@ -379,6 +404,43 @@ const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, 
          alert(`Error al re-analizar: ${e instanceof Error ? e.message : String(e)}`);
          throw e;
       }
+  };
+
+  const handleDeleteInterview = async (id: string) => {
+    if (!window.confirm(t.confirmDelete)) return;
+
+    const originalInterviews = [...interviews];
+    
+    // Use StateManager for optimistic update
+    try {
+      await stateManager.executeOptimistic(
+        // 1. Local Update (Instant)
+        () => {
+          // Temporarily pause subscription to prevent race conditions
+          deletionInProgress.current = true;
+          setInterviews(prev => prev.filter(i => i.id !== id));
+          if (selectedInterview?.id === id) {
+            setSelectedInterview(null);
+          }
+        },
+        // 2. Remote Operation
+        async () => {
+          await FirebaseService.deleteInterview(id);
+          // Small delay to allow Firestore to propagate
+          await new Promise(resolve => setTimeout(resolve, 500));
+          deletionInProgress.current = false;
+        },
+        // 3. Rollback (if failed)
+        () => {
+          deletionInProgress.current = false;
+          setInterviews(originalInterviews);
+          alert("Error deleting interview. Changes reverted.");
+        },
+        `Delete Interview ${id}`
+      );
+    } catch (error) {
+      console.error("Optimistic delete failed", error);
+    }
   };
 
   // FIRESTORE SUBSCRIPTION FOR INTERVIEWS
@@ -624,12 +686,20 @@ const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, 
                 />
              </div>}
              {activeTab === 'deep_research' && <div className="p-8"><DeepResearchView project={project} interviews={interviews} onUpdate={onUpdateProject} t={t} /></div>}
-             {activeTab === 'questions' && <div className="p-8"><QuestionAnalysis project={project} interviews={interviews} /></div>}
+             {activeTab === 'questions' && (
+               <div className="p-8">
+                 <React.Suspense fallback={<LoadingSpinner />}>
+                   <QuestionAnalysis project={project} interviews={interviews} />
+                 </React.Suspense>
+               </div>
+             )}
              
              {/* Full Size Chat */}
              {activeTab === 'smart_chat' && (
                 <div className="absolute inset-0 p-4 h-full">
-                   <SmartChat project={project} interviews={interviews} />
+                   <React.Suspense fallback={<LoadingSpinner />}>
+                     <SmartChat project={project} interviews={interviews} />
+                   </React.Suspense>
                 </div>
              )}
              
@@ -691,49 +761,52 @@ const NavBtn = ({ icon, label, active, onClick }: any) => (
 );
 
 // 3. Smart Parsing / Create Flow
-const CreateProjectModal = ({ onClose, onSave, lang }: any) => {
+const CreateProjectModal = ({ onClose, onSave, lang, user }: any) => {
   const t = TRANSLATIONS[lang];
-  const [mode, setMode] = useState('manual'); // manual, smart
+  const [mode, setMode] = useState<'manual' | 'smart' | 'document' | 'idea' | 'template'>('manual');
   const [context, setContext] = useState('');
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState<Partial<ProjectTemplate>>({ 
-    name: '', 
-    description: '', 
+  const [formData, setFormData] = useState<Partial<ProjectTemplate>>({
+    name: '',
+    description: '',
     detailedDescription: '',
     targetAudience: '',
     region: '',
     productTypes: []
   });
 
-  const PRODUCT_TYPES: ProductType[] = ['App', 'Web', 'SaaS', 'E-commerce', 'Marketplace', 'IoT', 'Other'];
-
+  // Handler for generating questions from AI
   const handleSmartParse = async () => {
-     if(!context) return;
      setLoading(true);
      try {
-       const parsed = await Gemini.smartParseDocument(context, lang);
-       const cover = await Gemini.generateProjectCover(parsed.suggestedName, parsed.suggestedDesc);
-       
-       const newProject: ProjectTemplate = {
-         id: `proj_${Date.now()}`,
-         name: parsed.suggestedName,
-         description: parsed.suggestedDesc,
-         detailedDescription: context, // Use raw context as detailed desc initially
-         emoji: parsed.suggestedEmoji || '🚀',
-         coverImage: cover,
-         targetAudience: 'Global', 
-         region: 'Global',
-         productTypes: ['App'], // Default
-         questions: parsed.questions,
-         createdAt: new Date().toISOString()
-       };
-       onSave(newProject);
+        // Simple inline AI call since Gemini module doesn't export callGeminiAPI
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${import.meta.env.VITE_GEMINI_API_KEY}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: `Analyze this idea and generate 5-8 research questions:\n\n${context}` }] }]
+            })
+          }
+        );
+        const data = await response.json();
+        const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+        // Generate fields
+        const questions = aiResponse.split('\n').filter((q: string) => q.trim().length > 0).slice(0,8);
+        setFormData({
+           ...formData,
+           questions: questions.map((text: string, i: number) => ({ id: `q${i+1}`, text, type: 'text' as const, order: i+1 }))
+        });
      } catch (e) {
-       console.error(e);
-       alert("Error parsing document");
+        console.error(e);
+        alert("Error parsing document");
      }
      setLoading(false);
   };
+
+  const PRODUCT_TYPES: ProductType[] = ['App', 'Web', 'SaaS', 'E-commerce', 'Marketplace', 'IoT', 'Other'];
 
   const toggleProductType = (type: ProductType) => {
     const currentTypes = formData.productTypes || [];
@@ -755,75 +828,184 @@ const CreateProjectModal = ({ onClose, onSave, lang }: any) => {
     reader.readAsText(file);
   };
 
+  // If we are in a full-screen mode (Idea or Document), render those components directly
+  // This prevents them from being constrained by the max-w-2xl wrapper of the selection modal
+  if (mode === 'document') {
+    return (
+      <React.Suspense fallback={<LoadingSpinner />}>
+        <DocumentUploader
+          onQuestionsGenerated={async (questions, metadata) => {
+            console.log('✅ Questions Generated:', questions.length);
+            console.log('📝 Metadata:', metadata);
+
+            // Check if user is logged in
+            if (!user) {
+              alert('❌ Debes iniciar sesión para crear un proyecto.');
+              console.error('User not logged in');
+              return;
+            }
+
+            // Create project directly instead of going to manual mode
+            setLoading(true);
+            try {
+              const cover = getCoverByIdea(metadata.title + ' ' + metadata.description);
+              console.log('✅ [IdeaStudio] Cover assigned without API');
+
+              const project: ProjectTemplate = {
+                id: `p_${Date.now()}`,
+                name: metadata.title,
+                description: metadata.description,
+                detailedDescription: '',
+                emoji: metadata.emoji || '📄',
+                coverImage: cover,
+                targetAudience: 'General',
+                region: 'Global',
+                productTypes: [],
+                questions: questions,
+                createdAt: new Date().toISOString()
+              };
+
+              console.log('🚀 Creating project with', questions.length, 'questions');
+              await onSave(project);
+              console.log('✅ Project saved successfully');
+            } catch (e) {
+              console.error('❌ Error creating project:', e);
+              alert('Error al crear el proyecto. Intenta de nuevo.');
+            }
+            setLoading(false);
+          }}
+          onClose={() => setMode('manual')}
+        />
+      </React.Suspense>
+    );
+  }
+
+  if (mode === 'idea') {
+    return (
+      <React.Suspense fallback={<LoadingSpinner />}>
+        <IdeaStudio
+          onPlanGenerated={async (questions, metadata, plan) => {
+            console.log('✅ Idea Plan Generated:', questions.length, 'questions');
+            
+            // Create project directly instead of going to manual mode
+            setLoading(true);
+            try {
+              const cover = getCoverByIdea(metadata.title + ' ' + metadata.description);
+              console.log('✅ [DocumentUploader] Cover assigned without API');
+              
+              const project: ProjectTemplate = {
+                id: `p_${Date.now()}`,
+                name: metadata.title,
+                description: metadata.description,
+                detailedDescription: plan || '',
+                emoji: '💡',
+                coverImage: cover,
+                targetAudience: 'General',
+                region: 'Global',
+                productTypes: [],
+                questions: questions,
+                createdAt: new Date().toISOString()
+              };
+              
+              console.log('🚀 Creating project from Idea Studio');
+              onSave(project);
+            } catch (e) {
+              console.error('❌ Error creating project:', e);
+              alert('Error al crear el proyecto. Intenta de nuevo.');
+            }
+            setLoading(false);
+          }}
+          onClose={() => setMode('manual')}
+        />
+      </React.Suspense>
+    );
+  }
+
+  if (mode === 'template') {
+    return (
+      <TemplateGallery
+        onSelectTemplate={async (template: any) => {
+          console.log('📋 Template Selected:', template.name);
+          setLoading(true);
+          try {
+            const project = templateToProject(template, 'user_id');
+            console.log('🚀 Creating project from template:', project.name, 'with', project.questions.length, 'questions');
+            onSave(project);
+          } catch (e) {
+            console.error('❌ Error creating project from template:', e);
+            alert('Error al crear el proyecto. Intenta de nuevo.');
+          }
+          setLoading(false);
+        }}
+        onClose={() => setMode('manual')}
+      />
+    );
+  }
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-       <div className={`${GLASS_PANEL} w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl p-8 animate-fade-in-up`}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={onClose}>
+       <div 
+         className={`${GLASS_PANEL} w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl p-8 animate-fade-in-up`}
+         onClick={(e) => e.stopPropagation()}
+       >
           <div className="flex justify-between items-center mb-6">
              <h2 className="text-2xl font-bold text-white">{t.newSession}</h2>
              <button onClick={onClose}><X className="text-slate-400 hover:text-white" /></button>
           </div>
 
-          <div className="flex gap-4 mb-6">
-             <button onClick={() => setMode('manual')} className={`flex-1 py-3 rounded-xl border ${mode === 'manual' ? 'border-neon bg-neon/10 text-white' : 'border-white/10 text-slate-400'}`}>Manual</button>
-             <button onClick={() => setMode('smart')} className={`flex-1 py-3 rounded-xl border flex items-center justify-center gap-2 ${mode === 'smart' ? 'border-neon bg-neon/10 text-white' : 'border-white/10 text-slate-400'}`}>
-                <Sparkles size={16} /> {t.importDoc}
+          <div className="grid grid-cols-2 gap-3 mb-6">
+             <button onClick={() => setMode('manual')} className={`py-3 rounded-xl border flex items-center justify-center gap-2 ${mode === 'manual' ? 'border-neon bg-neon/10 text-white' : 'border-white/10 text-slate-400 hover:border-white/30'}`}>
+                <Plus size={16} /> Manual
+             </button>
+             <button onClick={() => setMode('document')} className={`py-3 rounded-xl border flex items-center justify-center gap-2 ${mode === 'document' ? 'border-neon bg-neon/10 text-white' : 'border-white/10 text-slate-400 hover:border-white/30'}`}>
+                <FileText size={16} /> Subir Documento
+             </button>
+             <button onClick={() => setMode('idea')} className={`py-3 rounded-xl border flex items-center justify-center gap-2 ${mode === 'idea' ? 'border-neon bg-neon/10 text-white' : 'border-white/10 text-slate-400 hover:border-white/30'}`}>
+                <Zap size={16} /> De Idea a Plan
+             </button>
+             <button onClick={() => setMode('template')} className={`py-3 rounded-xl border flex items-center justify-center gap-2 ${mode === 'template' ? 'border-neon bg-neon/10 text-white' : 'border-white/10 text-slate-400 hover:border-white/30'}`}>
+                <Sparkles size={16} /> Plantillas
              </button>
           </div>
 
-          {mode === 'smart' ? (
-             <div className="space-y-4">
-                <div 
-                  className="border-2 border-dashed border-white/20 rounded-2xl p-8 text-center hover:border-neon/50 transition-colors cursor-pointer group relative"
-                  onClick={() => document.getElementById('file-upload')?.click()}
-                >
-                   <input 
-                      type="file" 
-                      id="file-upload" 
-                      className="hidden" 
-                      accept=".txt,.md,.json,.csv,.js,.ts,.tsx,.html,.css"
-                      onChange={handleFileUpload}
-                   />
-                   <Upload className="mx-auto text-slate-400 mb-4 group-hover:text-neon transition-colors" size={32} />
-                   <p className="text-sm text-slate-400 mb-2 font-bold group-hover:text-white">Haz clic para subir un archivo</p>
-                   <textarea 
-                     className="w-full bg-transparent text-white outline-none text-center h-24 placeholder-slate-600 resize-none pointer-events-none"
-                     placeholder="O pega tu texto aquí..."
-                     value={context}
-                     readOnly
-                   />
-                   {/* Overlay for paste if needed, but file upload is primary now. To allow paste, we'd need to separate them or handle click differently. 
-                       Let's keep it simple: Click to upload, or paste into a separate area if user prefers? 
-                       Actually, let's make the textarea clickable only if we stop propagation, but the user asked for IMPORT. 
-                       Let's make the whole box trigger upload for now as it's the requested feature. 
-                       If they want to paste, they can paste into the textarea if we allow it. 
-                       Let's refine: The textarea should be usable. 
-                   */}
+          {/* Manual Mode Form */}
+          {mode === 'manual' && (
+             <div className="space-y-4 animate-fade-in">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <input 
+                    placeholder={t.projectName} 
+                    className="w-full bg-black/30 border border-white/10 rounded-xl p-4 text-white focus:border-neon outline-none" 
+                    value={formData.name || ''}
+                    onChange={e => setFormData({...formData, name: e.target.value})} 
+                  />
+                  <input 
+                    placeholder="Región (ej. Colombia)" 
+                    className="w-full bg-black/30 border border-white/10 rounded-xl p-4 text-white focus:border-neon outline-none" 
+                    value={formData.region || ''}
+                    onChange={e => setFormData({...formData, region: e.target.value})} 
+                  />
                 </div>
-                {/* Separate Paste Area for fallback */}
+                
                 <textarea 
-                     className="w-full bg-black/30 border border-white/10 rounded-xl p-4 text-white focus:border-neon outline-none h-32 resize-none"
-                     placeholder="O pega el contenido de tu documento aquí manualmente..."
-                     value={context}
-                     onChange={e => setContext(e.target.value)}
+                  placeholder={t.projectDesc} 
+                  className="w-full bg-black/30 border border-white/10 rounded-xl p-4 text-white focus:border-neon outline-none h-24 resize-none" 
+                  value={formData.description || ''}
+                  onChange={e => setFormData({...formData, description: e.target.value})} 
+                />
+                
+                <textarea 
+                  placeholder="Descripción Detallada (Opcional)" 
+                  className="w-full bg-black/30 border border-white/10 rounded-xl p-4 text-white focus:border-neon outline-none h-24 resize-none" 
+                  value={formData.detailedDescription || ''}
+                  onChange={e => setFormData({...formData, detailedDescription: e.target.value})} 
                 />
 
-                <p className="text-xs text-slate-500">{t.smartParseDesc}</p>
-                <button onClick={handleSmartParse} disabled={loading || !context} className="w-full bg-neon text-black font-bold py-4 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50">
-                   {loading ? <RefreshCw className="animate-spin"/> : <Sparkles />} {loading ? t.parsing : t.create}
-                </button>
-             </div>
-          ) : (
-             <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <input placeholder={t.projectName} className="w-full bg-black/30 border border-white/10 rounded-xl p-4 text-white focus:border-neon outline-none" onChange={e => setFormData({...formData, name: e.target.value})} />
-                  <input placeholder="Región (ej. Colombia)" className="w-full bg-black/30 border border-white/10 rounded-xl p-4 text-white focus:border-neon outline-none" onChange={e => setFormData({...formData, region: e.target.value})} />
-                </div>
-                
-                <textarea placeholder={t.projectDesc} className="w-full bg-black/30 border border-white/10 rounded-xl p-4 text-white focus:border-neon outline-none h-24 resize-none" onChange={e => setFormData({...formData, description: e.target.value})} />
-                
-                <textarea placeholder="Descripción Detallada (Opcional)" className="w-full bg-black/30 border border-white/10 rounded-xl p-4 text-white focus:border-neon outline-none h-24 resize-none" onChange={e => setFormData({...formData, detailedDescription: e.target.value})} />
-
-                <input placeholder="Público Objetivo" className="w-full bg-black/30 border border-white/10 rounded-xl p-4 text-white focus:border-neon outline-none" onChange={e => setFormData({...formData, targetAudience: e.target.value})} />
+                <input 
+                  placeholder="Público Objetivo" 
+                  className="w-full bg-black/30 border border-white/10 rounded-xl p-4 text-white focus:border-neon outline-none" 
+                  value={formData.targetAudience || ''}
+                  onChange={e => setFormData({...formData, targetAudience: e.target.value})} 
+                />
 
                 <div className="space-y-2">
                   <label className="text-xs text-slate-500 uppercase font-bold">Tipo de Producto</label>
@@ -849,7 +1031,8 @@ const CreateProjectModal = ({ onClose, onSave, lang }: any) => {
                    
                    setLoading(true);
                    try {
-                     const cover = await Gemini.generateProjectCover(formData.name, formData.description);
+                     const cover = getCoverByIdea(formData.name + ' ' + formData.description);
+                     console.log('✅ [TemplateGallery] Cover assigned without API');
                      
                      const p: ProjectTemplate = {
                        id: `p_${Date.now()}`,
@@ -861,7 +1044,7 @@ const CreateProjectModal = ({ onClose, onSave, lang }: any) => {
                        targetAudience: formData.targetAudience || 'General',
                        region: formData.region || 'Global',
                        productTypes: formData.productTypes,
-                       questions: [],
+                       questions: formData.questions || [],
                        createdAt: new Date().toISOString()
                      };
                      onSave(p);
@@ -877,7 +1060,7 @@ const CreateProjectModal = ({ onClose, onSave, lang }: any) => {
           )}
        </div>
     </div>
-  )
+  );
 };
 
 // 4. Deep Research View (Advanced v2.1)
@@ -1474,10 +1657,10 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t }: any) => {
             let aiSuccess = false;
             
             for (let attempt = 0; attempt <= retries; attempt++) {
-               try {
-                  console.log(`🤖 AI Analysis attempt ${attempt + 1}/${retries + 1}...`);
+                try {
+                  console.log(`🤖 Enhanced AI Analysis attempt ${attempt + 1}/${retries + 1}...`);
                   
-                  const analysisPromise = Gemini.analyzeFullInterview(project, newAnswers, regData);
+                  const analysisPromise = Gemini.analyzeFullInterviewEnhanced(project, newAnswers, regData);
                   const timeoutPromise = new Promise((_, reject) => 
                      setTimeout(() => reject(new Error("AI Timeout (30s)")), 30000)
                   );
@@ -1665,142 +1848,25 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t }: any) => {
            <div className={`${GLASS_PANEL} p-4 flex-1 flex flex-col min-h-0 overflow-hidden`}>
               <h2 className="text-2xl md:text-3xl font-bold text-white mb-12 leading-tight flex-shrink-0">{question.text}</h2>
                
-               {/* Widget Render Logic */}
+               {/* Smart Widget - Intelligent Type Detection */}
                <div className="mb-4 flex-1 overflow-y-auto pr-2 custom-scrollbar">
-                  {(question.widgetType === 'gauge_1_10' || question.text.includes('1 al 10') || question.text.includes('1 to 10')) ? (
-                     <div className="flex flex-wrap justify-center gap-3 mt-8 max-w-3xl mx-auto">
-                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(val => (
-                           <button
-                              key={val}
-                              onClick={() => handleAnswer(val)}
-                              className={`w-14 h-14 rounded-xl text-xl font-bold transition-all duration-300 flex items-center justify-center border ${
-                                 currentVal === val.toString() 
-                                 ? 'bg-neon text-black border-neon scale-110 shadow-[0_0_20px_rgba(58,255,151,0.5)]' 
-                                 : 'bg-white/5 text-slate-400 border-white/10 hover:bg-white/10 hover:border-white/30 hover:text-white'
-                              }`}
-                           >
-                              {val}
-                           </button>
-                        ))}
-                     </div>
-                  ) : (question.widgetType === 'gauge_1_5' || question.text.includes('1 al 5') || question.text.includes('1 to 5')) ? (
-                     <div className="flex justify-center gap-4 mt-8">
-                        {[1, 2, 3, 4, 5].map(val => (
-                           <button
-                              key={val}
-                              onClick={() => handleAnswer(val)}
-                              className={`w-16 h-16 rounded-2xl text-2xl font-bold transition-all duration-300 flex items-center justify-center border ${
-                                 currentVal === val.toString() 
-                                 ? 'bg-neon text-black border-neon scale-110 shadow-[0_0_20px_rgba(58,255,151,0.5)]' 
-                                 : 'bg-white/5 text-slate-400 border-white/10 hover:bg-white/10 hover:border-white/30 hover:text-white'
-                              }`}
-                           >
-                              {val}
-                           </button>
-                        ))}
-                     </div>
-                  ) : question.id === 'p6' ? (
-                     <div className="space-y-6 mt-4">
-                        {/* 1. Yes/No Filter */}
-                        <div className="flex justify-center gap-6">
-                           {['Sí', 'No'].map(opt => (
-                              <button
-                                 key={opt}
-                                 onClick={() => handleAnswer(opt === 'No' ? 'No' : 'Sí')}
-                                 className={`px-8 py-4 rounded-xl text-xl font-bold transition-all duration-300 border ${
-                                    (currentVal === opt || (opt === 'Sí' && currentVal !== 'No' && currentVal !== ''))
-                                    ? 'bg-neon text-black border-neon scale-110 shadow-[0_0_20px_rgba(58,255,151,0.5)]'
-                                    : 'bg-white/5 text-slate-400 border-white/10 hover:bg-white/10 hover:border-white/30 hover:text-white'
-                                 }`}
-                              >
-                                 {opt}
-                              </button>
-                           ))}
-                        </div>
+                  <SmartQuestionWidget
+                    question={question}
+                    value={currentVal}
+                    onChange={handleAnswer}
+                    onBlur={() => handleAnswer(currentVal)}
+                  />
+               </div>
 
-                        {/* 2. Options (Only if Yes) */}
-                        {currentVal !== 'No' && currentVal !== '' && (
-                           <div className="animate-fade-in-up space-y-4">
-                              <p className="text-sm text-slate-400 font-bold uppercase tracking-wider text-center">Selecciona el dispositivo:</p>
-                              <div className="grid grid-cols-2 gap-3">
-                                 {question.options?.filter(o => o !== 'No uso ninguno').map((opt: string) => (
-                                    <button 
-                                      key={opt}
-                                      onClick={() => handleAnswer(opt)}
-                                      className={`p-4 rounded-xl text-left border text-sm transition-all ${currentVal.includes(opt) ? 'bg-neon text-black border-neon font-bold shadow-[0_0_15px_rgba(58,255,151,0.3)]' : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10'}`}
-                                    >
-                                       {opt}
-                                    </button>
-                                 ))}
-                              </div>
-                              
-                              {/* 3. "Which one?" Input */}
-                              <div className="pt-2">
-                                 <label className="text-xs text-slate-500 uppercase font-bold mb-2 block">¿Cuál modelo específico?</label>
-                                 <input 
-                                    type="text" 
-                                    placeholder="Ej. Series 8, Forerunner, etc..."
-                                    className="w-full bg-black/30 border border-white/10 rounded-xl p-3 text-white focus:border-neon outline-none text-sm"
-                                    onChange={(e) => {
-                                       // Find the base option (everything before ':') or just currentVal if no colon
-                                       const base = currentVal.split(':')[0];
-                                       if (base && base !== 'Sí' && base !== 'No') {
-                                          handleAnswer(`${base}: ${e.target.value}`);
-                                       }
-                                    }}
-                                 />
-                              </div>
-                           </div>
-                        )}
-                     </div>
-                  ) : (question.type === 'boolean' || question.widgetType === 'boolean_donut') ? (
-                     <div className="flex justify-center gap-6 mt-8">
-                        {['Sí', 'No'].map(opt => (
-                           <button
-                              key={opt}
-                              onClick={() => handleAnswer(opt)}
-                              className={`px-8 py-4 rounded-xl text-xl font-bold transition-all duration-300 border ${
-                                 currentVal === opt
-                                 ? 'bg-neon text-black border-neon scale-110 shadow-[0_0_20px_rgba(58,255,151,0.5)]'
-                                 : 'bg-white/5 text-slate-400 border-white/10 hover:bg-white/10 hover:border-white/30 hover:text-white'
-                              }`}
-                           >
-                              {opt}
-                           </button>
-                        ))}
-                     </div>
-                  ) : question.options ? (
-                     <div className="grid grid-cols-1 gap-3">
-                        {question.options.map((opt: string) => (
-                           <button 
-                             key={opt}
-                             onClick={() => handleAnswer(opt)}
-                             className={`p-4 rounded-xl text-left border text-base transition-all ${currentVal === opt ? 'bg-neon text-black border-neon font-bold shadow-[0_0_15px_rgba(58,255,151,0.3)]' : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10'}`}
-                           >
-                              {opt}
-                           </button>
-                        ))}
-                     </div>
-                  ) : (
-                     <textarea 
-                       className="w-full h-[100px] bg-black/30 border border-white/10 rounded-xl p-4 text-white focus:border-neon focus:ring-1 focus:ring-neon outline-none resize-none text-lg transition-all"
-                       value={currentVal}
-                       onChange={e => setCurrentVal(e.target.value)}
-                       onBlur={() => handleAnswer(currentVal)}
-                       placeholder="Escribe tu respuesta aquí..."
-                    />
-                 )}
-              </div>
-
-              <div className="mt-auto pt-4 border-t border-white/5 flex-shrink-0">
-                 <div className="flex items-center gap-2 mb-2 text-xs text-slate-400 uppercase font-bold"><Sparkles size={12} className="text-neon"/> Observaciones</div>
+              <div className="mt-auto pt-2 border-t border-white/5 flex-shrink-0">
+                 <div className="flex items-center gap-2 mb-1 text-xs text-slate-400 uppercase font-bold"><Sparkles size={10} className="text-neon"/> Observaciones</div>
                  <textarea 
-                   className="w-full h-24 bg-black/20 rounded-xl border border-white/5 p-3 text-sm text-slate-300 focus:text-white outline-none resize-none focus:border-neon/50 transition-colors"
+                   className="w-full h-16 bg-black/20 rounded-xl border border-white/5 p-2 text-sm text-slate-300 focus:text-white outline-none resize-none focus:border-neon/50 transition-colors"
                    placeholder={t.obsLabel + "..."}
                    value={observation}
                    onChange={e => setObservation(e.target.value)}
                 />
-                 <button onClick={handleNext} disabled={isSaving} className={`w-full font-bold py-4 rounded-xl mt-4 transition-all shadow-lg flex items-center justify-center gap-2 text-base uppercase tracking-wider ${isSaving ? 'bg-white/10 text-white cursor-wait border border-white/10' : 'bg-white text-black hover:bg-neon hover:scale-[1.02]'}`}>
+                 <button onClick={handleNext} disabled={isSaving} className={`w-full font-bold py-3 rounded-xl mt-2 transition-all shadow-lg flex items-center justify-center gap-2 text-sm uppercase tracking-wider ${isSaving ? 'bg-white/10 text-white cursor-wait border border-white/10' : 'bg-white text-black hover:bg-neon hover:scale-[1.02]'}`}>
                     {isSaving ? (
                        <span className="flex items-center gap-2 animate-pulse">
                           <RefreshCw className="animate-spin" size={20} /> 
@@ -2104,12 +2170,96 @@ function AppContent() {
     setShowOnboarding(true); 
   }, []);
 
-  // FIRESTORE SUBSCRIPTION
+  // FIRESTORE SUBSCRIPTION with localStorage fallback
   useEffect(() => {
     if (user) {
-      const unsubscribe = FirebaseService.subscribeToProjects(user.uid, (data) => {
-        setProjects(data);
-      });
+      // First, load any projects saved locally (fallback when Firebase fails)
+      const loadLocalProjects = (): ProjectTemplate[] => {
+        try {
+          const localProjects = JSON.parse(localStorage.getItem('validai_projects') || '[]');
+          const userProjects = localProjects.filter((p: any) => p.userId === user.uid);
+          if (userProjects.length > 0) {
+            console.log('📦 [LocalStorage] Loaded', userProjects.length, 'local projects');
+            return userProjects;
+          }
+        } catch (e) {
+          console.error('Error loading local projects:', e);
+        }
+        return [];
+      };
+      
+      const localProjects = loadLocalProjects();
+      
+      // ALWAYS set local projects first
+      if (localProjects.length > 0) {
+        setProjects(localProjects);
+        console.log('🎯 [App] Displaying', localProjects.length, 'local projects');
+      }
+      
+      // Then try to subscribe to Firebase (may fail due to index issues)
+      let unsubscribe = () => {};
+      try {
+        unsubscribe = FirebaseService.subscribeToProjects(user.uid, (data) => {
+          console.log('☁️ [Firebase] Received', data.length, 'projects from Firestore');
+          
+          // Merge Firebase + localStorage (remove duplicates)
+          const allProjectIds = new Set<string>();
+          const mergedProjects: ProjectTemplate[] = [];
+          
+          // 1. ALWAYS add the Default Project (Holistic Biohacking) first
+          const defaultProject = INITIAL_PROJECTS[0];
+          if (defaultProject) {
+             mergedProjects.push(defaultProject);
+             allProjectIds.add(defaultProject.id);
+          }
+          
+          // 2. Add Firebase projects (if not same as default)
+          data.forEach((p: ProjectTemplate) => {
+            if (!allProjectIds.has(p.id)) {
+               allProjectIds.add(p.id);
+               mergedProjects.push(p);
+            }
+          });
+          
+          // 3. Add localStorage projects (if not already added)
+          localProjects.forEach((p: ProjectTemplate) => {
+            if (!allProjectIds.has(p.id)) {
+              mergedProjects.push(p);
+              allProjectIds.add(p.id);
+            }
+          });
+          
+          // 4. Sort: Default project ALWAYS first, then others by date
+          mergedProjects.sort((a, b) => {
+             // Check by ID
+             if (a.id === defaultProject.id) return -1;
+             if (b.id === defaultProject.id) return 1;
+             
+             // Check by Name (fallback in case ID is different but it's the same project)
+             if (a.name === 'Holistic Biohacking Colombia') return -1;
+             if (b.name === 'Holistic Biohacking Colombia') return 1;
+             
+             const dateA = new Date(a.createdAt || 0).getTime();
+             const dateB = new Date(b.createdAt || 0).getTime();
+             return dateB - dateA;
+          });
+          
+          if (mergedProjects.length > 0) {
+            setProjects(mergedProjects);
+            console.log('✅ [App] Total projects:', mergedProjects.length);
+          } else {
+             // Should not happen since we force default, but safe fallback
+             setProjects(INITIAL_PROJECTS);
+          }
+        });
+      } catch (err) {
+        console.error('❌ [Firebase] Subscription error:', err);
+        // Keep local projects on error
+        if (localProjects.length > 0) {
+          setProjects(localProjects);
+        }
+      }
+      
       return () => unsubscribe();
     } else {
       setProjects([]);
@@ -2121,16 +2271,35 @@ function AppContent() {
   };
 
   const handleCreate = async (p: ProjectTemplate) => {
-     if (!user) return;
-     await FirebaseService.createProject(user.uid, p);
-     setShowCreate(false);
-     // No need to setProjects, subscription handles it
-     // But we might want to set active project? 
-     // Since it's async, we can wait or just set it. 
-     // For better UX, let's set it active once we find it in the list, 
-     // but for now, we can just set it locally as active to switch view
-     setActiveProject(p);
-     setView('project');
+     console.log('🏁 handleCreate called with:', p);
+     
+     if (!user) {
+       console.error('❌ No user logged in handleCreate');
+       alert('Error: No has iniciado sesión. Por favor inicia sesión e intenta de nuevo.');
+       return;
+     }
+
+     try {
+       console.log('🔥 Calling FirebaseService.createProject for user:', user.uid);
+       await FirebaseService.createProject(user.uid, p);
+       console.log('✅ Project created (Firebase or localStorage fallback)');
+       
+       // Add project to local state immediately
+       setProjects(prev => {
+         const exists = prev.find(proj => proj.id === p.id);
+         if (exists) return prev;
+         return [{ ...p, userId: user.uid } as ProjectTemplate, ...prev];
+       });
+       
+       setShowCreate(false);
+       setActiveProject(p);
+       setView('project');
+       console.log('🎉 View switched to project');
+     } catch (e: any) {
+       console.error('❌ Error in handleCreate:', e);
+       // Note: localStorage fallback doesn't throw, so this means both failed
+       alert(`Error crítico: No se pudo guardar el proyecto. ${e.message || e}`);
+     }
   };
 
   const handleDelete = async (id: string) => {
@@ -2218,7 +2387,7 @@ function AppContent() {
 
       </div>
 
-      {showCreate && <CreateProjectModal onClose={() => setShowCreate(false)} onSave={handleCreate} lang={lang} />}
+      {showCreate && <CreateProjectModal onClose={() => setShowCreate(false)} onSave={handleCreate} lang={lang} user={user} />}
       {showOnboarding && <Onboarding onClose={handleCloseOnboarding} />}
       
       {/* Project Profile Modal */}
