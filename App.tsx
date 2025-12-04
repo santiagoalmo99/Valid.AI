@@ -178,6 +178,19 @@ const NotificationToast = ({ notifications, removeNotification }: { notification
 // 1. Session Hub (Project Grid)
 const SessionHub = ({ projects, onSelect, onCreate, onDelete, onUpdate, lang, user, logout, toggleTheme, theme, isDemo }: any) => {
   const t = TRANSLATIONS[lang];
+  
+  // NUCLEAR OPTION: Force Default Project Visibility
+  // We construct the list right here in the render to guarantee it appears
+  const defaultProject = INITIAL_PROJECTS[0];
+  const finalProjects = [defaultProject];
+  
+  // Add other projects, filtering out duplicates of the default one
+  projects.forEach((p: ProjectTemplate) => {
+     if (p.id !== defaultProject.id && p.name !== defaultProject.name) {
+        finalProjects.push(p);
+     }
+  });
+
   return (
     <div className="p-8 max-w-7xl mx-auto animate-fade-in relative z-10">
        <div className="flex justify-between items-center mb-12">
@@ -227,13 +240,13 @@ const SessionHub = ({ projects, onSelect, onCreate, onDelete, onUpdate, lang, us
        </div>
 
        <motion.div 
-         key={`projects-${projects.length}`}
+         key={`projects-${finalProjects.length}`}
          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
          variants={staggerContainer}
          initial="initial"
          animate="animate"
        >
-          {projects.map((p: ProjectTemplate) => (
+          {finalProjects.map((p: ProjectTemplate) => (
              <motion.div 
                key={p.id} 
                variants={staggerItem}
@@ -2408,7 +2421,7 @@ function AppContent() {
       )}
       {/* Version Indicator - Confirms Deployment */}
       <div className="fixed bottom-1 right-1 text-[10px] text-white/30 pointer-events-none z-[9999] font-mono">
-        v2.1 (Default Fixed + Reverted Widgets)
+        v2.2 (NUCLEAR FIX)
       </div>
     </div>
   );
