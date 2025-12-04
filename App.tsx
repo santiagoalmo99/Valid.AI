@@ -2208,37 +2208,43 @@ function AppContent() {
           const mergedProjects: ProjectTemplate[] = [];
           
           // 1. ALWAYS add the Default Project (Holistic Biohacking) first
+          // This ensures we always have the LATEST version from code (with reverted widgets)
           const defaultProject = INITIAL_PROJECTS[0];
           if (defaultProject) {
              mergedProjects.push(defaultProject);
              allProjectIds.add(defaultProject.id);
           }
           
-          // 2. Add Firebase projects (if not same as default)
+          // 2. Add Firebase projects
           data.forEach((p: ProjectTemplate) => {
+            // Filter out if it conflicts with default project ID or NAME
+            if (p.id === defaultProject.id || p.name === defaultProject.name) return;
+            
             if (!allProjectIds.has(p.id)) {
                allProjectIds.add(p.id);
                mergedProjects.push(p);
             }
           });
           
-          // 3. Add localStorage projects (if not already added)
+          // 3. Add localStorage projects
           localProjects.forEach((p: ProjectTemplate) => {
+            // CRITICAL: Filter out any local project that matches the default project's NAME or ID
+            // This forces the app to use the code version (defaultProject) instead of stale local data
+            if (p.id === defaultProject.id || p.name === defaultProject.name) {
+               console.log('🧹 [App] Ignoring stale local default project:', p.id);
+               return;
+            }
+            
             if (!allProjectIds.has(p.id)) {
               mergedProjects.push(p);
               allProjectIds.add(p.id);
             }
           });
           
-          // 4. Sort: Default project ALWAYS first, then others by date
+          // 4. Sort
           mergedProjects.sort((a, b) => {
-             // Check by ID
              if (a.id === defaultProject.id) return -1;
-             if (b.id === defaultProject.id) return 1;
-             
-             // Check by Name (fallback in case ID is different but it's the same project)
-             if (a.name === 'Holistic Biohacking Colombia') return -1;
-             if (b.name === 'Holistic Biohacking Colombia') return 1;
+             if (a.name === defaultProject.name) return -1;
              
              const dateA = new Date(a.createdAt || 0).getTime();
              const dateB = new Date(b.createdAt || 0).getTime();
@@ -2400,6 +2406,10 @@ function AppContent() {
           onSave={handleUpdateProject}
         />
       )}
+      {/* Version Indicator - Confirms Deployment */}
+      <div className="fixed bottom-1 right-1 text-[10px] text-white/30 pointer-events-none z-[9999] font-mono">
+        v2.1 (Default Fixed + Reverted Widgets)
+      </div>
     </div>
   );
 }
