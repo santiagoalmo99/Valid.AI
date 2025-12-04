@@ -2423,6 +2423,19 @@ function AppContent() {
       <div className="fixed bottom-1 right-1 text-[10px] text-white/30 pointer-events-none z-[9999] font-mono">
         v2.2 (NUCLEAR FIX)
       </div>
+
+      {/* EMERGENCY RESET BUTTON */}
+      <button 
+        onClick={() => {
+          if(confirm("¿ESTÁS SEGURO? Esto borrará todos los datos locales y reiniciará la app para intentar arreglar el error.")) {
+            localStorage.clear();
+            window.location.reload();
+          }
+        }}
+        className="fixed bottom-1 left-1 px-2 py-1 bg-red-500/20 hover:bg-red-500 text-red-200 hover:text-white text-[10px] font-bold rounded border border-red-500/50 z-[9999] transition-colors"
+      >
+        RESET APP DATA
+      </button>
     </div>
   );
 }
