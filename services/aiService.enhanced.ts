@@ -260,43 +260,55 @@ function validateEnhancedAnalysis(result: any): result is EnhancedAnalysisResult
 
 // Fallback when AI fails - calculate scores from actual answers
 function getFallbackAnalysis(answers: any): EnhancedAnalysisResult {
+  console.log('⚠️ [Fallback] Starting manual score calculation with answers:', answers);
+  
   // Calculate basic score from answers
   const answerValues = Object.values(answers) as any[];
   let totalPoints = 0;
   let validAnswers = 0;
   
   answerValues.forEach((ans: any) => {
-    const val = ans.rawValue;
+    // Handle both direct string and object structure
+    const val = typeof ans === 'string' ? ans : ans.rawValue || ans.answer || '';
+    
     if (!val) return;
     
+    console.log(`⚠️ [Fallback] Scoring answer: "${val}"`);
+    
     // Extract numeric from scales
-    const numMatch = val.match(/^\d+$/);
+    const numMatch = val.toString().match(/^(\d+)$/);
     if (numMatch) {
       const num = parseInt(numMatch[0]);
       // Normalize 1-10 scale to 0-100
       if (num <= 10) {
-        totalPoints += num * 10;
+        const points = num * 10;
+        totalPoints += points;
         validAnswers++;
+        console.log(`   -> Numeric: ${num} = ${points} pts`);
       }
     } 
     // Positive keywords
-    else if (/sí|yes|definitivamente|mucho|siempre|excelente/i.test(val)) {
+    else if (/sí|yes|definitivamente|mucho|siempre|excelente|claro/i.test(val)) {
       totalPoints += 80;
       validAnswers++;
+      console.log(`   -> Positive keyword = 80 pts`);
     }
     // Negative keywords  
-    else if (/no|nunca|jamás|nada/i.test(val)) {
+    else if (/no|nunca|jamás|nada|poco/i.test(val)) {
       totalPoints += 20;
       validAnswers++;
+      console.log(`   -> Negative keyword = 20 pts`);
     }
-    // Neutral/text answers
-    else if (val.length > 5) {
-      totalPoints += 50;
+    // Neutral/text answers (length based)
+    else if (val.length > 10) {
+      totalPoints += 60; // Slightly positive for effort
       validAnswers++;
+      console.log(`   -> Text length > 10 = 60 pts`);
     }
   });
   
   const calculatedScore = validAnswers > 0 ? Math.round(totalPoints / validAnswers) : 50;
+  console.log(`⚠️ [Fallback] Final Score: ${calculatedScore} (from ${validAnswers} valid answers)`);
   
   return {
     reasoning: {
@@ -323,7 +335,7 @@ function getFallbackAnalysis(answers: any): EnhancedAnalysisResult {
       evidenceQuality: 'moderate',
       biasIndicators: [],
     },
-    summary: `Score estimado: ${calculatedScore}/100. La IA no pudo completar el análisis detallado. Se recomienda revisar las respuestas manualmente.`,
+    summary: `Score estimado: ${calculatedScore}/100. La IA no pudo completar el análisis detallado (Error 429). Se recomienda revisar las respuestas manualmente.`,
     keyInsights: [
       `Se procesaron ${validAnswers} respuestas con éxito`,
       'El score refleja un promedio de las respuestas cuantificables',

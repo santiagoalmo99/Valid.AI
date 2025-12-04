@@ -1659,6 +1659,7 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t }: any) => {
             for (let attempt = 0; attempt <= retries; attempt++) {
                 try {
                   console.log(`🤖 Enhanced AI Analysis attempt ${attempt + 1}/${retries + 1}...`);
+                  console.log("📦 [DEBUG] Answers sent to analysis:", JSON.stringify(newAnswers, null, 2));
                   
                   const analysisPromise = Gemini.analyzeFullInterviewEnhanced(project, newAnswers, regData);
                   const timeoutPromise = new Promise((_, reject) => 

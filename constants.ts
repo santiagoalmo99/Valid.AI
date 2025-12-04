@@ -85,7 +85,7 @@ const BIOHACKING_QUESTIONS: Question[] = [
     order: 1,
     text: '¿Podrías describir tu "rutina de optimización" típica en una semana?',
     type: 'text',
-    widgetType: 'keyword_cloud',
+    widgetType: 'default', // Reverted from keyword_cloud
     dimension: 'currentBehavior',
     weight: 0.08,
     required: true,
@@ -96,7 +96,7 @@ const BIOHACKING_QUESTIONS: Question[] = [
     order: 2,
     text: 'Del 1 al 10, ¿qué tan satisfecho/a estás con los resultados que ves actualmente?',
     type: 'scale',
-    widgetType: 'gauge_1_10',
+    widgetType: 'default', // Reverted from gauge_1_10
     dimension: 'painPoint',
     weight: 0.12,
     required: true,
@@ -125,7 +125,7 @@ const BIOHACKING_QUESTIONS: Question[] = [
     order: 4,
     text: 'Aproximadamente, ¿cuánto gastas cuando renuevas tu skincare? (en COP)',
     type: 'select',
-    widgetType: 'currency_bucket',
+    widgetType: 'default', // Reverted from currency_bucket
     options: [
       '$0 - $150,000 COP',
       '$151,000 - $400,000 COP',
@@ -153,8 +153,8 @@ const BIOHACKING_QUESTIONS: Question[] = [
     id: 'p6',
     order: 6,
     text: '¿Usas algún wearable o dispositivo de tracking? (reloj inteligente, anillo, etc)',
-    type: 'select', // Changed from multiple for simplicity in MVP, or handle as text if needed
-    widgetType: 'boolean_donut',
+    type: 'select', 
+    widgetType: 'default', // Reverted from boolean_donut
     options: [
       'No uso ninguno',
       'Apple Watch',
@@ -175,7 +175,7 @@ const BIOHACKING_QUESTIONS: Question[] = [
     order: 7,
     text: 'Si tuvieras que elegir 3 cosas de tu rutina actual que ELIMINARÍAS porque no estás seguro/a de si realmente funcionan, ¿cuáles serían?',
     type: 'text',
-    widgetType: 'keyword_cloud',
+    widgetType: 'default', // Reverted from keyword_cloud
     dimension: 'painPoint',
     weight: 0.15,
     required: true,
@@ -197,7 +197,7 @@ const BIOHACKING_QUESTIONS: Question[] = [
     order: 9,
     text: 'Del 1 al 10, ¿qué tan seguro/a estás de que tu suplemento MÁS CARO está generando un efecto real y medible?',
     type: 'scale',
-    widgetType: 'gauge_1_10',
+    widgetType: 'default', // Reverted from gauge_1_10
     dimension: 'painPoint',
     weight: 0.12,
     required: true,
@@ -208,7 +208,7 @@ const BIOHACKING_QUESTIONS: Question[] = [
     order: 10,
     text: '¿Has comprado algún producto que te prometieron resultados pero NO viste cambios claros?',
     type: 'boolean',
-    widgetType: 'boolean_donut',
+    widgetType: 'default', // Reverted from boolean_donut
     dimension: 'painPoint',
     weight: 0.08,
     required: true,
@@ -219,7 +219,7 @@ const BIOHACKING_QUESTIONS: Question[] = [
     order: 11,
     text: '¿Cuál es tu mayor frustración con tu rutina actual de optimización?',
     type: 'text',
-    widgetType: 'keyword_cloud',
+    widgetType: 'default', // Reverted from keyword_cloud
     dimension: 'painPoint',
     weight: 0.05,
     required: true,
@@ -249,7 +249,7 @@ const BIOHACKING_QUESTIONS: Question[] = [
     order: 13,
     text: '¿Qué apps de salud/bienestar usas actualmente?',
     type: 'text',
-    widgetType: 'keyword_cloud',
+    widgetType: 'default', // Reverted from keyword_cloud
     dimension: 'currentBehavior',
     weight: 0.03,
     required: false,
@@ -271,7 +271,7 @@ const BIOHACKING_QUESTIONS: Question[] = [
     order: 15,
     text: 'Imagina una app que cruza datos de wearable, escanea tu rostro y analiza tus suplementos para decirte qué funciona. Del 1 al 5, ¿qué tanto valor tendría?',
     type: 'scale',
-    widgetType: 'gauge_1_5',
+    widgetType: 'default', // Reverted from gauge_1_5
     dimension: 'solutionFit',
     weight: 0.25,
     required: true,
@@ -282,7 +282,7 @@ const BIOHACKING_QUESTIONS: Question[] = [
     order: 16,
     text: 'Si esa app existiera, ¿cuánto estarías dispuesto/a a pagar mensualmente? (COP)',
     type: 'select',
-    widgetType: 'currency_bucket',
+    widgetType: 'default', // Reverted from currency_bucket
     options: [
       '$0 - No pagaría',
       '$20,000 - $40,000 COP/mes',
@@ -300,8 +300,8 @@ const BIOHACKING_QUESTIONS: Question[] = [
     order: 17,
     text: '¿Qué features específicas te gustaría que tuviera esa app?',
     type: 'text',
-    widgetType: 'keyword_cloud',
-    dimension: 'solutionFit', // Mapped to solutionFit as featureWishlist is not in types
+    widgetType: 'default', // Reverted from keyword_cloud
+    dimension: 'solutionFit', 
     weight: 0.0,
     required: false,
     imageKeyword: 'wishlist ideas features'
@@ -311,7 +311,7 @@ const BIOHACKING_QUESTIONS: Question[] = [
     order: 18,
     text: 'Si lanzáramos una beta privada en los próximos 3 meses, ¿te interesaría probarla?',
     type: 'select',
-    widgetType: 'boolean_donut',
+    widgetType: 'default', // Reverted from boolean_donut
     options: [
       'Sí, quiero probarla cuanto antes',
       'Sí, pero prefiero esperar',
@@ -340,7 +340,7 @@ const BIOHACKING_QUESTIONS: Question[] = [
     text: 'Si pudieras pedirle un consejo a alguien que lleva 10 años optimizándose, ¿qué le preguntarías?',
     type: 'text',
     widgetType: 'default',
-    dimension: 'painPoint', // Mapped to painPoint as deepPainPoint is not in types
+    dimension: 'painPoint', 
     weight: 0.05,
     required: true,
     imageKeyword: 'advice mentor wisdom'
