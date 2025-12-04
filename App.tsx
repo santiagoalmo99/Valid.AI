@@ -382,12 +382,12 @@ const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, 
   };
 
   // FIRESTORE SUBSCRIPTION FOR INTERVIEWS
-  const [deletionInProgress, setDeletionInProgress] = useState(false);
+  const deletionInProgress = useRef(false);
   
   useEffect(() => {
      const unsubscribe = FirebaseService.subscribeToInterviews(project.id, (data) => {
          // IGNORE updates during deletion to prevent restore
-         if (deletionInProgress) {
+         if (deletionInProgress.current) {
             console.log("🔒 Deletion in progress, ignoring Firestore update");
             return;
          }
@@ -425,7 +425,7 @@ const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, 
          setInterviews(merged);
       });
      return () => unsubscribe();
-  }, [project.id, deletionInProgress]);
+  }, [project.id]); // Removed deletionInProgress from deps to prevent re-subscribing
 
   const handleExport = () => {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({project, interviews}, null, 2));
@@ -539,7 +539,7 @@ const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, 
                       }
 
                       // LOCK subscription to prevent restore
-                      setDeletionInProgress(true);
+                      deletionInProgress.current = true;
                       
                       try {
                          // Try Firebase delete with 3s timeout
@@ -572,7 +572,7 @@ const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, 
                          localStorage.setItem(offlineKey, JSON.stringify(newOffline));
                          
                          // Unlock after 1 second to allow delete to propagate
-                         setTimeout(() => setDeletionInProgress(false), 1000);
+                         setTimeout(() => { deletionInProgress.current = false; }, 1000);
                       }
                    }}
                    onDeleteAll={async () => {
@@ -586,7 +586,7 @@ const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, 
                       }
 
                       // LOCK subscription to prevent restore
-                      setDeletionInProgress(true);
+                      deletionInProgress.current = true;
 
                       const ids = interviews.map(i => i.id);
                       try {
@@ -615,7 +615,7 @@ const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, 
                          localStorage.removeItem(`offline_interviews_${project.id}`);
                          
                          // Unlock after 2 seconds to allow batch delete to propagate
-                         setTimeout(() => setDeletionInProgress(false), 2000);
+                         setTimeout(() => { deletionInProgress.current = false; }, 2000);
                       }
                    }}
                    onRetry={async (interview: Interview) => {

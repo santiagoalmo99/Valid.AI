@@ -3,7 +3,7 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import { 
   getFirestore, collection, query, where, orderBy, onSnapshot, 
-  addDoc, updateDoc, deleteDoc, doc, setDoc 
+  addDoc, updateDoc, deleteDoc, doc, setDoc, writeBatch 
 } from 'firebase/firestore';
 import { ProjectTemplate, Interview } from '../types';
 
@@ -82,7 +82,6 @@ export const deleteInterview = async (interviewId: string) => {
 };
 
 export const deleteInterviewsBatch = async (interviewIds: string[]) => {
-  const { writeBatch } = await import('firebase/firestore');
   const batch = writeBatch(db);
   interviewIds.forEach(id => {
     const ref = doc(db, 'interviews', id);
