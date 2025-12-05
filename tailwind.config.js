@@ -18,6 +18,7 @@ export default {
         'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'float': 'float 6s ease-in-out infinite',
         'chaos': 'chaos 20s ease-in-out infinite',
+        'chaos-slow': 'chaos 30s ease-in-out infinite',
       },
       keyframes: {
         float: {
