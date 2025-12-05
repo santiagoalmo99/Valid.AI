@@ -2,6 +2,7 @@ import React from 'react';
 import { X, User, Mail, Phone, MapPin, Calendar, MessageSquare, Brain, Target, Zap, DollarSign, Activity, AlertTriangle } from 'lucide-react';
 import { Interview, ProjectTemplate } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ExportButton } from './ExportButton';
 
 interface InterviewModalProps {
   interview: Interview | null;
@@ -89,9 +90,18 @@ export const InterviewModal: React.FC<InterviewModalProps> = ({ interview, proje
                 <span className="flex items-center gap-1"><Calendar size={14}/> {new Date(interview.date).toLocaleString()}</span>
               </div>
             </div>
-            <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors text-slate-400 hover:text-white">
-              <X size={24} />
-            </button>
+            <div className="flex items-center gap-2">
+              <ExportButton
+                type="interview"
+                project={project}
+                interview={interview}
+                variant="ghost"
+                size="sm"
+              />
+              <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors text-slate-400 hover:text-white">
+                <X size={24} />
+              </button>
+            </div>
           </div>
 
           {/* Content */}

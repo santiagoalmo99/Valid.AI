@@ -139,7 +139,7 @@ const STEPS = [
     id: 1,
     title: <>Inteligencia <span className="text-neon font-extrabold drop-shadow-[0_0_15px_rgba(223,255,0,0.6)] animate-shimmer">Artificial</span> de Grado Militar</>,
     desc: "VALID.AI no es un juguete. Es un motor de procesamiento de lenguaje natural calibrado para diseccionar modelos de negocio con frialdad algorítmica.",
-    image: "https://image.pollinations.ai/prompt/Photorealistic%20cinematic%20shot%20of%20an%20advanced%20AI%20microchip%2C%20intricate%20details%2C%20glowing%20neon%20green%20%233AFF97%20energy%20flow%2C%20dark%20moody%20lighting%2C%20macro%20photography%2C%20depth%20of%20field%2C%208k%20resolution%2C%20unreal%20engine%205%20level%20graphics?nologo=true&width=1920&height=1080&model=flux-realism", // AI Core
+    image: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=1000&auto=format&fit=crop", // AI Core (Abstract Chip/Data)
     icon: <Cpu className="text-neon" size={32} />,
     widget: <NeuralNode />
   },
@@ -196,7 +196,7 @@ const STEPS = [
     id: 6,
     title: <>Fase 3: <span className="text-amber-400 font-extrabold animate-shimmer">Veredicto Final</span></>,
     desc: "Accede al Dashboard. Si cumples los requisitos (Perfil 100% + 5 Entrevistas), desbloquearás el Reporte de Viabilidad y Estrategia.",
-    image: "https://image.pollinations.ai/prompt/Composici%C3%B3n%203D%20abstracta%20y%20tecnol%C3%B3gica%20de%20alta%20gama.%20El%20fondo%20es%20una%20rejilla%20arquitect%C3%B3nica%20oscura%20compuesta%20por%20celdas%20cuadradas%20con%20esquinas%20redondeadas%20y%20bordes%20biselados%20suaves%2C%20creando%20una%20superficie%20modular%20con%20profundidad%20y%20relieve.%20Desde%20el%20centro%20de%20la%20imagen%20emana%20una%20fuente%20de%20luz%20volum%C3%A9trica%20intensa%20y%20radiante%20('god%20rays')%20que%20atraviesa%20la%20rejilla%2C%20proyectando%20haces%20de%20luz%20dram%C3%A1ticos%20hacia%20las%20esquinas%20y%20generando%20sombras%20profundas%20y%20contrastadas%20en%20los%20huecos%20de%20la%20estructura.%20En%20el%20punto%20focal%20central%2C%20flota%20un%20objeto%203D%20principal%20(moneda%2C%20emblema%20o%20icono)%20con%20acabado%20met%C3%A1lico%20mate%20y%20detalles%20en%20relieve.%20La%20iluminaci%C3%B3n%20debe%20ser%20monocrom%C3%A1tica%20y%20saturada%2C%20ba%C3%B1ando%20toda%20la%20escena%20en%20una%20sola%20tonalidad%20vibrante%20e%20intensa%2C%20creando%20un%20efecto%20de%20atm%C3%B3sfera%20densa%20y%20brillante.%20Estilo%20renderizado%203D%20limpio%2C%20minimalismo%20futurista%2C%20iluminaci%C3%B3n%20cinematogr%C3%A1fica%2C%20texturas%20suaves%20y%20pulidas?nologo=true&width=1920&height=1080&model=flux-realism", // Verdict
+    image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1000&auto=format&fit=crop", // Verdict
     icon: <Zap className="text-amber-400" size={32} />,
     widget: <VerdictScanner />
   }

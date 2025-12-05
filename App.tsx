@@ -17,6 +17,9 @@ import { TemplateGallery } from './components/TemplateGallery';
 import { templateToProject } from './constants/templates';
 import { SmartQuestionWidget } from './components/SmartQuestionWidget';
 import { LandingPage } from './components/LandingPage';
+import { BusinessReportGenerator } from './components/BusinessReportGenerator';
+import { ExportButton } from './components/ExportButton';
+import { VoiceInput } from './components/VoiceInput';
 
 // Lazy Load Heavy Components
 const QuestionAnalysis = React.lazy(() => import('./components/QuestionAnalysis').then(module => ({ default: module.QuestionAnalysis })));
@@ -79,24 +82,24 @@ const LoginView = () => {
           {/* Dominant Emerald/Neon Glows - EXTREME CHAOS MODE */}
           
           {/* 1. Main Emerald - Large, Center-Left */}
-          <div className="absolute top-[-10%] left-[-10%] w-[90vw] h-[90vw] bg-emerald-500/10 rounded-full blur-[120px] animate-chaos mix-blend-screen" style={{animationDuration: '8s'}}></div>
+          <div className="absolute top-[-10%] left-[-10%] w-[90vw] h-[90vw] bg-emerald-500/30 rounded-full blur-[120px] animate-chaos mix-blend-screen" style={{animationDuration: '8s'}}></div>
           
           {/* 2. Neon Green - Bottom Right Accent */}
-          <div className="absolute bottom-[-20%] right-[-10%] w-[80vw] h-[80vw] bg-neon/10 rounded-full blur-[140px] animate-chaos mix-blend-screen" style={{animationDuration: '10s', animationDelay: '-2s', animationDirection: 'reverse'}}></div>
+          <div className="absolute bottom-[-20%] right-[-10%] w-[80vw] h-[80vw] bg-neon/30 rounded-full blur-[140px] animate-chaos mix-blend-screen" style={{animationDuration: '10s', animationDelay: '-2s', animationDirection: 'reverse'}}></div>
           
           {/* Supporting Colors for Depth & Movement */}
           
           {/* 3. Cyan - Top Right Float */}
-          <div className="absolute top-[10%] right-[-20%] w-[60vw] h-[60vw] bg-cyan-500/10 rounded-full blur-[100px] animate-chaos mix-blend-screen" style={{animationDuration: '6s', animationDelay: '-1s'}}></div>
+          <div className="absolute top-[10%] right-[-20%] w-[60vw] h-[60vw] bg-cyan-500/30 rounded-full blur-[100px] animate-chaos mix-blend-screen" style={{animationDuration: '6s', animationDelay: '-1s'}}></div>
           
           {/* 4. Deep Purple - Bottom Left Contrast (Subtle) */}
-          <div className="absolute bottom-[10%] left-[-10%] w-[50vw] h-[50vw] bg-purple-900/20 rounded-full blur-[120px] animate-chaos mix-blend-screen" style={{animationDuration: '12s', animationDelay: '-4s'}}></div>
+          <div className="absolute bottom-[10%] left-[-10%] w-[50vw] h-[50vw] bg-purple-600/40 rounded-full blur-[120px] animate-chaos mix-blend-screen" style={{animationDuration: '12s', animationDelay: '-4s'}}></div>
           
           {/* 5. Bright Emerald Center Pulse */}
-          <div className="absolute top-[30%] left-[30%] w-[40vw] h-[40vw] bg-emerald-400/5 rounded-full blur-[80px] animate-pulse-slow mix-blend-screen" style={{animationDuration: '2s'}}></div>
+          <div className="absolute top-[30%] left-[30%] w-[40vw] h-[40vw] bg-emerald-400/20 rounded-full blur-[80px] animate-pulse-slow mix-blend-screen" style={{animationDuration: '2s'}}></div>
 
           {/* Heavy Vignette & Noise for "Umbra" Atmosphere */}
-          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
+          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-30 brightness-125 contrast-150 mix-blend-overlay"></div>
           <div className="absolute inset-0 bg-radial-gradient from-transparent via-black/70 to-black"></div>
        </div>
 
@@ -341,6 +344,7 @@ const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, 
   const [imgError, setImgError] = useState(false);
   const [selectedInterview, setSelectedInterview] = useState<Interview | null>(null);
   const [renderKey, setRenderKey] = useState(0);
+  const [showReportGenerator, setShowReportGenerator] = useState(false);
 
   const t = TRANSLATIONS[lang];
 
@@ -536,6 +540,16 @@ const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, 
                 <NavBtn icon={<PieChartIcon />} label="Insights" active={activeTab === 'questions'} onClick={() => setActiveTab('questions')} />
                 <NavBtn icon={<Search />} label="Deep Research" active={activeTab === 'deep_research'} onClick={() => setActiveTab('deep_research')} />
                 <NavBtn icon={<MessageSquare />} label="Smart Chat" active={activeTab === 'smart_chat'} onClick={() => setActiveTab('smart_chat')} />
+                
+                {/* Business Lab - Premium Report Generator */}
+                <button 
+                  onClick={() => setShowReportGenerator(true)}
+                  className="p-3 text-yellow-400 hover:text-yellow-300 hover:bg-yellow-500/10 rounded-xl transition-all flex items-center gap-4 justify-center group-hover:justify-start w-full relative"
+                >
+                  <FileText size={20} className="flex-shrink-0" />
+                  <span className="whitespace-nowrap opacity-0 group-hover:opacity-100 w-0 group-hover:w-auto overflow-hidden transition-all duration-300 delay-75 text-sm font-bold">Business Lab</span>
+                  <span className="absolute -top-1 -right-1 bg-yellow-500 text-black text-[8px] px-1.5 py-0.5 rounded-full font-bold group-hover:hidden">NEW</span>
+                </button>
              </div>
           </div>
 
@@ -764,6 +778,16 @@ const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, 
             project={project} 
             onClose={() => setSelectedInterview(null)} 
             onRetryAnalysis={() => handleRetryAnalysis(selectedInterview)} 
+          />
+        )}
+
+        {/* Business Report Generator Modal */}
+        {showReportGenerator && user && (
+          <BusinessReportGenerator
+            project={project}
+            interviews={interviews}
+            userId={user.uid}
+            onClose={() => setShowReportGenerator(false)}
           />
         )}
        </div>
@@ -1319,6 +1343,7 @@ const DeepResearchView = ({ project, interviews, onUpdate, t }: any) => {
            <button onClick={runAnalysis} className="bg-neon text-black font-bold px-8 py-3 rounded-xl hover:scale-105 transition-transform shadow-[0_0_30px_rgba(223,255,0,0.2)]">
               Iniciar Análisis
            </button>
+           <ExportButton type="deep_research" project={project} interviews={interviews} deepAnalysis={report} variant="secondary" size="md" />
         </div>
      )
   }
@@ -1579,8 +1604,10 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t }: any) => {
     name: '', email: '', phone: '', instagram: '', tiktok: '', role: '', city: '', country: '' 
   });
   const [currentVal, setCurrentVal] = useState('');
+
   const [observation, setObservation] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [showVoice, setShowVoice] = useState(false); // Toggle for Voice Input
   
   // DRAFT PERSISTENCE
   useEffect(() => {
@@ -1834,14 +1861,8 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t }: any) => {
         <div className="hidden lg:block w-1/2 h-full relative rounded-3xl overflow-hidden shadow-2xl border border-white/10 group">
            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10"></div>
             <img 
-              src={`https://image.pollinations.ai/prompt/${encodeURIComponent(
-                `Composición 3D abstracta y tecnológica de alta gama. El fondo es una rejilla arquitectónica oscura compuesta por celdas cuadradas con esquinas redondeadas y bordes biselados suaves, creando una superficie modular con profundidad y relieve. Desde el centro de la imagen emana una fuente de luz volumétrica intensa y radiante ('god rays') que atraviesa la rejilla, proyectando haces de luz dramáticos hacia las esquinas y generando sombras profundas y contrastadas en los huecos de la estructura. En el punto focal central, flota un objeto 3D principal representando ${question.imageKeyword || 'idea abstracta'} con acabado metálico mate y detalles en relieve. La iluminación debe ser monocromática y saturada en color ${['neon green', 'cyan', 'purple', 'emerald'][step % 4]}, bañando toda la escena en una sola tonalidad vibrante e intensa, creando un efecto de atmósfera densa y brillante. Estilo renderizado 3D limpio, minimalismo futurista, iluminación cinematográfica, texturas suaves y pulidas.`
-              )}?nologo=true&model=flux&width=768&height=1024&seed=${question.id.charCodeAt(0) + question.id.charCodeAt(question.id.length-1)}`} 
+              src={getCoverByIdea(project.name)} 
               className="w-full h-full object-cover transition-transform duration-[20s] ease-linear group-hover:scale-110" 
-              onError={(e) => {
-                 // Fallback to simpler prompt if detailed one fails
-                 e.currentTarget.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(question.imageKeyword || 'tech')}?nologo=true&model=turbo&width=768&height=1024&seed=${question.id.charCodeAt(0)}`;
-              }}
             />
            <div className="absolute bottom-8 left-8 z-20 max-w-sm">
               <div className="bg-black/60 backdrop-blur-md p-4 rounded-xl border border-white/10 text-sm text-slate-200">
@@ -1870,18 +1891,51 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t }: any) => {
            <div className={`${GLASS_PANEL} p-4 flex-1 flex flex-col min-h-0 overflow-hidden`}>
               <h2 className="text-2xl md:text-3xl font-bold text-white mb-12 leading-tight flex-shrink-0">{question.text}</h2>
                
-               {/* Smart Widget - Intelligent Type Detection */}
+               {/* Input Mode Toggle */}
+               <div className="flex items-center gap-2 mb-4 bg-white/5 p-1 rounded-xl w-max">
+                  <button 
+                    onClick={() => setShowVoice(false)}
+                    className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 ${!showVoice ? 'bg-neon text-black shadow-[0_0_15px_rgba(223,255,0,0.4)]' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+                  >
+                    <Settings size={14} /> Manual
+                  </button>
+                  <button 
+                    onClick={() => setShowVoice(true)}
+                    className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 ${showVoice ? 'bg-neon text-black shadow-[0_0_15px_rgba(223,255,0,0.4)]' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+                  >
+                    <Play size={14} className={showVoice ? 'fill-black' : ''} /> Voz AI
+                  </button>
+               </div>
+
+               {/* Input Area */}
                <div className="mb-4 flex-1 overflow-y-auto pr-2 custom-scrollbar">
-                  <SmartQuestionWidget
-                    question={question}
-                    value={currentVal}
-                    onChange={handleAnswer}
-                    onBlur={() => handleAnswer(currentVal)}
-                  />
+                  {showVoice ? (
+                    <VoiceInput
+                      language={lang === 'es' ? 'es' : 'en'}
+                      onTranscriptChange={(text) => handleAnswer(text)}
+                      onRecordingComplete={(data) => {
+                        handleAnswer(data.transcript); 
+                        if (data.confidence > 0.8) {
+                           // Auto-advance if high confidence (optional, kept manual for control)
+                        }
+                      }}
+                      placeholder={t.voicePlaceholder || "Explica tu respuesta..."}
+                    />
+                  ) : (
+                    <SmartQuestionWidget
+                      question={question}
+                      value={currentVal}
+                      onChange={handleAnswer}
+                      onBlur={() => handleAnswer(currentVal)}
+                    />
+                  )}
                </div>
 
               <div className="mt-auto pt-2 border-t border-white/5 flex-shrink-0">
-                 <div className="flex items-center gap-2 mb-1 text-xs text-slate-400 uppercase font-bold"><Sparkles size={10} className="text-neon"/> Observaciones</div>
+                 <div className="flex items-center gap-2 mb-1 text-xs text-slate-400 uppercase font-bold">
+                    <Sparkles size={10} className="text-neon"/> 
+                    Emociones Detectadas por el Entrevistador
+                 </div>
                  <textarea 
                    className="w-full h-16 bg-black/20 rounded-xl border border-white/5 p-2 text-sm text-slate-300 focus:text-white outline-none resize-none focus:border-neon/50 transition-colors"
                    placeholder={t.obsLabel + "..."}

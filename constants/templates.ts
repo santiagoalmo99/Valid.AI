@@ -1,4 +1,5 @@
 import { ProjectTemplate, Question } from '../types';
+import { getCoverByIdea } from '../utils/projectCovers';
 
 /**
  * Multi-Niche Templates
@@ -140,8 +141,9 @@ export const templateToProject = (template: NicheTemplate, userId: string): Proj
     name: template.name,
     description: template.description,
     detailedDescription: `Template pre-configurado para ${template.industry}. Target: ${template.targetAudience}`,
+
     emoji: template.emoji,
-    coverImage: `https://image.pollinations.ai/prompt/${encodeURIComponent(template.coverPrompt)}?nologo=true&width=1920&height=1080&model=flux-realism`,
+    coverImage: getCoverByIdea(template.industry, template.industry),
     targetAudience: template.targetAudience,
     region: 'Global',
     productTypes: [],

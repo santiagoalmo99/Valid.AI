@@ -136,8 +136,8 @@ body {
 .animate-float { animation: float 8s ease-in-out infinite; }
 
 @keyframes pulse-slow {
-  0%, 100% { opacity: 0.3; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(1.4); }
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 0.9; transform: scale(1.4); }
 }
 .animate-pulse-slow { animation: pulse-slow 6s ease-in-out infinite; }
 

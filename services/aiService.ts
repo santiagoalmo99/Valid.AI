@@ -249,10 +249,11 @@ export const chatWithProjectContext = async (message: string, history: any[], pr
   return await callGeminiAPI(fullPrompt);
 };
 
+import { getCoverByIdea } from '../utils/projectCovers';
+
 export const generateProjectCover = async (title: string, description: string): Promise<string> => {
-  const basePrompt = `Photorealistic cinematic shot of ${title} - ${description}, glowing neon green #3AFF97 accents, dark moody lighting, 8k resolution, highly detailed, unreal engine 5 style, cyberpunk aesthetic, depth of field`;
-  const encodedPrompt = encodeURIComponent(basePrompt);
-  return `https://image.pollinations.ai/prompt/${encodedPrompt}?nologo=true&width=1920&height=1080&model=flux-realism`;
+  // Use local cache for instant, reliable covers
+  return getCoverByIdea(title);
 };
 
 export const smartParseDocument = async (context: string, lang: 'es'|'en'): Promise<{questions: Question[], suggestedEmoji: string, suggestedName: string, suggestedDesc: string}> => {
@@ -615,8 +616,14 @@ export const generatePersonaImage = async (summary: string) => {
   return null;
 };
 
+// ===== SIMPLE CHAT FOR REPORT GENERATION =====
+export const chat = async (prompt: string): Promise<string> => {
+  return await callGeminiAPI(prompt);
+};
+
 // ===== NEW: ENHANCED AI SERVICES =====
 // Export surgical-level AI analysis and self-healing wrapper
 export { analyzeFullInterviewEnhanced } from './aiService.enhanced';
 export { analyzeWithRecovery } from './aiService.selfHealing';
 export type { EnhancedAnalysisResult, Contradiction } from '../types';
+
