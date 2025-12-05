@@ -20,6 +20,7 @@ export default defineConfig(({ mode }) => {
         }
       },
       build: {
+        cssCodeSplit: false, // Ensure shared CSS bundle for multi-entry
         rollupOptions: {
           input: {
             main: path.resolve(__dirname, 'index.html'),
