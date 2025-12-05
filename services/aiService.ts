@@ -65,7 +65,7 @@ async function discoverAvailableModel(): Promise<string> {
   }
 }
 
-import { requestCache } from './requestCache';
+import { cacheService } from './cacheService';
 
 // Retry with exponential backoff
 async function retryWithBackoff<T>(
@@ -100,39 +100,50 @@ async function retryWithBackoff<T>(
 }
 
 // Helper function for API calls with retry
-async function callGeminiAPI(prompt: string, json: boolean = false): Promise<string> {
-  // 1. Check Cache
-  const cached = requestCache.get<string>(prompt);
-  if (cached) {
-    console.log('⚡ Using cached AI response');
-    return cached;
+export async function callGeminiAPI(prompt: string, json: boolean = false, useWeb: boolean = false): Promise<string> {
+  // 1. Check strict key-value Cache first (skip cache if using web to get fresh data)
+  if (!useWeb) {
+    const cached = cacheService.get<string>(prompt);
+    if (cached) {
+      console.log('⚡ Using cached AI response');
+      return cached;
+    }
   }
 
   // Wrap the actual API call in retry logic
   const makeRequest = async (): Promise<string> => {
     const modelName = await discoverAvailableModel();
+    // Use v1beta for tools support
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${API_KEY}`;
     
+    const body: any = {
+      system_instruction: {
+        parts: [{
+          text: "IMPORTANTE: Siempre responde en español latinoamericano (no español de España). Usa vocabulario neutro y claro de Latinoamérica."
+        }]
+      },
+      contents: [{
+        parts: [{
+          text: prompt
+        }]
+      }],
+      generationConfig: json ? {
+        response_mime_type: "application/json"
+      } : {}
+    };
+
+    // INJECT TOOLS IF WEB ACCESS REQUESTED
+    if (useWeb) {
+      body.tools = [{ google_search: {} }];
+      console.log('🌐 Google Search Grounding ENABLED for this request');
+    }
+
     const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        system_instruction: {
-          parts: [{
-            text: "IMPORTANTE: Siempre responde en español latinoamericano (no español de España). Usa vocabulario neutro y claro de Latinoamérica."
-          }]
-        },
-        contents: [{
-          parts: [{
-            text: prompt
-          }]
-        }],
-        generationConfig: json ? {
-          response_mime_type: "application/json"
-        } : {}
-      })
+      body: JSON.stringify(body)
     });
 
     if (!response.ok) {
@@ -160,8 +171,8 @@ async function callGeminiAPI(prompt: string, json: boolean = false): Promise<str
     // Use retry with backoff for rate limits
     const text = await retryWithBackoff(makeRequest, 3, 2000);
     
-    // Cache successful response (10 minutes TTL)
-    requestCache.set(prompt, text, 10 * 60 * 1000);
+    // Cache successful response (Standard TTL)
+    cacheService.set(prompt, text);
     
     console.log('✅ AI response received and cached');
     return text;

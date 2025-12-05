@@ -20,6 +20,139 @@ import { LandingPage } from './components/LandingPage';
 import { BusinessReportGenerator } from './components/BusinessReportGenerator';
 import { ExportButton } from './components/ExportButton';
 import { VoiceInput } from './components/VoiceInput';
+import { YCReadinessBadge } from './components/YCReadinessBadge';
+import { TrendService, TrendReport } from './services/trendService';
+
+// ... (Inside App component)
+  const [showTrendNotification, setShowTrendNotification] = useState(false);
+  const [activeTrendReport, setActiveTrendReport] = useState<TrendReport | null>(null);
+  const [isGeneratingTrends, setIsGeneratingTrends] = useState(false);
+  const [showCertModal, setShowCertModal] = useState(false);
+
+  useEffect(() => {
+    // Check for global trend updates on mount
+    const hasUpdate = !TrendService.hasReportForCurrentMonth();
+    if (hasUpdate) {
+        setShowTrendNotification(true);
+    }
+  }, []);
+
+  const handleGenerateTrends = async () => {
+      setIsGeneratingTrends(true);
+      try {
+          const report = await TrendService.generateMonthlyReport();
+          setActiveTrendReport(report);
+          setShowTrendNotification(false);
+      } catch (error) {
+          console.error("Failed to generate trends", error);
+          alert("Error conectando con la inteligencia global. Intente más tarde.");
+      }
+      setIsGeneratingTrends(false);
+  };
+  
+  // ... (Inside the render, possibly fixed position)
+  
+  {showTrendNotification && (
+      <motion.div 
+        initial={{ y: 50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="fixed bottom-6 left-6 z-50 max-w-sm w-full"
+      >
+        <div className="bg-slate-900/90 backdrop-blur-xl border border-neon/50 p-6 rounded-2xl shadow-[0_0_30px_rgba(0,255,148,0.2)] relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-neon/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
+            
+            <div className="flex items-start gap-4 relative z-10">
+                <div className="w-12 h-12 rounded-xl bg-neon/20 flex items-center justify-center text-neon border border-neon/30 shrink-0">
+                    <Globe size={24} className="animate-pulse-slow" />
+                </div>
+                <div>
+                    <h3 className="text-white font-bold text-lg leading-tight mb-1">Nueva Inteligencia Global</h3>
+                    <p className="text-slate-400 text-xs mb-3">Reporte de Tendencias de Mercado disponible para este mes.</p>
+                    
+                    <button 
+                        onClick={handleGenerateTrends}
+                        disabled={isGeneratingTrends}
+                        className="bg-neon text-black text-xs font-bold px-4 py-2 rounded-lg hover:brightness-110 transition-all flex items-center gap-2 w-full justify-center"
+                    >
+                        {isGeneratingTrends ? (
+                            <><RefreshCw size={12} className="animate-spin"/> Generando...</>
+                        ) : (
+                            <><Sparkles size={12}/> Generar Reporte</>
+                        )}
+                    </button>
+                    <button onClick={() => setShowTrendNotification(false)} className="absolute top-0 right-0 p-1 text-slate-500 hover:text-white">
+                        <X size={14}/>
+                    </button>
+                </div>
+            </div>
+        </div>
+      </motion.div>
+  )}
+
+  {/* TREND REPORT MODAL */}
+  {activeTrendReport && (
+      <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+          <div className="bg-slate-900 border border-white/10 w-full max-w-4xl max-h-[90vh] rounded-3xl overflow-hidden flex flex-col shadow-2xl">
+              <div className="p-6 border-b border-white/10 flex justify-between items-center bg-black/20">
+                  <div>
+                      <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                          <Globe className="text-neon" /> {activeTrendReport.title}
+                      </h2>
+                      <p className="text-slate-400 text-xs">Generado vía Google Search Grounding • {new Date(activeTrendReport.generatedAt).toLocaleDateString()}</p>
+                  </div>
+                  <button onClick={() => setActiveTrendReport(null)} className="p-2 hover:bg-white/10 rounded-full text-white transition-colors">
+                      <X size={24} />
+                  </button>
+              </div>
+              
+              <div className="p-8 overflow-y-auto space-y-8 custom-scrollbar bg-void">
+                  {/* Header Stats */}
+                  <div className="grid grid-cols-3 gap-4">
+                      <div className="bg-white/5 p-4 rounded-xl border border-white/5">
+                          <div className="text-slate-400 text-xs uppercase tracking-widest mb-1">Sentimiento de Mercado</div>
+                          <div className={`text-xl font-bold ${
+                              activeTrendReport.marketSentiment === 'Bullish' ? 'text-emerald-400' : 
+                              activeTrendReport.marketSentiment === 'Bearish' ? 'text-red-400' : 'text-yellow-400'
+                          }`}>
+                              {activeTrendReport.marketSentiment}
+                          </div>
+                      </div>
+                      <div className="bg-white/5 p-4 rounded-xl border border-white/5 col-span-2">
+                          <div className="text-slate-400 text-xs uppercase tracking-widest mb-1">Sectores Emergentes</div>
+                          <div className="flex gap-2 flex-wrap">
+                              {activeTrendReport.emergingSectors.map((s, i) => (
+                                  <span key={i} className="bg-neon/10 text-neon px-2 py-1 rounded text-xs font-bold border border-neon/20">
+                                      {s}
+                                  </span>
+                              ))}
+                          </div>
+                      </div>
+                  </div>
+
+                  {/* Trends List */}
+                  <div className="space-y-4">
+                      <h3 className="text-white font-bold text-lg flex items-center gap-2 border-b border-white/10 pb-2">
+                          <TrendingUp className="text-purple-400"/> Top Tendencias Identificadas
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {activeTrendReport.trends.map((t, i) => (
+                              <div key={i} className="bg-white/5 hover:bg-white/10 transition-colors p-5 rounded-xl border-l-4 border-l-neon border-white/5 group">
+                                  <div className="flex justify-between items-start mb-2">
+                                      <span className="text-xs font-bold bg-white/10 px-2 py-0.5 rounded text-slate-300">{t.category}</span>
+                                      <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded ${
+                                          t.impact === 'High' ? 'bg-red-500/20 text-red-400' : 'bg-blue-500/20 text-blue-400'
+                                      }`}>{t.impact} Impact</span>
+                                  </div>
+                                  <h4 className="text-white font-bold mb-2 text-lg group-hover:text-neon transition-colors">{t.trend}</h4>
+                                  <p className="text-slate-400 text-sm leading-relaxed">{t.description}</p>
+                              </div>
+                          ))}
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  )}
 
 // Lazy Load Heavy Components
 const QuestionAnalysis = React.lazy(() => import('./components/QuestionAnalysis').then(module => ({ default: module.QuestionAnalysis })));
@@ -69,6 +202,12 @@ const Logo = ({ size = "large" }: { size?: "small" | "large" }) => (
 const LoginView = () => {
   const { loginWithGoogle, loading } = useAuth();
   
+  // PUBLIC ROUTE: Verification Page (No Auth Required)
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('verify')) {
+     return <PublicVerificationPage />;
+  }
+  
   if (loading) return (
     <div className="flex h-screen items-center justify-center bg-void">
       <div className="w-16 h-16 border-4 border-white/10 border-t-neon rounded-full animate-spin"></div>
@@ -79,28 +218,13 @@ const LoginView = () => {
     <div className="flex h-screen items-center justify-center bg-void relative overflow-hidden">
        {/* High Impact Animated Background - Full Screen */}
        <div className="absolute inset-0 bg-black z-0 overflow-hidden">
-          {/* Dominant Emerald/Neon Glows - EXTREME CHAOS MODE */}
+          {/* Ambient Background (Restored) */}
+          <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-emerald-500/20 rounded-full blur-[100px] animate-pulse-slow"></div>
+          <div className="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] bg-purple-500/20 rounded-full blur-[100px] animate-pulse-slow" style={{animationDelay: '1s'}}></div>
+          <div className="absolute top-[20%] right-[20%] w-[30vw] h-[30vw] bg-cyan-500/10 rounded-full blur-[80px] animate-float"></div>
           
-          {/* 1. Main Emerald - Large, Center-Left */}
-          <div className="absolute top-[-10%] left-[-10%] w-[90vw] h-[90vw] bg-emerald-500/30 rounded-full blur-[120px] animate-chaos mix-blend-screen" style={{animationDuration: '8s'}}></div>
-          
-          {/* 2. Neon Green - Bottom Right Accent */}
-          <div className="absolute bottom-[-20%] right-[-10%] w-[80vw] h-[80vw] bg-neon/30 rounded-full blur-[140px] animate-chaos mix-blend-screen" style={{animationDuration: '10s', animationDelay: '-2s', animationDirection: 'reverse'}}></div>
-          
-          {/* Supporting Colors for Depth & Movement */}
-          
-          {/* 3. Cyan - Top Right Float */}
-          <div className="absolute top-[10%] right-[-20%] w-[60vw] h-[60vw] bg-cyan-500/30 rounded-full blur-[100px] animate-chaos mix-blend-screen" style={{animationDuration: '6s', animationDelay: '-1s'}}></div>
-          
-          {/* 4. Deep Purple - Bottom Left Contrast (Subtle) */}
-          <div className="absolute bottom-[10%] left-[-10%] w-[50vw] h-[50vw] bg-purple-600/40 rounded-full blur-[120px] animate-chaos mix-blend-screen" style={{animationDuration: '12s', animationDelay: '-4s'}}></div>
-          
-          {/* 5. Bright Emerald Center Pulse */}
-          <div className="absolute top-[30%] left-[30%] w-[40vw] h-[40vw] bg-emerald-400/20 rounded-full blur-[80px] animate-pulse-slow mix-blend-screen" style={{animationDuration: '2s'}}></div>
-
-          {/* Heavy Vignette & Noise for "Umbra" Atmosphere */}
-          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-30 brightness-125 contrast-150 mix-blend-overlay"></div>
-          <div className="absolute inset-0 bg-radial-gradient from-transparent via-black/70 to-black"></div>
+          {/* Noise Texture */}
+          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
        </div>
 
        {/* Split Card Container */}
@@ -738,7 +862,7 @@ const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, 
                 </div>
              )}
              
-             {activeTab === 'new_interview' && <div className="p-8"><InterviewForm project={project} onSave={async (i: any) => {
+             {activeTab === 'new_interview' && <div className="p-8"><InterviewForm lang={lang} project={project} onSave={async (i: any) => {
                 try {
                    // SAFETY: If Demo Project, do not save to Cloud to prevent data mixing
                    if (project.id === 'demo_project_001') {
@@ -1362,9 +1486,26 @@ const DeepResearchView = ({ project, interviews, onUpdate, t }: any) => {
               Viability Score: <span className={report.viabilityScore > 70 ? 'text-neon drop-shadow-[0_0_10px_rgba(223,255,0,0.5)]' : 'text-red-400'}>{report.viabilityScore}/100</span>
             </h2>
           </div>
-          <button onClick={runAnalysis} className="bg-white/5 hover:bg-white/10 text-white px-6 py-3 rounded-xl text-sm font-bold border border-white/10 flex items-center gap-2 transition-all hover:border-white/30">
-             <RefreshCw size={16} /> Re-Analizar
-          </button>
+          <div className="flex items-center gap-4">
+               {/* YC Badge */}
+               <div className="hidden md:block">
+                  <YCReadinessBadge result={calculateYCReadiness(interviews)} size="sm" />
+               </div>
+               
+               {/* CERTIFICATE BUTTON (If Passing) */}
+               {calculateYCReadiness(interviews).totalScore >= 70 && (
+                   <button 
+                     onClick={() => setShowCertModal(true)}
+                     className="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 px-4 py-3 rounded-xl text-xs font-bold border border-emerald-500/30 flex items-center gap-2 transition-all hover:scale-105"
+                   >
+                      <Award size={16} /> Certificado
+                   </button>
+               )}
+
+               <button onClick={runAnalysis} className="bg-white/5 hover:bg-white/10 text-white px-6 py-3 rounded-xl text-sm font-bold border border-white/10 flex items-center gap-2 transition-all hover:border-white/30">
+                  <RefreshCw size={16} /> Re-Analizar
+               </button>
+          </div>
        </div>
 
        {/* Verdict & Profile */}
@@ -1597,7 +1738,7 @@ const SwotSection = ({ title, items, color, icon }: any) => (
 );
 
 // 5. Interview Form (Visual Update v2.0)
-const InterviewForm = ({ project, onSave, onCancel, onClose, t }: any) => {
+const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => {
   const [step, setStep] = useState(-1);
   const [answers, setAnswers] = useState<any>({});
   const [regData, setRegData] = useState({ 
@@ -1607,8 +1748,13 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t }: any) => {
 
   const [observation, setObservation] = useState('');
   const [isSaving, setIsSaving] = useState(false);
-  const [showVoice, setShowVoice] = useState(false); // Toggle for Voice Input
-  
+  // FIX: Stable Image (prevent changing on re-renders)
+  const coverImage = React.useMemo(() => {
+     return project.coverImage || getCoverByIdea(project.name);
+  }, [project.id, project.name]);
+
+
+  // Removed showVoice toggle - now Dual Mode by default
   // DRAFT PERSISTENCE
   useEffect(() => {
     const draftKey = `draft_interview_${project.id}`;
@@ -1709,18 +1855,13 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t }: any) => {
                   console.log(`🤖 Enhanced AI Analysis attempt ${attempt + 1}/${retries + 1}...`);
                   console.log("📦 [DEBUG] Answers sent to analysis:", JSON.stringify(newAnswers, null, 2));
                   
-                  const analysisPromise = Gemini.analyzeFullInterviewEnhanced(project, newAnswers, regData);
-                  const timeoutPromise = new Promise((_, reject) => 
-                     setTimeout(() => reject(new Error("AI Timeout (30s)")), 30000)
-                  );
+                  const result = await analyzeFullInterviewEnhanced(project, newAnswers, regData);
                   
-                  const result = await Promise.race([analysisPromise, timeoutPromise]);
-                  
-                  if (result && typeof result === 'object') {
+                  if (result) {
                      analysis = result as any;
-                     console.log("✅ AI analysis successful:", analysis);
+                     console.log("✅ Surgical AI analysis successful:", analysis);
                      aiSuccess = true;
-                     break; // Success, exit retry loop
+                     break; 
                   }
                } catch (aiError) {
                   console.error(`❌ AI Analysis attempt ${attempt + 1} failed:`, aiError);
@@ -1730,49 +1871,51 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t }: any) => {
                      await new Promise(resolve => setTimeout(resolve, 2000));
                   } else {
                      console.error("❌ All AI analysis attempts exhausted");
-                     // Keep default "failed" analysis
                   }
                }
             }
             
             if (!aiSuccess) {
-               // Alert user that analysis failed but interview will be saved
-               alert("⚠️ El análisis de IA falló después de 3 intentos.\n\nLa entrevista se guardará, pero deberás hacer 'Retry Analysis' desde el detalle de la entrevista.");
+               alert("⚠️ El análisis de IA falló. Se guardará sin resultados detallados.");
             }
 
             // Sanitize and construct interview object
+            // Map NEW Enhanced Analysis to OLD Interview structure for backwards compat
+            // + Store the full new object in 'enhancedAnalysis'
+            
             const safeAnalysis = {
-               totalScore: typeof analysis.totalScore === 'number' ? analysis.totalScore : 0,
-               summary: analysis.summary || "Sin resumen",
-              dimensionScores: {
-                 problemIntensity: analysis.dimensionScores?.problemIntensity || 0,
-                 solutionFit: analysis.dimensionScores?.solutionFit || 0,
-                 willingnessToPay: analysis.dimensionScores?.willingnessToPay || 0,
-                 currentBehavior: analysis.dimensionScores?.currentBehavior || 0,
-                 painPoint: analysis.dimensionScores?.painPoint || 0,
-                 earlyAdopter: analysis.dimensionScores?.earlyAdopter || 0
-              },
-              keyInsights: Array.isArray(analysis.keyInsights) ? analysis.keyInsights : []
-           };
+               totalScore: analysis.matchScore || 0, // NEW field
+               summary: analysis.oneLinerVerdict || analysis.summary || "Sin resumen", // NEW field
+               dimensionScores: {
+                  problemIntensity: analysis.scores?.problemIntensity || 0,
+                  solutionFit: analysis.scores?.solutionFit || 0,
+                  willingnessToPay: 0, // Not in new scores directly?
+                  currentBehavior: 0,
+                  painPoint: 0,
+                  earlyAdopter: 0
+               },
+               keyInsights: analysis.signals?.buying || [] // Map buying signals to insights for now
+            };
 
-           const interview: Interview = {
-              id: Date.now().toString(),
-              projectId: project.id,
-              respondentName: regData.name || 'Anónimo',
-              respondentEmail: regData.email || '',
-              respondentPhone: regData.phone || '',
-              respondentInstagram: regData.instagram || '',
-              respondentTikTok: regData.tiktok || '',
-              respondentRole: regData.role || '',
-              respondentCity: regData.city || '',
-              respondentCountry: regData.country || '',
-              date: new Date().toISOString(),
-              answers: newAnswers, // Assuming answers are safe as they are strings
-              totalScore: safeAnalysis.totalScore,
-              dimensionScores: safeAnalysis.dimensionScores,
-              summary: safeAnalysis.summary,
-              keyInsights: safeAnalysis.keyInsights
-           };
+            const interview: Interview = {
+               id: Date.now().toString(),
+               projectId: project.id,
+               respondentName: regData.name || 'Anónimo',
+               respondentEmail: regData.email || '',
+               respondentPhone: regData.phone || '',
+               respondentInstagram: regData.instagram || '',
+               respondentTikTok: regData.tiktok || '',
+               respondentRole: regData.role || '',
+               respondentCity: regData.city || '',
+               respondentCountry: regData.country || '',
+               date: new Date().toISOString(),
+               answers: newAnswers,
+               totalScore: safeAnalysis.totalScore,
+               dimensionScores: safeAnalysis.dimensionScores,
+               summary: safeAnalysis.summary,
+               keyInsights: safeAnalysis.keyInsights,
+               enhancedAnalysis: analysis as any // Store full surgical result
+            };
            
            console.log("Saving sanitized interview:", interview);
 
@@ -1861,7 +2004,7 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t }: any) => {
         <div className="hidden lg:block w-1/2 h-full relative rounded-3xl overflow-hidden shadow-2xl border border-white/10 group">
            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10"></div>
             <img 
-              src={getCoverByIdea(project.name)} 
+              src={coverImage} 
               className="w-full h-full object-cover transition-transform duration-[20s] ease-linear group-hover:scale-110" 
             />
            <div className="absolute bottom-8 left-8 z-20 max-w-sm">
@@ -1891,44 +2034,45 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t }: any) => {
            <div className={`${GLASS_PANEL} p-4 flex-1 flex flex-col min-h-0 overflow-hidden`}>
               <h2 className="text-2xl md:text-3xl font-bold text-white mb-12 leading-tight flex-shrink-0">{question.text}</h2>
                
-               {/* Input Mode Toggle */}
-               <div className="flex items-center gap-2 mb-4 bg-white/5 p-1 rounded-xl w-max">
-                  <button 
-                    onClick={() => setShowVoice(false)}
-                    className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 ${!showVoice ? 'bg-neon text-black shadow-[0_0_15px_rgba(223,255,0,0.4)]' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
-                  >
-                    <Settings size={14} /> Manual
-                  </button>
-                  <button 
-                    onClick={() => setShowVoice(true)}
-                    className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 ${showVoice ? 'bg-neon text-black shadow-[0_0_15px_rgba(223,255,0,0.4)]' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
-                  >
-                    <Play size={14} className={showVoice ? 'fill-black' : ''} /> Voz AI
-                  </button>
-               </div>
+               {/* Input Area - DUAL MODE */}
+               <div className="mb-4 flex-1 flex flex-col gap-4 overflow-y-auto pr-2 custom-scrollbar">
+                  
+                  {/* 1. Manual Input (Always Visible) */}
+                  <div className="flex-1 min-h-[150px]">
+                     <SmartQuestionWidget
+                        question={question}
+                        value={currentVal}
+                        onChange={handleAnswer}
+                        onBlur={() => handleAnswer(currentVal)}
+                     />
+                  </div>
 
-               {/* Input Area */}
-               <div className="mb-4 flex-1 overflow-y-auto pr-2 custom-scrollbar">
-                  {showVoice ? (
-                    <VoiceInput
-                      language={lang === 'es' ? 'es' : 'en'}
-                      onTranscriptChange={(text) => handleAnswer(text)}
-                      onRecordingComplete={(data) => {
-                        handleAnswer(data.transcript); 
-                        if (data.confidence > 0.8) {
-                           // Auto-advance if high confidence (optional, kept manual for control)
-                        }
-                      }}
-                      placeholder={t.voicePlaceholder || "Explica tu respuesta..."}
-                    />
-                  ) : (
-                    <SmartQuestionWidget
-                      question={question}
-                      value={currentVal}
-                      onChange={handleAnswer}
-                      onBlur={() => handleAnswer(currentVal)}
-                    />
-                  )}
+                  {/* 2. Voice Input (Always Available) - Appends to answer */}
+                  <div className="flex-shrink-0 bg-white/5 p-4 rounded-xl border border-white/5">
+                     <p className="text-[10px] text-neon font-bold uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <Play size={10} className="fill-neon"/> Grabadora de Voz (Complemento)
+                     </p>
+                     <VoiceInput
+                       language={lang === 'es' ? 'es' : 'en'}
+                       compact={true} // New prop needed likely, or just use as is
+                       onTranscriptChange={(text) => {
+                          // Real-time updates could overwrite manual typing, so be careful.
+                          // Ideally, we only update on finalize or if we want real-time dictation 
+                          // that appends to where cursor is (hard). 
+                          // For now, let's rely on RecordingComplete for the "big block" add.
+                       }}
+                       onRecordingComplete={(data) => {
+                         // Append the voice text to existing text
+                         const specificTranscript = data.transcript;
+                         if (specificTranscript) {
+                            const newText = currentVal ? `${currentVal}\n\n[Voz]: ${specificTranscript}` : specificTranscript;
+                            handleAnswer(newText);
+                            // Also save full transcript in hidden field if needed, but appending is safer for user visibility
+                         }
+                       }}
+                       placeholder={t.voicePlaceholder || "Graba tu respuesta adicional o completa..."}
+                     />
+                  </div>
                </div>
 
               <div className="mt-auto pt-2 border-t border-white/5 flex-shrink-0">
@@ -2485,6 +2629,127 @@ function AppContent() {
       <div className="fixed bottom-1 right-1 text-[10px] text-white/30 pointer-events-none z-[9999] font-mono">
         v2.2 (NUCLEAR FIX)
       </div>
+
+      {/* TREND NOTIFICATION */}
+      <AnimatePresence>
+      {showTrendNotification && (
+          <motion.div 
+            initial={{ y: 50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 50, opacity: 0 }}
+            className="fixed bottom-6 left-6 z-50 max-w-sm w-full"
+          >
+            <div className="bg-slate-900/90 backdrop-blur-xl border border-neon/50 p-6 rounded-2xl shadow-[0_0_30px_rgba(0,255,148,0.2)] relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-neon/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
+                
+                <div className="flex items-start gap-4 relative z-10">
+                    <div className="w-12 h-12 rounded-xl bg-neon/20 flex items-center justify-center text-neon border border-neon/30 shrink-0">
+                        <Globe size={24} className="animate-pulse-slow" />
+                    </div>
+                    <div>
+                        <h3 className="text-white font-bold text-lg leading-tight mb-1">Nueva Inteligencia Global</h3>
+                        <p className="text-slate-400 text-xs mb-3">Reporte de Tendencias de Mercado disponible para este mes.</p>
+                        
+                        <button 
+                            onClick={handleGenerateTrends}
+                            disabled={isGeneratingTrends}
+                            className="bg-neon text-black text-xs font-bold px-4 py-2 rounded-lg hover:brightness-110 transition-all flex items-center gap-2 w-full justify-center shadow-lg"
+                        >
+                            {isGeneratingTrends ? (
+                                <><RefreshCw size={12} className="animate-spin"/> Generando...</>
+                            ) : (
+                                <><Sparkles size={12}/> Generar Reporte</>
+                            )}
+                        </button>
+                        <button onClick={() => setShowTrendNotification(false)} className="absolute top-0 right-0 p-1 text-slate-500 hover:text-white">
+                            <X size={14}/>
+                        </button>
+                    </div>
+                </div>
+            </div>
+          </motion.div>
+      )}
+      </AnimatePresence>
+    
+      {/* TREND REPORT MODAL */}
+      {activeTrendReport && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+              <div className="bg-slate-900 border border-white/10 w-full max-w-4xl max-h-[90vh] rounded-3xl overflow-hidden flex flex-col shadow-2xl relative">
+                   {/* Background FX */}
+                   <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 pointer-events-none"></div>
+
+                  <div className="p-6 border-b border-white/10 flex justify-between items-center bg-black/40 relative z-10">
+                      <div>
+                          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                              <Globe className="text-neon" /> {activeTrendReport.title}
+                          </h2>
+                          <p className="text-slate-400 text-xs mt-1">Generado vía Google Search Grounding • {new Date(activeTrendReport.generatedAt).toLocaleDateString()}</p>
+                      </div>
+                      <button onClick={() => setActiveTrendReport(null)} className="p-2 hover:bg-white/10 rounded-full text-white transition-colors">
+                          <X size={24} />
+                      </button>
+                  </div>
+                  
+                  <div className="p-8 overflow-y-auto space-y-8 custom-scrollbar bg-black/20 relative z-10">
+                      {/* Header Stats */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div className="bg-white/5 p-4 rounded-xl border border-white/5 hover:border-white/10 transition-colors">
+                              <div className="text-slate-400 text-xs uppercase tracking-widest mb-1">Sentimiento de Mercado</div>
+                              <div className={`text-2xl font-bold ${
+                                  activeTrendReport.marketSentiment === 'Bullish' ? 'text-emerald-400' : 
+                                  activeTrendReport.marketSentiment === 'Bearish' ? 'text-red-400' : 'text-yellow-400'
+                              }`}>
+                                  {activeTrendReport.marketSentiment}
+                              </div>
+                          </div>
+                          <div className="bg-white/5 p-4 rounded-xl border border-white/5 col-span-2 hover:border-white/10 transition-colors">
+                              <div className="text-slate-400 text-xs uppercase tracking-widest mb-1">Sectores Emergentes</div>
+                              <div className="flex gap-2 flex-wrap">
+                                  {activeTrendReport.emergingSectors.map((s, i) => (
+                                      <span key={i} className="bg-neon/10 text-neon px-3 py-1 rounded-lg text-xs font-bold border border-neon/20">
+                                          {s}
+                                      </span>
+                                  ))}
+                              </div>
+                          </div>
+                      </div>
+    
+                      {/* Trends List */}
+                      <div className="space-y-4">
+                          <h3 className="text-white font-bold text-lg flex items-center gap-2 border-b border-white/10 pb-4">
+                              <TrendingUp className="text-purple-400"/> Top Tendencias Identificadas
+                          </h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              {activeTrendReport.trends.map((t, i) => (
+                                  <div key={i} className="bg-white/5 hover:bg-white/10 transition-colors p-6 rounded-2xl border-l-4 border-l-neon border-white/5 group relative overflow-hidden">
+                                      <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity"><Zap size={64}/></div>
+                                      <div className="flex justify-between items-start mb-3 relative z-10">
+                                          <span className="text-xs font-bold bg-white/10 px-2 py-1 rounded-md text-slate-300">{t.category}</span>
+                                          <span className={`text-[10px] uppercase font-bold px-2 py-1 rounded-md ${
+                                              t.impact === 'High' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 
+                                              t.impact === 'Medium' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-slate-500/20 text-slate-400'
+                                          }`}>{t.impact} Impact</span>
+                                      </div>
+                                      <h4 className="text-white font-bold mb-2 text-lg group-hover:text-neon transition-colors relative z-10">{t.trend}</h4>
+                                      <p className="text-slate-400 text-sm leading-relaxed relative z-10">{t.description}</p>
+                                  </div>
+                              ))}
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      )}
+
+      {/* CERTIFICATE MODAL */}
+      {activeProject && (
+        <CertificateModal 
+            isOpen={showCertModal}
+            onClose={() => setShowCertModal(false)}
+            projectName={activeProject.name}
+            score={calculateYCReadiness(interviews).totalScore}
+        />
+      )}
 
       {/* EMERGENCY RESET BUTTON */}
       <button 

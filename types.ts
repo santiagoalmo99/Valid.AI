@@ -84,40 +84,37 @@ export interface AIAnalysisResult {
 }
 
 // NEW: Enhanced Interview Analysis Result (Surgical-Level)
+// NEW: Enhanced Interview Analysis Result (Surgical-Level Phase 19)
 export interface EnhancedAnalysisResult {
-  // Chain-of-Thought Reasoning
-  reasoning: {
-    step1_context: string;
-    step2_problem_validation: string;
-    step3_solution_fit: string;
-    step4_willingness_to_pay: string;
-    step5_red_flags: string[];
-  };
+  matchScore: number; // 0-100
+  verdict: "GO" | "NO-GO" | "PIVOT";
   
-  // Scores with confidence
+  // Granular Scoring (0-100)
   scores: {
-    totalScore: number; // 0-100
-    confidence: number; // 0.0-1.0
-    dimensionScores: Record<Dimension, number>;
+    problemIntensity: number; // "Hair on fire?"
+    solutionFit: number;      // "Does it kill the pain?"
+    marketTiming: number;     // "Why now?"
+    founderFit: number;       // Reality check
   };
-  
-  // Validation layer
-  validation: {
+
+  // Behavioral Signals
+  signals: {
+    buying: string[];     // "Mentioned budget is approved"
+    redFlags: string[];   // "Polite lies", "Vague answers"
     contradictions: Contradiction[];
-    evidenceQuality: 'strong' | 'moderate' | 'weak';
-    biasIndicators: string[];
   };
-  
-  // Human-readable summary
-  summary: string;
-  keyInsights: string[];
+
+  // Strategic Output
+  oneLinerVerdict: string;
+  recommendedPivot?: string;
+  visualAnalogy?: string; // "Your startup is like Uber but for..."
 }
 
 export interface Contradiction {
-  type: 'logical' | 'behavioral' | 'temporal';
-  description: string;
+  quote1: string;
+  quote2: string;
+  analysis: string;
   severity: 'high' | 'medium' | 'low';
-  impactOnScore: number; // How much this reduces confidence
 }
 
 export interface Answer {
@@ -125,6 +122,12 @@ export interface Answer {
   rawValue: string;
   observation?: string; 
   aiAnalysis?: AIAnalysisResult;
+}
+
+export interface EnhancedAnswer extends Answer {
+  transcription?: { text: string };
+  typedAnswer?: string;
+  interviewerNotes?: string;
 }
 
 export interface Interview {
@@ -146,6 +149,7 @@ export interface Interview {
   personaImageUrl?: string; 
   summary?: string;
   keyInsights?: string[];
+  enhancedAnalysis?: EnhancedAnalysisResult; // New Phase 19 data
   lastUpdated?: string;
 }
 
@@ -178,18 +182,18 @@ export interface ReportSection {
 }
 
 export const REPORT_SECTIONS: ReportSection[] = [
-  { id: 'executive_summary', title: 'Executive Summary', titleEs: 'Resumen Ejecutivo', icon: '📋', enabled: true, creditCost: 5, description: 'Overview of the opportunity' },
-  { id: 'problem_solution', title: 'Problem & Solution', titleEs: 'Problema y Solución', icon: '🎯', enabled: true, creditCost: 5, description: 'Pain points and proposed fix' },
-  { id: 'market_analysis', title: 'Market Analysis', titleEs: 'Análisis de Mercado', icon: '📊', enabled: true, creditCost: 8, description: 'TAM/SAM/SOM calculations' },
-  { id: 'competition', title: 'Competitive Landscape', titleEs: 'Competencia', icon: '⚔️', enabled: true, creditCost: 10, description: 'Benchmark and positioning' },
-  { id: 'validation_results', title: 'Validation Results', titleEs: 'Resultados de Validación', icon: '✅', enabled: true, creditCost: 5, description: 'Scores and scientific analysis' },
-  { id: 'customer_insights', title: 'Customer Insights', titleEs: 'Insights de Clientes', icon: '💡', enabled: true, creditCost: 8, description: 'Quotes and patterns from interviews' },
-  { id: 'business_model', title: 'Business Model', titleEs: 'Modelo de Negocio', icon: '💰', enabled: false, creditCost: 10, description: 'Pricing and unit economics' },
-  { id: 'go_to_market', title: 'Go-to-Market Strategy', titleEs: 'Estrategia Go-to-Market', icon: '🚀', enabled: false, creditCost: 8, description: 'Launch plan and channels' },
-  { id: 'financial_projections', title: 'Financial Projections', titleEs: 'Proyecciones Financieras', icon: '📈', enabled: false, creditCost: 12, description: '12-month P&L estimate' },
-  { id: 'risk_assessment', title: 'Risk Assessment', titleEs: 'Análisis de Riesgos', icon: '⚠️', enabled: false, creditCost: 8, description: 'Top risks and mitigations' },
-  { id: 'roadmap', title: '12-Month Roadmap', titleEs: 'Roadmap 12 Meses', icon: '🗓️', enabled: false, creditCost: 8, description: 'Milestones and timeline' },
-  { id: 'appendix', title: 'Appendix', titleEs: 'Apéndice', icon: '📎', enabled: false, creditCost: 3, description: 'Raw data and methodology' },
+  { id: 'executive_summary', title: 'Executive Summary', titleEs: 'Resumen Ejecutivo', icon: '📋', enabled: true, creditCost: 1, description: 'Overview of the opportunity' },
+  { id: 'problem_solution', title: 'Problem & Solution', titleEs: 'Problema y Solución', icon: '🎯', enabled: true, creditCost: 1, description: 'Pain points and proposed fix' },
+  { id: 'market_analysis', title: 'Market Analysis', titleEs: 'Análisis de Mercado', icon: '📊', enabled: true, creditCost: 2, description: 'TAM/SAM/SOM calculations' },
+  { id: 'competition', title: 'Competitive Landscape', titleEs: 'Competencia', icon: '⚔️', enabled: true, creditCost: 2, description: 'Benchmark and positioning' },
+  { id: 'validation_results', title: 'Validation Results', titleEs: 'Resultados de Validación', icon: '✅', enabled: true, creditCost: 2, description: 'Scores and scientific analysis' },
+  { id: 'customer_insights', title: 'Customer Insights', titleEs: 'Insights de Clientes', icon: '💡', enabled: true, creditCost: 2, description: 'Quotes and patterns from interviews' },
+  { id: 'business_model', title: 'Business Model', titleEs: 'Modelo de Negocio', icon: '💰', enabled: false, creditCost: 2, description: 'Pricing and unit economics' },
+  { id: 'go_to_market', title: 'Go-to-Market Strategy', titleEs: 'Estrategia Go-to-Market', icon: '🚀', enabled: false, creditCost: 2, description: 'Launch plan and channels' },
+  { id: 'financial_projections', title: 'Financial Projections', titleEs: 'Proyecciones Financieras', icon: '📈', enabled: false, creditCost: 3, description: '12-month P&L estimate' },
+  { id: 'risk_assessment', title: 'Risk Assessment', titleEs: 'Análisis de Riesgos', icon: '⚠️', enabled: false, creditCost: 2, description: 'Top risks and mitigations' },
+  { id: 'roadmap', title: '12-Month Roadmap', titleEs: 'Roadmap 12 Meses', icon: '🗓️', enabled: false, creditCost: 2, description: 'Milestones and timeline' },
+  { id: 'appendix', title: 'Appendix', titleEs: 'Apéndice', icon: '📎', enabled: false, creditCost: 1, description: 'Raw data and methodology' },
 ];
 
 export interface ReportConfig {

@@ -1,348 +1,131 @@
-// services/aiService.enhanced.ts - Surgical-Level AI Analysis System
-// This is the NEW enhanced version with chain-of-thought, validation, and self-healing
+import { ProjectTemplate, EnhancedAnalysisResult, Contradiction, EnhancedAnswer } from '../types';
+import { callGeminiAPI } from './aiService';
 
-import { Question, ProjectTemplate, EnhancedAnalysisResult, Contradiction } from '../types';
-import { logger } from './logger';
-import { telemetry } from './telemetry';
+/**
+ * PHASE 19: SURGICAL MULTI-PASS ANALYSIS ENGINE (V4)
+ * 
+ * This service implements the "VC-Grade" analysis logic.
+ * It uses a specialized prompt to simulate a panel of experts:
+ * 1. YC Partner (Strategic viability)
+ * 2. Behavioral Psychologist (Lie detection/Hidden motives)
+ * 3. Data Scientist (Evidence weighting)
+ */
 
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
-const MODEL = 'gemini-2.0-flash-exp'; // Using latest model
+export const analyzeFullInterviewEnhanced = async (
+  project: ProjectTemplate, 
+  answers: Record<string, EnhancedAnswer>, 
+  respondentProfile: any
+): Promise<EnhancedAnalysisResult> => {
 
-// Helper: Call Gemini API
-async function callGeminiAPI(prompt: string, json: boolean = false): Promise<string> {
-  const stopTimer = logger.startTimer('Gemini API Call');
+  // 1. DATA NORMALIZATION LAYER
+  // Convert complex answer objects into a linear transcript text for the AI
+  let interviewTranscript = "";
+  let notesContext = "";
   
-  try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: json
-            ? { responseMimeType: 'application/json' }
-            : {},
-        }),
+  if (answers) {
+    Object.values(answers).forEach((ans: any, index: number) => {
+      // Determine the "real" answer (voice transcript usually more honest than typed)
+      const voiceText = ans.transcription?.text || "";
+      const typedText = ans.typedAnswer || ans.rawValue || ""; // Fallback to rawValue for legacy compatibility
+      const finalAnswer = voiceText.length > typedText.length ? voiceText : typedText;
+
+      interviewTranscript += `Q${index+1}: [Question Context omitted]\n`;
+      interviewTranscript += `ANSWER: "${finalAnswer.replace(/"/g, "'")}"\n`;
+      
+      if (ans.interviewerNotes) {
+        notesContext += `Note on Q${index+1}: ${ans.interviewerNotes}\n`;
       }
-    );
-
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    const text = data.candidates[0]?.content?.parts[0]?.text || '';
-    
-    stopTimer();
-    return text;
-  } catch (error) {
-    stopTimer();
-    logger.error('Gemini API call failed', error as Error);
-    throw error;
+    });
   }
-}
 
-// Core: Surgical-Level Interview Analysis
-export async function analyzeFullInterviewEnhanced(
-  project: ProjectTemplate,
-  answers: any,
-  regData: any
-): Promise<EnhancedAnalysisResult> {
-  logger.info('Starting enhanced interview analysis', {
-    projectId: project.id,
-    answerCount: Object.keys(answers).length,
-  });
+  const projectContext = `
+    PROJECT: ${project.name}
+    PITCH: ${project.description}
+    TARGET: ${project.targetAudience}
+  `;
 
-  const stopTimer = logger.startTimer('Enhanced Interview Analysis');
+  // 2. SURGICAL PROMPT CONSTRUCTION
+  const prompt = `
+    ROLE_PLAY: You are a "Surgical Startup Validator" composed of 3 personas:
+    A) Y Combinator Partner (Ruthless focus on market size and problem severity)
+    B) Behavioral Psychologist (Detects "Social Desirability Bias" and "Mom Test" failures)
+    C) Data Scientist (Looks for concrete numbers vs vague promises)
 
-  try {
-    // Enrich answers with question context
-    const enrichedAnswers = Object.values(answers).map((ans: any) => {
-      const q = project.questions.find((q: Question) => q.id === ans.questionId);
-      return {
-        question: q ? q.text : 'Unknown Question',
-        answer: ans.rawValue,
-        observation: ans.observation,
-        dimension: q ? q.dimension : 'unknown',
-      };
-    });
+    TASK: Analyze this interview transcript deeply. Do not be polite. Be accurate.
 
-    const prompt = `
-You are a Senior VC Analyst with a PhD in Psychology and 15 years of experience identifying viable startups.
+    ${projectContext}
 
-PROJECT CONTEXT:
-Name: "${project.name}"
-Description: "${project.description}"
+    RESPONDENT PROFILE: ${JSON.stringify(respondentProfile)}
 
-RESPONDENT DATA:
-${JSON.stringify(regData, null, 2)}
+    TRANSCRIPT:
+    ${interviewTranscript}
 
-INTERVIEW TRANSCRIPT:
-${JSON.stringify(enrichedAnswers, null, 2)}
+    INTERVIEWER OBSERVATIONS:
+    ${notesContext}
 
-TASK: Analyze this customer interview using scientific rigor.
+    -----------------------------------
 
-REASONING CHAIN (Show your work step-by-step):
-
-1. CONTEXT ASSESSMENT:
-   Evaluate the respondent's background, domain expertise, and relevance to this problem space.
-   
-2. PROBLEM VALIDATION:
-   Does the respondent demonstrate REAL pain? Look for:
-   - Evidence of time/money already spent trying to solve this
-   - Concrete examples of pain points
-   - Urgency indicators
-   - NOT just "I would like this"
-
-3. SOLUTION FIT:
-   Does our proposed solution align with their stated needs?
-   - Do they understand what we're offering?
-   - Does it address their actual pain points?
-   - Are there misalignments between what they want and what we provide?
-
-4. WILLINGNESS TO PAY:
-   Is there concrete evidence of payment intent?
-   - Current spending on alternatives
-   - Budget allocated or available
-   - Decision-making authority
-   - NOT just "I would pay"
-
-5. RED FLAGS:
-   Identify contradictions, social desirability bias, or vague responses:
-   - Contradictions: "I desperately need this" but "I won't pay"
-   - Social desirability: overly positive, agreeable responses
-   - Vague responses: no concrete examples or details
-   - Temporal inconsistency: claims don't match timelines
-
-SCORING RUBRIC (0-100 total):
-- Problem Severity (0-25): Must cite specific evidence of pain
-- Solution Fit (0-25): Based on answer alignment with solution
-- Willingness to Pay (0-25): Only high if concrete commitment evidence
-- Market Timing (0-25): Based on urgency indicators
-
-CONFIDENCE SCORING (0.0-1.0):
-- 0.9-1.0: Strong evidence, no contradictions, concrete examples, verified past behavior
-- 0.7-0.8: Good evidence, minor inconsistencies, mostly concrete
-- 0.5-0.6: Vague answers, possible social desirability bias, hypothetical statements
-- 0.3-0.4: Significant contradictions, mostly opinions, no concrete evidence
-- 0.0-0.2: Red flags, incompatible profile, insincere responses
-
-EVIDENCE QUALITY:
-- "strong": Concrete examples, past behavior, financial evidence, specific timelines
-- "moderate": Some examples, general statements, intent without proof
-- "weak": Vague, hypothetical, no examples, "I would" statements
-
-OUTPUT FORMAT (JSON):
-{
-  "reasoning": {
-    "step1_context": "1-2 sentences evaluating respondent relevance",
-    "step2_problem_validation": "2-3 sentences with specific evidence of pain OR lack thereof",
-    "step3_solution_fit": "2 sentences on alignment",
-    "step4_willingness_to_pay": "2 sentences with evidence OR red flags",
-    "step5_red_flags": ["List 0-5 specific contradictions or bias indicators"]
-  },
-  "scores": {
-    "totalScore": 0-100,
-    "confidence": 0.0-1.0,
-    "dimensionScores": {
-      "problemIntensity": 0-100,
-      "solutionFit": 0-100,
-      "currentBehavior": 0-100,
-      "painPoint": 0-100,
-      "earlyAdopter": 0-100,
-      "willingnessToPay": 0-100
-    }
-  },
-  "validation": {
-    "contradictions": [
-      {
-        "type": "logical" | "behavioral" | "temporal",
-        "description": "Specific contradiction found",
-        "severity": "high" | "medium" | "low",
-        "impactOnScore": -10 to 0
-      }
-    ],
-    "evidenceQuality": "strong" | "moderate" | "weak",
-    "biasIndicators": ["List any social desirability bias, acquiescence, etc."]
-  },
-  "summary": "ONE-LINE VERDICT (e.g., 'Strong early adopter with verified pain and budget' or 'Polite respondent with no real commitment'). Max 15 words.",
-  "keyInsights": [
-    "Insight 1: Specific behavioral observation or opportunity",
-    "Insight 2: Risk or barrier identified",
-    "Insight 3: Profile verdict (e.g., 'Ideal customer', 'False positive', 'Needs education')"
-  ]
-}
-
-CRITICAL RULES:
-1. Be skeptical. Value facts over opinions.
-2. If confidence < 0.5, explain why in summary.
-3. If contradictions exist, penalize confidence.
-4. Output ONLY valid JSON, no markdown, no code blocks.
-5. Language: Professional Latin American Spanish.
-`;
-
-    const rawResponse = await callGeminiAPI(prompt, true);
-    
-    logger.debug('Enhanced AI Response', {
-      responseLength: rawResponse.length,
-      preview: rawResponse.substring(0, 150),
-    });
-
-    // Parse and validate
-    const parsed = JSON.parse(rawResponse) as EnhancedAnalysisResult;
-
-    // Validate structure
-    if (!validateEnhancedAnalysis(parsed)) {
-      throw new Error('Invalid analysis structure');
-    }
-
-    stopTimer();
-    
-    telemetry.trackEvent({
-      category: 'AI Analysis',
-      action: 'enhanced_analysis_success',
-      value: parsed.scores.confidence,
-      metadata: {
-        totalScore: parsed.scores.totalScore,
-        evidenceQuality: parsed.validation.evidenceQuality,
-        contradictionCount: parsed.validation.contradictions.length,
+    OUTPUT FORMAT (JSON ONLY):
+    {
+      "matchScore": number (0-100, be strict, 70 is high),
+      "verdict": "GO" | "NO-GO" | "PIVOT",
+      "oneLinerVerdict": "A brutal but honest 10-word summary",
+      "scores": {
+        "problemIntensity": number (0-100, is it a hair-on-fire problem?),
+        "solutionFit": number (0-100, does this actually solve it?),
+        "marketTiming": number (0-100, why now?),
+        "founderFit": number (0-100, based on depth of insight)
       },
-    });
-
-    return parsed;
-  } catch (error) {
-    stopTimer();
-    logger.error('Enhanced analysis failed', error as Error);
-    
-    telemetry.trackError(error as Error, {
-      context: 'analyzeFullInterviewEnhanced',
-    });
-
-    // Fallback response
-    return getFallbackAnalysis(answers);
-  }
-}
-
-// Validation function
-function validateEnhancedAnalysis(result: any): result is EnhancedAnalysisResult {
-  if (!result.reasoning || !result.scores || !result.validation) {
-    logger.warn('Missing required fields in analysis');
-    return false;
-  }
-
-  if (typeof result.scores.confidence !== 'number' || 
-      result.scores.confidence < 0 || 
-      result.scores.confidence > 1) {
-    logger.warn('Invalid confidence score', { confidence: result.scores.confidence });
-    return false;
-  }
-
-  if (result.scores.totalScore < 0 || result.scores.totalScore > 100) {
-    logger.warn('Invalid total score', { totalScore: result.scores.totalScore });
-    return false;
-  }
-
-  if (!result.summary || result.summary.length < 10) {
-    logger.warn('Summary too short');
-    return false;
-  }
-
-  if (result.validation.contradictions.length > 5) {
-    logger.warn('Too many contradictions detected', {
-      count: result.validation.contradictions.length,
-    });
-    return false;
-  }
-
-  return true;
-}
-
-// Fallback when AI fails - calculate scores from actual answers
-function getFallbackAnalysis(answers: any): EnhancedAnalysisResult {
-  console.log('⚠️ [Fallback] Starting manual score calculation with answers:', answers);
-  
-  // Calculate basic score from answers
-  const answerValues = Object.values(answers) as any[];
-  let totalPoints = 0;
-  let validAnswers = 0;
-  
-  answerValues.forEach((ans: any) => {
-    // Handle both direct string and object structure
-    const val = typeof ans === 'string' ? ans : ans.rawValue || ans.answer || '';
-    
-    if (!val) return;
-    
-    console.log(`⚠️ [Fallback] Scoring answer: "${val}"`);
-    
-    // Extract numeric from scales
-    const numMatch = val.toString().match(/^(\d+)$/);
-    if (numMatch) {
-      const num = parseInt(numMatch[0]);
-      // Normalize 1-10 scale to 0-100
-      if (num <= 10) {
-        const points = num * 10;
-        totalPoints += points;
-        validAnswers++;
-        console.log(`   -> Numeric: ${num} = ${points} pts`);
-      }
-    } 
-    // Positive keywords
-    else if (/sí|yes|definitivamente|mucho|siempre|excelente|claro/i.test(val)) {
-      totalPoints += 80;
-      validAnswers++;
-      console.log(`   -> Positive keyword = 80 pts`);
-    }
-    // Negative keywords  
-    else if (/no|nunca|jamás|nada|poco/i.test(val)) {
-      totalPoints += 20;
-      validAnswers++;
-      console.log(`   -> Negative keyword = 20 pts`);
-    }
-    // Neutral/text answers (length based)
-    else if (val.length > 10) {
-      totalPoints += 60; // Slightly positive for effort
-      validAnswers++;
-      console.log(`   -> Text length > 10 = 60 pts`);
-    }
-  });
-  
-  const calculatedScore = validAnswers > 0 ? Math.round(totalPoints / validAnswers) : 50;
-  console.log(`⚠️ [Fallback] Final Score: ${calculatedScore} (from ${validAnswers} valid answers)`);
-  
-  return {
-    reasoning: {
-      step1_context: 'Análisis calculado localmente (sin IA)',
-      step2_problem_validation: `Se evaluaron ${validAnswers} respuestas`,
-      step3_solution_fit: 'Pendiente evaluación manual',
-      step4_willingness_to_pay: 'Revisar respuestas financieras manualmente',
-      step5_red_flags: [],
-    },
-    scores: {
-      totalScore: calculatedScore,
-      confidence: 0.4,
-      dimensionScores: {
-        problemIntensity: calculatedScore,
-        solutionFit: calculatedScore,
-        currentBehavior: calculatedScore,
-        painPoint: calculatedScore,
-        earlyAdopter: calculatedScore,
-        willingnessToPay: calculatedScore,
+      "signals": {
+        "buying": ["Quote 1", "Specific budget mention", "Urgency signal"],
+        "redFlags": ["Polite lie example", "Contradiction example", "Vague promise"],
+        "contradictions": [
+          { "quote1": "I love it", "quote2": "I wouldn't pay", "analysis": "Classic polite rejection", "severity": "high" }
+        ]
       },
-    },
-    validation: {
-      contradictions: [],
-      evidenceQuality: 'moderate',
-      biasIndicators: [],
-    },
-    summary: `Score estimado: ${calculatedScore}/100. La IA no pudo completar el análisis detallado (Error 429). Se recomienda revisar las respuestas manualmente.`,
-    keyInsights: [
-      `Se procesaron ${validAnswers} respuestas con éxito`,
-      'El score refleja un promedio de las respuestas cuantificables',
-      'Conectar con Gemini API para análisis profundo',
-    ],
-  };
+      "recommendedPivot": "If NO-GO or PIVOT, suggest one concrete change. Else null.",
+      "visualAnalogy": "Your startup is like X but for Y (or a funny/insightful metaphor)"
+    }
+  `;
+
+  try {
+    // 3. EXECUTION LAYER
+    const rawResponse = await callGeminiAPI(prompt, true); // true = prefer JSON model if possible
+    
+    // 4. PARSING LAYER
+    const cleanJson = cleanJsonOutput(rawResponse);
+    return JSON.parse(cleanJson) as EnhancedAnalysisResult;
+
+  } catch (error) {
+    console.error("Surgical Analysis Failed:", error);
+    // Fallback safe object matched to new type
+    return {
+      matchScore: 0,
+      verdict: "NO-GO",
+      oneLinerVerdict: "AI Analysis temporarily unavailable.",
+      scores: { 
+        problemIntensity: 0, 
+        solutionFit: 0, 
+        marketTiming: 0, 
+        founderFit: 0 
+      },
+      signals: { 
+        buying: [], 
+        redFlags: ["System Error: Analysis Failed"], 
+        contradictions: [] 
+      },
+      recommendedPivot: "Retry analysis later."
+    };
+  }
+};
+
+// Utility to clean Markdown JSON blocks (```json ... ```) often returned by LLMs
+function cleanJsonOutput(text: string): string {
+  let clean = text.trim();
+  if (clean.startsWith('```json')) {
+    clean = clean.replace(/^```json/, '').replace(/```$/, '');
+  } else if (clean.startsWith('```')) {
+    clean = clean.replace(/^```/, '').replace(/```$/, '');
+  }
+  return clean.trim();
 }
-
-export type { EnhancedAnalysisResult };
-

@@ -195,6 +195,75 @@ export const InterviewModal: React.FC<InterviewModalProps> = ({ interview, proje
                </div>
             </div>
 
+            {/* SURGICAL ANALYSIS (PHASE 19) */}
+            {interview.enhancedAnalysis && (
+               <div className="mb-8 animate-fade-in-up">
+                  <h3 className="text-white font-bold text-lg mb-4 flex items-center gap-2">
+                     <Activity className="text-neon" /> Análisis Quirúrgico (Phase 19)
+                     {interview.enhancedAnalysis.verdict === 'GO' && <span className="bg-neon text-black text-[10px] font-bold px-2 py-0.5 rounded uppercase">GO Decision</span>}
+                     {interview.enhancedAnalysis.verdict === 'NO-GO' && <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">NO-GO</span>}
+                     {interview.enhancedAnalysis.verdict === 'PIVOT' && <span className="bg-yellow-400 text-black text-[10px] font-bold px-2 py-0.5 rounded uppercase">PIVOT Needed</span>}
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                     {/* Red Flags */}
+                     <div className="bg-red-500/10 border border-red-500/20 p-5 rounded-2xl">
+                        <h4 className="text-red-400 font-bold uppercase text-xs mb-3 flex items-center gap-2"><AlertTriangle size={14}/> Red Flags & Mentiras Detectadas</h4>
+                        {interview.enhancedAnalysis.signals.redFlags.length > 0 ? (
+                           <ul className="space-y-2">
+                              {interview.enhancedAnalysis.signals.redFlags.map((flag, idx) => (
+                                 <li key={idx} className="text-slate-300 text-sm flex items-start gap-2">
+                                    <span className="text-red-500 mt-1">×</span>
+                                    {flag}
+                                 </li>
+                              ))}
+                           </ul>
+                        ) : (
+                           <p className="text-slate-500 text-sm italic">No se detectaron banderas rojas.</p>
+                        )}
+                        
+                        {/* Contradictions */}
+                        {interview.enhancedAnalysis.signals.contradictions && interview.enhancedAnalysis.signals.contradictions.length > 0 && (
+                           <div className="mt-4 pt-4 border-t border-red-500/20">
+                              <h5 className="text-red-300 text-xs font-bold mb-2">Contradicciones Lógicas:</h5>
+                              {interview.enhancedAnalysis.signals.contradictions.map((c, i) => (
+                                 <div key={i} className="bg-black/40 p-3 rounded-lg text-xs text-slate-400 mb-2">
+                                    <p className="text-red-400 font-bold mb-1">"{c.quote1}" vs "{c.quote2}"</p>
+                                    <p>{c.analysis}</p>
+                                 </div>
+                              ))}
+                           </div>
+                        )}
+                     </div>
+
+                     {/* Buying Signals */}
+                     <div className="bg-emerald-500/10 border border-emerald-500/20 p-5 rounded-2xl">
+                        <h4 className="text-emerald-400 font-bold uppercase text-xs mb-3 flex items-center gap-2"><Zap size={14}/> Señales de Compra (Buying Signals)</h4>
+                        {interview.enhancedAnalysis.signals.buying.length > 0 ? (
+                           <ul className="space-y-2">
+                              {interview.enhancedAnalysis.signals.buying.map((signal, idx) => (
+                                 <li key={idx} className="text-slate-300 text-sm flex items-start gap-2">
+                                    <span className="text-emerald-500 mt-1">✓</span>
+                                    {signal}
+                                 </li>
+                              ))}
+                           </ul>
+                        ) : (
+                           <p className="text-slate-500 text-sm italic">No se detectaron señales claras de compra.</p>
+                        )}
+
+                        {interview.enhancedAnalysis.visualAnalogy && (
+                           <div className="mt-4 pt-4 border-t border-emerald-500/20">
+                              <p className="text-emerald-200 text-xs italic">
+                                 💡 "{interview.enhancedAnalysis.visualAnalogy}"
+                              </p>
+                           </div>
+                        )}
+                     </div>
+                  </div>
+               </div>
+            )}
+
             {/* Q&A Section */}
             <h3 className="text-white font-bold text-lg mb-6 flex items-center gap-2">
                <MessageSquare className="text-neon" /> Interview Transcript & Analysis

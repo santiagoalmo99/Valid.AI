@@ -69,6 +69,21 @@ export const BusinessReportGenerator: React.FC<Props> = ({
     setStep('generating');
     setError(null);
     
+    // VALIDATION: Ensure enough data exists
+    if (!interviews || interviews.length === 0) {
+       setError("No hay entrevistas realizadas. Necesitas datos reales para generar el reporte.");
+       setStep('config');
+       setGenerating(false);
+       return;
+    }
+
+    if (!project.description || project.description.length < 20) {
+       setError("La descripción del proyecto es muy corta. Agrega más detalles en la configuración.");
+       setStep('config');
+       setGenerating(false);
+       return;
+    }
+
     try {
       // Spend credits first
       const success = await spendCredits(userId, totalCost, `Report: ${project.name}`);
@@ -162,6 +177,7 @@ export const BusinessReportGenerator: React.FC<Props> = ({
                 totalCost={totalCost}
                 credits={credits}
                 hasEnoughCredits={hasEnoughCredits}
+                hasEnoughCredits={hasEnoughCredits}
                 error={error}
               />
             )}
@@ -186,7 +202,7 @@ export const BusinessReportGenerator: React.FC<Props> = ({
           <div className="flex items-center justify-between p-6 border-t border-white/10 bg-black/30">
             <div className="flex items-center gap-2 text-sm">
               <Zap className="w-4 h-4 text-yellow-500" />
-              <span className="text-slate-400">
+              <span className="text-slate-300">
                 Créditos: <span className="text-white font-semibold">{credits?.available ?? '...'}</span>
               </span>
             </div>
@@ -234,14 +250,53 @@ const ConfigStep: React.FC<{
   credits: UserCredits | null;
   hasEnoughCredits: boolean;
   error: string | null;
-}> = ({ sections, selectedSections, onToggle, totalCost, credits, hasEnoughCredits, error }) => (
+}> = ({ sections, selectedSections, onToggle, totalCost, credits, hasEnoughCredits, error }) => {
+  const [currency, setCurrency] = useState<'USD' | 'COP'>('COP'); // Default to COP for localization
+
+  // PRECIO DINÁMICO:
+  // Asumimos que 1 crédito = $5 USD de "Valor de Mercado" (Anchor)
+  // Asumimos que 1 crédito = $0.4 USD de "Costo Real Estimado" (lo que pagaría en API/Suscripción)
+  const marketValueUSD = totalCost * 5.4; 
+  const estimatedCostUSD = totalCost * 0.4;
+
+  const marketValue = currency === 'USD' 
+    ? `$${Math.round(marketValueUSD)} USD` 
+    : `$${(marketValueUSD * 4200).toLocaleString('es-CO')} COP`;
+
+  const estimatedCost = currency === 'USD'
+    ? `$${Math.round(estimatedCostUSD)} USD`
+    : `$${(estimatedCostUSD * 4200).toLocaleString('es-CO')} COP`;
+
+  return (
   <div className="space-y-6">
     {/* Value Anchor (Neuromarketing) */}
-    <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-xl p-4 text-center">
-      <p className="text-slate-400 text-sm">Valor de mercado de un reporte similar:</p>
-      <p className="text-2xl font-bold">
-        <span className="text-slate-500 line-through mr-2">$200 USD</span>
-        <span className="text-emerald-400">{totalCost} créditos</span>
+    <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-xl p-4 text-center relative overflow-hidden group">
+      <div className="absolute top-2 right-2 flex bg-black/20 rounded-lg p-0.5 border border-white/5">
+         <button 
+           onClick={() => setCurrency('USD')}
+           className={`px-2 py-1 rounded-md text-[10px] font-bold transition-all ${currency === 'USD' ? 'bg-white text-black' : 'text-slate-400 hover:text-white'}`}
+         >
+           USD
+         </button>
+         <button 
+           onClick={() => setCurrency('COP')}
+           className={`px-2 py-1 rounded-md text-[10px] font-bold transition-all ${currency === 'COP' ? 'bg-white text-black' : 'text-slate-400 hover:text-white'}`}
+         >
+           COP
+         </button>
+      </div>
+
+      <p className="text-slate-400 text-xs uppercase tracking-widest mb-1">Valor de mercado</p>
+      <p className="text-2xl font-bold mb-1">
+        <span className="text-slate-500 line-through mr-2 decoration-red-500/50 decoration-2">
+          {marketValue}
+        </span>
+        <span className="text-emerald-400 text-lg bg-emerald-500/10 px-2 py-1 rounded-lg border border-emerald-500/20">
+           ~ {estimatedCost} costo real
+        </span>
+      </p>
+      <p className="text-xs text-slate-500 mt-2">
+         Adquiérelo por solo <span className="text-emerald-400 font-bold">{totalCost} créditos</span>
       </p>
     </div>
     
@@ -303,7 +358,8 @@ const ConfigStep: React.FC<{
       <span className="text-2xl font-bold text-emerald-400">{totalCost} créditos</span>
     </div>
   </div>
-);
+  );
+};
 
 const GeneratingStep: React.FC<{
   progress: number;

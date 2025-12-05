@@ -6,7 +6,7 @@ import {
   Target, Lightbulb, TrendingUp, ChevronRight, Smartphone, Layers,
   Clock, DollarSign, Calculator, Sliders, Database, Cpu, Eye,
   FileUp, Scan, LayoutTemplate, MousePointer2, X, Mail, User, Briefcase,
-  ShoppingCart, Heart, Wallet, GraduationCap, Store, Upload
+  ShoppingCart, Heart, Wallet, GraduationCap, Store, Upload, Mic, Globe, LockKeyhole
 } from 'lucide-react';
 import { saveLead } from '../services/firebase';
 
@@ -299,11 +299,11 @@ export const LandingPage = () => {
           transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
           className="relative z-10 text-center max-w-6xl mx-auto"
         >
-          <div className="mb-8 flex justify-center">
-            <GlassCard className="px-5 py-2 flex items-center gap-2">
+            <div className="mb-8 flex justify-center">
+             <div className="px-6 py-2 rounded-full border border-neon/50 bg-neon/10 backdrop-blur-md flex items-center gap-3 shadow-[0_0_20px_rgba(0,255,148,0.3)] animate-pulse-slow">
               <Sparkles size={14} className="text-neon" />
               <span className="text-xs font-bold uppercase tracking-widest text-white">Gemini 2.0 Flash Inside</span>
-            </GlassCard>
+            </div>
           </div>
 
           <h1 className="text-6xl md:text-8xl lg:text-[11rem] font-semibold tracking-tighter mb-8 leading-[0.85]">
@@ -326,6 +326,133 @@ export const LandingPage = () => {
           </div>
         </motion.div>
       </section>
+
+      {/* --- NEW: VOICE INTELLIGENCE --- */}
+      <section className="py-32 px-6 relative z-10 border-t border-white/5">
+         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+            <Reveal>
+               <div className="relative">
+                  {/* Pulse Effect */}
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-neon/5 rounded-full blur-[100px] animate-pulse-slow pointer-events-none"></div>
+                  
+                  <GlassCard className="h-[400px] flex flex-col items-center justify-center relative overflow-hidden group" glow>
+                     <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
+                     
+                     <div className="w-24 h-24 rounded-full bg-black border border-neon/30 flex items-center justify-center relative z-10 group-hover:scale-110 transition-transform duration-500">
+                        <div className="absolute inset-0 bg-neon/20 rounded-full animate-ping"></div>
+                        <div className="absolute inset-0 bg-neon/10 rounded-full animate-pulse"></div>
+                        <Mic size={40} className="text-neon relative z-10" />
+                     </div>
+                     
+                     {/* Sound Wave Simulation */}
+                     <div className="flex gap-1 mt-8 h-8 items-center">
+                        {[...Array(10)].map((_, i) => (
+                           <div key={i} className="w-1 bg-neon/50 rounded-full animate-sound-wave" style={{
+                              height: Math.random() * 30 + 10 + 'px',
+                              animationDelay: i * 0.1 + 's'
+                           }}></div>
+                        ))}
+                     </div>
+                     <div className="mt-4 text-xs font-mono text-neon uppercase tracking-widest animate-pulse">
+                        Escuchando...
+                     </div>
+                  </GlassCard>
+               </div>
+            </Reveal>
+
+            <Reveal delay={0.2}>
+               <div>
+                  <div className="mb-4 text-neon font-mono text-xs uppercase tracking-widest">Nueva Función</div>
+                  <h2 className="text-4xl md:text-6xl font-semibold text-white mb-8 tracking-tight">
+                     No escribas. <br/>
+                     <span className="text-white/50">Solo habla.</span>
+                  </h2>
+                  <p className="text-lg text-white/60 leading-relaxed mb-8">
+                     La inspiración no espera al teclado. Hemos integrado un motor de <strong>Latenica Ultra-Baja</strong> que captura tus ideas al vuelo.
+                  </p>
+                  <ul className="space-y-6">
+                     <li className="flex items-start gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-neon/10 border border-neon/30 flex items-center justify-center flex-shrink-0">
+                           <Mic size={20} className="text-neon" />
+                        </div>
+                        <div>
+                           <h4 className="text-white font-bold mb-1">Entrevistas Híbridas</h4>
+                           <p className="text-sm text-white/50">Responde a tu consultor de IA con tu voz. Capturamos el tono, la duda y la emoción.</p>
+                        </div>
+                     </li>
+                     <li className="flex items-start gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center flex-shrink-0">
+                           <Zap size={20} className="text-purple-400" />
+                        </div>
+                        <div>
+                           <h4 className="text-white font-bold mb-1">Dictado de Ideas</h4>
+                           <p className="text-sm text-white/50">Camina y habla. Baja tu idea de la nube a la tierra en segundos.</p>
+                        </div>
+                     </li>
+                  </ul>
+               </div>
+            </Reveal>
+         </div>
+      </section>
+
+      {/* --- NEW: GLOBAL TRENDS --- */}
+      <section className="py-32 px-6 bg-white/[0.02] border-y border-white/5 relative z-10">
+         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+            
+            <Reveal>
+               <div>
+                  <div className="mb-4 text-blue-400 font-mono text-xs uppercase tracking-widest">Inteligencia Web</div>
+                  <h2 className="text-4xl md:text-6xl font-semibold text-white mb-8 tracking-tight">
+                     El Ojo Que <br/>
+                     <span className="text-white/50">Todo Lo Ve.</span>
+                  </h2>
+                  <p className="text-lg text-white/60 leading-relaxed mb-8">
+                     Tu competencia usa datos del año pasado. Tú usas datos de <strong>HOY</strong>.
+                     Hemos conectado el cerebro de Gemini al buscador de Google en tiempo real.
+                  </p>
+                  
+                  <div className="p-6 rounded-2xl bg-blue-500/5 border border-blue-500/10 mb-8">
+                     <div className="flex items-center gap-3 mb-2">
+                        <Globe size={18} className="text-blue-400" />
+                        <span className="text-blue-400 font-bold text-sm">Google Search Grounding</span>
+                     </div>
+                     <p className="text-sm text-white/70">
+                        "Detectando picos de interés en 'SaaS B2B' en la última semana..."
+                     </p>
+                  </div>
+               </div>
+            </Reveal>
+
+            <Reveal delay={0.2}>
+               <GlassCard className="h-[450px] relative overflow-hidden" glow>
+                   {/* Abstract Map Background */}
+                   <img 
+                      src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2000&auto=format&fit=crop" 
+                      className="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-screen" 
+                      alt="Earth"
+                   />
+                   <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/50"></div>
+
+                   {/* Floating Trend Cards */}
+                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm">
+                      {[ 
+                         { topic: "AI Agents", growth: "+450%", color: "text-emerald-400" },
+                         { topic: "Sustainable Tech", growth: "+120%", color: "text-blue-400" },
+                         { topic: "No-Code Tools", growth: "+85%", color: "text-purple-400" }
+                      ].map((trend, i) => (
+                         <div key={i} className="mb-3 p-4 bg-black/80 backdrop-blur-xl border border-white/10 rounded-xl flex justify-between items-center transform hover:scale-105 transition-transform cursor-default shadow-lg">
+                            <span className="text-white font-bold">{trend.topic}</span>
+                            <div className="flex items-center gap-2">
+                               <TrendingUp size={14} className={trend.color} />
+                               <span className={`text-sm font-mono ${trend.color}`}>{trend.growth}</span>
+                            </div>
+                         </div>
+                      ))}
+                   </div>
+               </GlassCard>
+            </Reveal>
+
+         </div>
 
       {/* --- THE VOID ENGINE --- */}
       <section className="py-40 px-6 relative z-10">
@@ -786,6 +913,98 @@ export const LandingPage = () => {
             </Reveal>
           </div>
         </div>
+      </section>
+
+      {/* --- MYSTERY VALIDATORS --- */}
+      <section className="py-32 px-6 relative z-10">
+         <div className="max-w-4xl mx-auto text-center mb-16">
+            <Reveal>
+               <h2 className="text-4xl md:text-5xl font-semibold text-white mb-6">Probado por Maestros.</h2>
+               <p className="text-lg text-white/50">
+                  Dos mentes brillantes están llevando nuestro algoritmo al límite. <br/>
+                  <span className="text-neon/80 font-mono text-sm uppercase tracking-widest block mt-2">Revelación Inminente</span>
+               </p>
+            </Reveal>
+         </div>
+
+         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+            {[
+               { title: "El Arquitecto de Unicornios", role: "Ex-VC Partner LatAm", desc: "Estresando nuestro scoring de inversión." },
+               { title: "La Científica de Datos", role: "PhD Consumer Behavior", desc: "Auditando nuestros patrones de detección de mentiras." }
+            ].map((profile, i) => (
+               <Reveal key={i} delay={i * 0.2}>
+                  <div className="relative group cursor-help">
+                     <div className="absolute inset-0 bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 z-20 flex flex-col items-center justify-center p-8 text-center transition-opacity duration-500 group-hover:opacity-10">
+                        <LockKeyhole size={48} className="text-white/20 mb-4" />
+                        <h3 className="text-2xl font-bold text-white mb-1 blur-[6px] select-none">Nombre Oculto</h3>
+                        <p className="text-white/40 blur-[4px]">Identidad Protegida</p>
+                     </div>
+                     <GlassCard className="p-8 h-64 flex flex-col items-center justify-center text-center bg-black/40 grayscale group-hover:grayscale-0 transition-all duration-500">
+                         <User size={48} className="text-white/20 mb-4" />
+                         <h3 className="text-xl font-bold text-white mb-1">{profile.title}</h3>
+                         <div className="text-neon text-xs font-bold uppercase tracking-widest mb-3">{profile.role}</div>
+                         <p className="text-white/60 text-sm">{profile.desc}</p>
+                     </GlassCard>
+                  </div>
+               </Reveal>
+            ))}
+         </div>
+      </section>
+
+      {/* --- PRICING --- */}
+      <section className="py-32 px-6 bg-white/[0.02] border-y border-white/5 relative z-10">
+         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+            <Reveal>
+               <div>
+                  <div className="mb-4 text-emerald-400 font-mono text-xs uppercase tracking-widest">Inversión</div>
+                  <h2 className="text-5xl md:text-7xl font-semibold text-white mb-8 tracking-tight">
+                     Inteligencia <br/>
+                     <span className="text-white/50">Democratizada.</span>
+                  </h2>
+                  <p className="text-lg text-white/60 leading-relaxed mb-8">
+                     Las firmas de consultoría cobran millones. Nosotros no.
+                     Accede al poder de Validación Híbrida por menos de lo que cuesta una cena.
+                  </p>
+                  <ul className="space-y-4">
+                     <li className="flex items-center gap-3 text-white/80">
+                        <CheckCircle size={18} className="text-emerald-400" /> Auditorías Ilimitadas
+                     </li>
+                     <li className="flex items-center gap-3 text-white/80">
+                        <CheckCircle size={18} className="text-emerald-400" /> Deep Research con Google Data
+                     </li>
+                     <li className="flex items-center gap-3 text-white/80">
+                        <CheckCircle size={18} className="text-emerald-400" /> Export certificada
+                     </li>
+                  </ul>
+               </div>
+            </Reveal>
+            
+            <Reveal delay={0.2}>
+               <div className="relative">
+                  <div className="absolute inset-0 bg-emerald-500/20 blur-[100px] rounded-full"></div>
+                  <GlassCard className="p-10 border-emerald-500/30 text-center relative overflow-hidden group">
+                      <div className="absolute top-0 right-0 p-4">
+                         <div className="bg-emerald-500 text-black text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                            Plan Pro
+                         </div>
+                      </div>
+                      
+                      <div className="text-white/40 text-sm font-bold uppercase tracking-widest mb-2">Lanzamiento</div>
+                      <div className="flex items-baseline justify-center gap-1 mb-8">
+                         <span className="text-xl text-white/60">$</span>
+                         <span className="text-8xl font-black text-white tracking-tighter group-hover:scale-110 transition-transform duration-500">19</span>
+                         <span className="text-xl text-white/60">/mes</span>
+                      </div>
+                      
+                      <div className="text-emerald-400 font-mono text-sm mb-8">APROX. $75.000 COP</div>
+                      
+                      <button onClick={handleLaunch} className="w-full py-4 bg-white text-black rounded-xl font-bold hover:scale-[1.02] transition-transform shadow-[0_0_30px_rgba(255,255,255,0.2)]">
+                         Empezar Ahora
+                      </button>
+                  </GlassCard>
+               </div>
+            </Reveal>
+         </div>
       </section>
 
       {/* --- GRAND FINALE (LEAD CAPTURE) --- */}

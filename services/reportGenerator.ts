@@ -414,89 +414,92 @@ function assembleReport(
   <title>${project.name} - ${isSpanish ? 'Informe de Negocio' : 'Business Report'}</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&display=swap');
     
     :root {
-      --primary: #00FF94;
-      --bg-dark: #0a0a0a;
-      --bg-card: #111111;
-      --text-primary: #ffffff;
-      --text-secondary: #a0a0a0;
+      --primary: #059669;       /* Professional Emerald Green */
+      --secondary: #2563EB;     /* Trustworhy Blue */
+      --bg-paper: #ffffff;      /* Clean White */
+      --bg-subtle: #f8fafc;     /* Lighter Grey */
+      --text-main: #1e293b;     /* Slate 800 - High Contrast */
+      --text-muted: #64748b;    /* Slate 500 */
+      --border: #e2e8f0;        /* Slate 200 */
     }
     
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
     body {
       font-family: 'Inter', sans-serif;
-      background: var(--bg-dark);
-      color: var(--text-primary);
-      line-height: 1.7;
-      font-size: 14px;
+      background: #f1f5f9;      /* Light grey background for the "desk" */
+      color: var(--text-main);
+      line-height: 1.8;
+      font-size: 16px;          /* Improved Readability */
+      -webkit-font-smoothing: antialiased;
     }
     
+    /* Simulate A4 Paper */
     .report-container {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 60px 40px;
+      max-width: 850px;         /* Approx A4 width */
+      margin: 40px auto;
+      background: var(--bg-paper);
+      padding: 80px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+      border-radius: 4px;
     }
     
+    /* Header - Professional & Clean */
     .report-header {
-      text-align: center;
-      padding: 60px 0;
-      border-bottom: 2px solid var(--primary);
-      margin-bottom: 40px;
+      text-align: left;
+      border-bottom: 4px solid var(--primary);
+      padding-bottom: 40px;
+      margin-bottom: 60px;
     }
     
     .report-header h1 {
-      font-size: 42px;
-      font-weight: 800;
-      margin-bottom: 15px;
-      background: linear-gradient(135deg, #fff, var(--primary));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      font-family: 'Merriweather', serif;
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 10px;
+      letter-spacing: -0.5px;
     }
     
-    .report-header .date {
-      color: var(--text-secondary);
+    .report-header .meta {
+      display: flex;
+      gap: 20px;
       font-size: 14px;
-    }
-    
-    .report-header .badge {
-      display: inline-block;
-      background: rgba(0,255,148,0.15);
-      color: var(--primary);
-      padding: 8px 20px;
-      border-radius: 30px;
-      font-size: 12px;
-      font-weight: 600;
-      margin-top: 20px;
+      color: var(--text-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
     
     .report-section {
-      background: var(--bg-card);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 16px;
-      padding: 35px;
-      margin-bottom: 30px;
+      margin-bottom: 50px;
+      page-break-inside: avoid;
     }
     
     .report-section h2 {
+      font-family: 'Merriweather', serif;
       font-size: 24px;
       font-weight: 700;
+      color: var(--text-main);
       margin-bottom: 25px;
-      color: var(--primary);
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       gap: 12px;
     }
     
     .section-content {
-      color: var(--text-secondary);
+      color: #334155; /* Slate 700 */
     }
     
-    .section-content p { margin-bottom: 16px; }
+    .section-content p { margin-bottom: 18px; }
     
     .section-content ul, .section-content ol {
-      margin: 16px 0;
+      margin: 20px 0;
       padding-left: 24px;
     }
     
@@ -505,53 +508,56 @@ function assembleReport(
     .section-content table {
       width: 100%;
       border-collapse: collapse;
-      margin: 20px 0;
+      margin: 25px 0;
+      font-size: 15px;
+      border: 1px solid var(--border);
     }
     
     .section-content th, .section-content td {
-      padding: 14px;
+      padding: 16px;
       text-align: left;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
+      border-bottom: 1px solid var(--border);
     }
     
     .section-content th {
-      background: rgba(0,255,148,0.1);
-      color: var(--primary);
+      background: var(--bg-subtle);
+      color: var(--text-main);
       font-weight: 600;
     }
     
     .section-content blockquote {
-      border-left: 4px solid var(--primary);
-      padding: 16px 24px;
-      margin: 20px 0;
-      background: rgba(0,255,148,0.05);
+      border-left: 4px solid var(--secondary);
+      background: #eff6ff; /* Blue 50 */
+      padding: 24px 30px;
+      margin: 30px 0;
       border-radius: 0 8px 8px 0;
       font-style: italic;
+      color: #1e3a8a;
     }
     
-    .section-content strong { color: var(--text-primary); }
+    .section-content strong { color: #0f172a; font-weight: 600; }
     
     .footer {
       text-align: center;
-      padding: 40px;
-      color: var(--text-secondary);
+      padding-top: 40px;
+      color: var(--text-muted);
       font-size: 12px;
-      border-top: 1px solid rgba(255,255,255,0.1);
-      margin-top: 40px;
+      border-top: 1px solid var(--border);
+      margin-top: 80px;
     }
     
-    .footer .logo {
-      font-size: 24px;
-      font-weight: 800;
-      margin-bottom: 10px;
-    }
-    
-    .footer .logo span { color: var(--primary); }
+    .footer .logo span { color: var(--primary); font-weight: 700; }
     
     @media print {
-      body { background: white; color: black; }
-      .report-section { border-color: #ddd; }
-      .section-content { color: #333; }
+      body { background: white; }
+      .report-container { 
+        margin: 0; 
+        padding: 40px;
+        box-shadow: none;
+        max-width: 100%;
+      }
+      .report-section { page-break-inside: auto; }
+      h2 { page-break-after: avoid; }
     }
   </style>
 </head>
@@ -559,16 +565,20 @@ function assembleReport(
   <div class="report-container">
     <header class="report-header">
       <h1>${project.name}</h1>
-      <p class="date">${date}</p>
-      <span class="badge">${isSpanish ? 'Informe de Validación de Negocio' : 'Business Validation Report'}</span>
+      <div class="meta">
+        <span>${date}</span>
+        <span>•</span>
+        <span>${isSpanish ? 'Validación Estratégica' : 'Strategic Validation'}</span>
+      </div>
     </header>
     
     ${sectionHtml}
     
     <footer class="footer">
-      <div class="logo">VALID<span>.AI</span></div>
-      <p>${isSpanish ? 'Generado con inteligencia artificial' : 'Generated with artificial intelligence'}</p>
-      <p>${isSpanish ? 'Powered by Gemini & Claude' : 'Powered by Gemini & Claude'}</p>
+      <div class="logo">VALID<span>.AI</span> Business Intelligence</div>
+      <p style="margin-top:8px">
+        ${isSpanish ? 'Generado con motor de inteligencia híbrida' : 'Generated with hybrid intelligence engine'}
+      </p>
     </footer>
   </div>
 </body>

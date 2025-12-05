@@ -70,9 +70,20 @@ class VoiceRecorderService {
       // Stop the stream immediately - we just wanted to check permission
       stream.getTracks().forEach(track => track.stop());
       return true;
-    } catch (error) {
-      console.error('Microphone permission denied:', error);
-      this.updateState({ error: 'Permiso de micrófono denegado' });
+    } catch (error: any) {
+      console.error('Microphone permission error:', error);
+      
+      let errorMessage = 'Error al acceder al micrófono';
+      
+      if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+        errorMessage = 'Permiso denegado. Por favor permite el acceso al micrófono en la barra de dirección.';
+      } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+        errorMessage = 'No se encontró ningún micrófono conectado.';
+      } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+        errorMessage = 'El micrófono está siendo usado por otra aplicación.';
+      }
+
+      this.updateState({ error: errorMessage });
       return false;
     }
   }
