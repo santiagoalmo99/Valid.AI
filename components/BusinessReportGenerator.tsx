@@ -170,19 +170,6 @@ export const BusinessReportGenerator: React.FC<Props> = ({
           {/* Content */}
           <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
             {step === 'config' && (
-              <ConfigStep
-                sections={REPORT_SECTIONS}
-                selectedSections={selectedSections}
-                onToggle={toggleSection}
-                totalCost={totalCost}
-                credits={credits}
-                hasEnoughCredits={hasEnoughCredits}
-                hasEnoughCredits={hasEnoughCredits}
-                error={error}
-              />
-            )}
-            
-            {step === 'generating' && (
               <GeneratingStep 
                 progress={progress} 
                 currentStage={currentStage} 

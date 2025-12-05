@@ -453,6 +453,7 @@ export const LandingPage = () => {
             </Reveal>
 
          </div>
+      </section>
 
       {/* --- THE VOID ENGINE --- */}
       <section className="py-40 px-6 relative z-10">
