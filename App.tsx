@@ -16,6 +16,7 @@ import { staggerContainer, staggerItem, fadeInUp, scaleIn } from './utils/animat
 import { TemplateGallery } from './components/TemplateGallery';
 import { templateToProject } from './constants/templates';
 import { SmartQuestionWidget } from './components/SmartQuestionWidget';
+import { LandingPage } from './components/LandingPage';
 
 // Lazy Load Heavy Components
 const QuestionAnalysis = React.lazy(() => import('./components/QuestionAnalysis').then(module => ({ default: module.QuestionAnalysis })));

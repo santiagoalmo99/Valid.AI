@@ -181,3 +181,45 @@ export const deleteInterviewsBatch = async (interviewIds: string[]) => {
   });
   await batch.commit();
 };
+
+// LEADS
+export interface LeadData {
+  name: string;
+  email: string;
+  role: string;
+  stage: string;
+  source?: string;
+  createdAt: Date;
+}
+
+export const saveLead = async (lead: LeadData): Promise<boolean> => {
+  console.log('🔵 [Firebase] Saving lead:', lead.email);
+  
+  try {
+    await addDoc(collection(db, 'leads'), {
+      ...lead,
+      createdAt: new Date(),
+      source: 'landing_page'
+    });
+    console.log('🟢 [Firebase] Lead saved successfully');
+    return true;
+  } catch (error: any) {
+    console.error('🔴 [Firebase] saveLead ERROR:', error);
+    
+    // Fallback to localStorage
+    try {
+      const localLeads = JSON.parse(localStorage.getItem('validai_leads') || '[]');
+      localLeads.push({
+        ...lead,
+        createdAt: new Date().toISOString(),
+        source: 'landing_page'
+      });
+      localStorage.setItem('validai_leads', JSON.stringify(localLeads));
+      console.log('🟢 [LocalStorage] Lead saved locally as fallback');
+      return true;
+    } catch (localError) {
+      console.error('🔴 [LocalStorage] Fallback also failed:', localError);
+      return false;
+    }
+  }
+};

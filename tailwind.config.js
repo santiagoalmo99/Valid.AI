@@ -2,6 +2,8 @@
 export default {
   content: [
     "./index.html",
+    "./landing.html",
+    "./landing.tsx",
     "./src/**/*.{js,ts,jsx,tsx}",
     "./**/*.{js,ts,jsx,tsx}",
   ],
@@ -29,8 +31,12 @@ export default {
           '60%': { transform: 'translate(30%, 30%) rotate(10deg) scale(1.1)' },
           '80%': { transform: 'translate(-30%, -30%) rotate(-10deg) scale(0.9)' },
           '100%': { transform: 'translate(0, 0) rotate(0deg) scale(1)' },
+        },
+        shimmer: {
+          '0%': { backgroundPosition: '200% 0' },
+          '100%': { backgroundPosition: '-200% 0' }
         }
-      }
+      },
     },
   },
   plugins: [],
