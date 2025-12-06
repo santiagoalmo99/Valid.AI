@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VALID.AI MANIFESTO 2025</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050505;
+            --text: #ffffff;
+            --neon: #00ff94;
+            --purple: #bf5af2;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.08);
+        }
+
+        body {
+            background-color: #000;
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            line-height: 1.6;
+        }
+
+        .document-container {
+            max-width: 21cm;
+            width: 100%;
+            background: #0a0a0a;
+            box-shadow: 0 0 100px rgba(0,0,0,0.8);
+            border: 1px solid #222;
+        }
+
+        .page {
+            padding: 80px;
+            position: relative;
+            border-bottom: 1px solid #1a1a1a;
+            min-height: 1100px;
+        }
+
+        /* Hero Header */
+        h1 {
+            font-size: 5rem;
+            font-weight: 900;
+            letter-spacing: -3px;
+            line-height: 0.9;
+            margin: 0 0 20px 0;
+            background: linear-gradient(to bottom right, #fff, #666);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .sub-hero {
+            font-size: 1.5rem;
+            color: var(--neon);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 60px;
+            font-weight: 600;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-top: 60px;
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        h2 span.num {
+            color: #333;
+            font-family: monospace;
+            font-size: 1.5rem;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            color: #888;
+            font-weight: 400;
+            margin-top: -15px;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+
+        p {
+            font-size: 1.1rem;
+            color: #ccc;
+            margin-bottom: 25px;
+            max-width: 90%;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 30px 0;
+        }
+
+        li {
+            padding-left: 20px;
+            border-left: 2px solid var(--neon);
+            margin-bottom: 20px;
+            margin-left: 10px;
+        }
+
+        li strong {
+            color: #fff;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .feature-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 40px;
+            border-radius: 16px;
+            margin: 40px 0;
+        }
+
+        .quote {
+            font-size: 1.8rem;
+            font-weight: 300;
+            text-align: center;
+            padding: 60px;
+            color: #fff;
+            border-top: 1px solid #222;
+            border-bottom: 1px solid #222;
+            margin: 60px 0;
+            background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%);
+        }
+
+        .price-card {
+            background: linear-gradient(145deg, rgba(0,255,148,0.05), transparent);
+            border: 1px solid var(--neon);
+            padding: 60px;
+            text-align: center;
+            border-radius: 24px;
+            margin: 60px auto;
+            max-width: 500px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .price-bg {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 5px;
+            background: var(--neon);
+            box-shadow: 0 0 20px var(--neon);
+        }
+
+        .price-amount {
+            font-size: 6rem;
+            font-weight: 900;
+            color: #fff;
+            line-height: 1;
+            margin: 20px 0;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px;
+            font-size: 0.8rem;
+            color: #444;
+            border-top: 1px solid #1a1a1a;
+        }
+
+        .tag {
+            display: inline-block;
+            background: #222;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="document-container">
+        
+        <!-- PAGE 1: INTRO -->
+        <div class="page">
+            <div style="margin-top: 15%;">
+                <div class="sub-hero">Est. 2025 // Confidential</div>
+                <h1>VALID.AI<br>MANIFESTO.</h1>
+                <p style="font-size: 1.8rem; color: #888; margin-top: 20px;">La validación, redefinida.</p>
+            </div>
+
+            <div class="quote">
+                "La simplicidad es la máxima sofisticación."
+            </div>
+
+            <p style="font-size: 1.3rem; leading-relaxed;">
+                Bienvenido a la nueva era. <strong>VALID.AI</strong> no es una actualización incremental. Es un salto cuántico. Hemos transformado el doloroso proceso de validar una idea en algo eficiente, preciso y <strong>hermoso</strong>.
+            </p>
+        </div>
+
+        <!-- PAGE 2: CORE TECH -->
+        <div class="page">
+            <h2 style="color: #fff;"><span class="num">01.</span> The Void Engine + UI</h2>
+            <h3>Diseño que respira. Potencia que asusta.</h3>
+            
+            <p>Olvida las hojas de cálculo. Hemos creado una interfaz que se siente viva.</p>
+
+            <ul>
+                <li><strong>Inmersión Total ("Void Mode")</strong> Fondos oscuros profundos que eliminan distracciones. Solo tus datos.</li>
+                <li><strong>Glassmorphism Dinámico</strong> Paneles de vidrio que flotan, creando una jerarquía visual táctil.</li>
+                <li><strong>Resiliencia Nuclear (Offline-First)</strong> Tus ideas valen demasiado. El sistema guarda localmente cada insight.</li>
+            </ul>
+
+            <h2 style="color: #fff; margin-top: 80px;"><span class="num">02.</span> Gemini 2.5</h2>
+            <h3>El Co-Fundador Digital.</h3>
+            
+            <div class="feature-box">
+                <p><strong>NUEVA ARQUITECTURA.</strong> Hemos integrado el modelo experimental de Google. No solo "chatea". <strong>Piensa.</strong></p>
+                <p style="margin-top: 20px;">Utiliza <strong>Chain-of-Thought Reasoning</strong>: Analiza contexto, busca contradicciones y calcula la probabilidad de éxito matemático antes de responder.</p>
+            </div>
+        </div>
+
+        <!-- PAGE 3: NEW FEATURES -->
+        <div class="page">
+            <h2><span class="num">03.</span> Web Intelligence <span class="tag" style="background: #2563eb;">ACTIVE</span></h2>
+            <h3>El Ojo Que Todo Lo Ve.</h3>
+            <p>Tu competencia usa datos de 2023. Tú usas datos de <strong>HOY</strong>. Conectamos Gemini al flujo de Google Search en tiempo real.</p>
+            <ul>
+                <li><strong>Caza-Tendencias:</strong> Escanea Silicon Valley y Shenzhen mientras duermes.</li>
+                <li><strong>Grounding Real:</strong> Valida tamaños de mercado con reportes financieros de esta mañana.</li>
+            </ul>
+
+            <h2 style="margin-top: 80px;"><span class="num">04.</span> Voice Command <span class="tag" style="background: var(--purple);">BETA</span></h2>
+            <h3>Deja de escribir. Empieza a dirigir.</h3>
+            <div class="grid-2">
+                <div style="background: #111; padding: 20px; border-radius: 12px;">
+                    <strong style="color: #fff; display:block; margin-bottom:10px;">Entrevistas Híbridas</strong>
+                    <p style="font-size: 0.9rem;">Tus usuarios hablan con la IA. Detectamos la duda en su voz.</p>
+                </div>
+                <div style="background: #111; padding: 20px; border-radius: 12px;">
+                    <strong style="color: #fff; display:block; margin-bottom:10px;">Dictado de Ideas</strong>
+                    <p style="font-size: 0.9rem;">Camina y habla. La IA estructura tu caos en un Business Plan.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE 4: PROTOCOLS & SHADOW BOARD -->
+        <div class="page">
+            <h2><span class="num">08.</span> Holo-Verify Protocol™</h2>
+            <h3>La prueba definitiva.</h3>
+            <p>Si tu idea supera los 70 Puntos, desbloqueas el <strong>Validation Certificate</strong>. Un enlace vivo y encriptado para demostrar tracción real a inversores.</p>
+
+            <h2 style="margin-top: 80px;"><span class="num">10.</span> The Shadow Board</h2>
+            <h3>Validado por los Dioses.</h3>
+            
+            <div class="grid-2" style="filter: blur(0.5px);">
+                <div style="border: 1px solid #333; padding: 30px; border-radius: 12px;">
+                    <div style="font-size: 2rem;">🕵️‍♂️</div>
+                    <h4>El Arquitecto de Unicornios</h4>
+                    <p style="font-size: 0.9rem; color: #666;">Ex-Partner VC Tier 1.</p>
+                </div>
+                <div style="border: 1px solid #333; padding: 30px; border-radius: 12px;">
+                    <div style="font-size: 2rem;">👩‍💻</div>
+                    <h4>La Profeta de Datos</h4>
+                    <p style="font-size: 0.9rem; color: #666;">PhD Behavioral Science.</p>
+                </div>
+            </div>
+            <p style="text-align: center; margin-top: 20px; font-size: 0.9rem; color: #444;">(Identidades Clasificadas)</p>
+        </div>
+
+        <!-- PAGE 5: PRICING -->
+        <div class="page" style="min-height: 800px; display: flex; flex-direction: column; justify-content: center;">
+            <div class="price-card">
+                <div class="price-bg"></div>
+                <h3 style="color: var(--neon); letter-spacing: 3px; font-weight: 700; margin: 0;">PLAN PRO</h3>
+                <p style="margin-bottom: 40px; color: #888;">Early Access</p>
+                
+                <div class="price-amount">$19 <span style="font-size: 2rem;">USD</span></div>
+                <p style="color: #666;">Aprox. $75,000 COP / mes</p>
+
+                <div style="text-align: left; margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 40px;">
+                    <div style="margin-bottom: 10px;">✅ Auditorías Ilimitadas</div>
+                    <div style="margin-bottom: 10px;">✅ Deep Research (Web)</div>
+                    <div style="margin-bottom: 10px;">✅ Certificación Holo-Verify</div>
+                    <div style="margin-bottom: 10px;">✅ Voice Command</div>
+                </div>
+            </div>
+
+            <p style="text-align: center; font-style: italic; color: #666;">"Menos de lo que cuesta una cena. Más ROI que un MBA."</p>
+        </div>
+
+        <div class="footer">
+            VALID.AI // INTELLIGENCE. VERIFIED. // 2025
+        </div>
+
+    </div>
+
+</body>
+</html>

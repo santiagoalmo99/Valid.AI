@@ -302,7 +302,8 @@ export const LandingPage = () => {
             <div className="mb-8 flex justify-center">
              <div className="px-6 py-2 rounded-full border border-neon/50 bg-neon/10 backdrop-blur-md flex items-center gap-3 shadow-[0_0_20px_rgba(0,255,148,0.3)] animate-pulse-slow">
               <Sparkles size={14} className="text-neon" />
-              <span className="text-xs font-bold uppercase tracking-widest text-white">Gemini 2.0 Flash Inside</span>
+              <span className="text-xs font-bold uppercase tracking-widest text-white">Cascade Intelligence</span>
+              <span className="text-[10px] text-white/60">Claude + Gemini 2.5</span>
             </div>
           </div>
 
@@ -466,7 +467,7 @@ export const LandingPage = () => {
                 <span className="text-white/50">Potencia Bruta.</span>
               </h2>
               <p className="text-lg text-white/60 leading-relaxed mb-8">
-                Construido sobre una arquitectura resiliente y estética. Combina la velocidad de <strong className="text-white">React + Vite</strong> con la inteligencia de <strong className="text-white">Gemini 2.0</strong>.
+                Construido sobre una arquitectura resiliente y estética. Combina la velocidad de <strong className="text-white">React + Vite</strong> con la potencia de <strong className="text-white">Cascade Intelligence</strong> (Claude + Gemini 2.5).
               </p>
               <ul className="space-y-6">
                 <li className="flex items-start gap-4">
@@ -699,7 +700,7 @@ export const LandingPage = () => {
                 <span className="text-white/50">No solo piensa. Razona.</span>
               </h2>
               <p className="text-lg text-white/60 leading-relaxed mb-8">
-                Bajo el capó, Valid.AI corre con <strong className="text-white">Gemini 2.0 Flash</strong>, el modelo más avanzado de Google. Pero no lo usamos como un chatbot cualquiera.
+                Bajo el capó, Valid.AI corre con <strong className="text-white">Cascade Intelligence</strong> — Claude Sonnet 4.5 para razonamiento profundo + Gemini 2.5 para búsqueda web en tiempo real. Dos cerebros, una misión.
               </p>
               <ul className="space-y-6">
                 <li className="flex items-start gap-4">
@@ -736,82 +737,147 @@ export const LandingPage = () => {
               </Reveal>
            </div>
            
-           <div className="space-y-20">
-              {[
-                 { 
-                   step: "01", 
-                   title: "La Semilla", 
-                   desc: "Todo comienza con un pensamiento. Escribe tu idea en lenguaje natural, sin formalismos. La IA entiende tu visión.",
-                   icon: Lightbulb,
-                   example: '"Quiero una app que mida el estrés con el reloj..."'
-                 },
-                 { 
-                   step: "02", 
-                   title: "El Interrogatorio", 
-                   desc: "La IA actúa como un consultor senior. No asume nada. Te hace preguntas dinámicas para desafiar tus suposiciones.",
-                   icon: MessageSquare,
-                   example: '"¿B2B o B2C? ¿Qué hardware usarían?"'
-                 },
-                 { 
-                   step: "03", 
-                   title: "La Génesis", 
-                   desc: "En segundos, obtienes un Plan de Investigación completo: Objetivos claros, Personas y un Guion de Entrevista sin sesgos.",
-                   icon: FileText,
-                   example: 'Guion listo para entrevistar'
-                 }
-              ].map((item, i) => (
-                 <Reveal key={i} delay={i * 0.1}>
-                    <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
-                       {/* Number */}
-                       <div className="md:col-span-2 flex justify-center">
-                          <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-neon/20 to-emerald-500/10 border border-neon/30 flex items-center justify-center shadow-[0_0_30px_rgba(58,255,151,0.2)]">
-                             <item.icon className="text-neon" size={32} />
+           {/* Enhanced Timeline with Connecting Line */}
+           <div className="relative">
+              {/* Connecting Line */}
+              <div className="absolute left-10 md:left-[calc(8.33%+2.5rem)] top-10 bottom-20 w-[2px] bg-gradient-to-b from-neon via-emerald-500/50 to-transparent hidden md:block"></div>
+              
+              <div className="space-y-16 md:space-y-24">
+                 {[
+                    { 
+                      step: "01", 
+                      title: "La Semilla", 
+                      desc: "Todo comienza con un pensamiento. Escribe tu idea en lenguaje natural, sin formalismos. La IA entiende tu visión.",
+                      icon: Lightbulb,
+                      example: '"Quiero una app que mida el estrés con el reloj..."',
+                      typingEffect: true
+                    },
+                    { 
+                      step: "02", 
+                      title: "El Interrogatorio", 
+                      desc: "La IA actúa como un consultor senior. No asume nada. Te hace preguntas dinámicas para desafiar tus suposiciones.",
+                      icon: MessageSquare,
+                      example: '"¿B2B o B2C? ¿Qué hardware usarían? ¿Por qué ahora?"',
+                      typingEffect: true
+                    },
+                    { 
+                      step: "03", 
+                      title: "La Génesis", 
+                      desc: "En segundos, obtienes un Plan de Investigación completo: Objetivos claros, Personas y un Guion de Entrevista sin sesgos.",
+                      icon: FileText,
+                      example: '✅ Plan de Investigación generado',
+                      typingEffect: false
+                    }
+                 ].map((item, i) => (
+                    <Reveal key={i} delay={i * 0.15}>
+                       <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center relative">
+                          {/* Number with Pulse */}
+                          <div className="md:col-span-2 flex justify-center relative">
+                             <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="w-24 h-24 bg-neon/20 rounded-full blur-xl animate-pulse"></div>
+                             </div>
+                             <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-neon/30 to-emerald-500/20 border-2 border-neon/50 flex items-center justify-center shadow-[0_0_40px_rgba(58,255,151,0.3)] relative z-10 group-hover:scale-110 transition-transform">
+                                <item.icon className="text-neon" size={32} />
+                             </div>
                           </div>
-                       </div>
-                       
-                       {/* Content */}
-                       <div className="md:col-span-5">
-                          <div className="flex items-center gap-3 mb-3">
-                             <span className="text-neon font-mono text-sm font-bold">{item.step}</span>
-                             <h3 className="text-2xl font-bold text-white">{item.title}</h3>
+                          
+                          {/* Content */}
+                          <div className="md:col-span-5">
+                             <div className="flex items-center gap-3 mb-3">
+                                <span className="text-neon font-mono text-lg font-bold bg-neon/10 px-3 py-1 rounded-full">{item.step}</span>
+                                <h3 className="text-2xl font-bold text-white">{item.title}</h3>
+                             </div>
+                             <p className="text-white/60 leading-relaxed text-lg">{item.desc}</p>
                           </div>
-                          <p className="text-white/60 leading-relaxed">{item.desc}</p>
-                       </div>
 
-                       {/* Example */}
-                       <div className="md:col-span-5">
-                          <GlassCard className="p-6">
-                             <div className="text-sm text-white/40 mb-2">Ejemplo:</div>
-                             <div className="text-white font-medium italic">{item.example}</div>
-                          </GlassCard>
+                          {/* Interactive Example Widget */}
+                          <div className="md:col-span-5">
+                             <GlassCard className="p-6 relative overflow-hidden" glow>
+                                <div className="absolute top-3 right-3">
+                                   <div className="w-2 h-2 bg-neon rounded-full animate-pulse"></div>
+                                </div>
+                                <div className="text-xs text-neon font-mono uppercase tracking-widest mb-3 flex items-center gap-2">
+                                   <Cpu size={12} /> {item.typingEffect ? 'Input en tiempo real' : 'Output generado'}
+                                </div>
+                                <div className="text-white font-medium text-lg">
+                                   {item.typingEffect ? (
+                                      <span className="border-r-2 border-neon animate-pulse">{item.example}</span>
+                                   ) : (
+                                      <span className="text-neon font-bold">{item.example}</span>
+                                   )}
+                                </div>
+                             </GlassCard>
+                          </div>
                        </div>
-                    </div>
-                 </Reveal>
-              ))}
+                    </Reveal>
+                 ))}
+              </div>
            </div>
         </div>
       </section>
 
       {/* --- TEMPLATE GALLERY --- */}
-      <section className="py-32 px-6 bg-white/[0.02] border-y border-white/5 relative z-10">
-        <div className="max-w-7xl mx-auto">
+      <section className="py-32 px-6 bg-white/[0.02] border-y border-white/5 relative z-10 overflow-hidden">
+        {/* Floating Particles Background */}
+        <div className="absolute inset-0 pointer-events-none">
+          {[...Array(8)].map((_, i) => (
+            <div 
+              key={i}
+              className="absolute w-1 h-1 bg-neon/30 rounded-full animate-float"
+              style={{
+                left: `${10 + i * 12}%`,
+                top: `${20 + (i % 3) * 25}%`,
+                animationDelay: `${i * 0.5}s`,
+                animationDuration: `${3 + i * 0.5}s`
+              }}
+            ></div>
+          ))}
+        </div>
+        
+        <div className="max-w-7xl mx-auto relative z-10">
           <Reveal>
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-6xl font-semibold text-white mb-4 tracking-tight">
                 Galería de Plantillas
               </h2>
               <p className="text-xl text-white/50">No empieces desde cero. Empieza desde la cima.</p>
+              <p className="text-sm text-neon/60 mt-4 font-mono">Metodología Y Combinator + Lean Startup incluida</p>
             </div>
           </Reveal>
           
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {templates.map((template, i) => (
-              <Reveal key={i} delay={i * 0.05}>
-                <GlassCard className="p-6 h-40 flex flex-col justify-between cursor-pointer hover:border-neon/30 transition-all group hover:scale-[1.02]">
-                  <template.icon className="text-white/40 group-hover:text-neon transition-colors" size={28} />
-                  <div>
-                    <h3 className="text-lg font-bold text-white">{template.name}</h3>
-                    <p className="text-sm text-white/40">{template.desc}</p>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+            {[
+              { name: 'SaaS B2B', icon: Server, desc: 'Software empresarial', questions: 24, focus: 'Enterprise' },
+              { name: 'E-commerce', icon: ShoppingCart, desc: 'Tienda online', questions: 18, focus: 'Retail' },
+              { name: 'HealthTech', icon: Heart, desc: 'Salud y bienestar', questions: 22, focus: 'Healthcare' },
+              { name: 'FinTech', icon: Wallet, desc: 'Finanzas digitales', questions: 26, focus: 'Finance' },
+              { name: 'EdTech', icon: GraduationCap, desc: 'Educación', questions: 20, focus: 'Education' },
+              { name: 'Marketplace', icon: Store, desc: 'Plataforma multi-vendor', questions: 28, focus: 'Platform' }
+            ].map((template, i) => (
+              <Reveal key={i} delay={i * 0.08}>
+                <GlassCard className="p-6 h-48 flex flex-col justify-between cursor-pointer hover:border-neon/50 transition-all group hover:scale-[1.03] relative overflow-hidden">
+                  {/* Hover Glow Effect */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-neon/0 to-neon/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  
+                  {/* Icon with Glow */}
+                  <div className="relative z-10 flex items-start justify-between">
+                    <div className="w-12 h-12 rounded-xl bg-white/5 group-hover:bg-neon/20 flex items-center justify-center transition-all duration-300">
+                      <template.icon className="text-white/40 group-hover:text-neon transition-colors" size={24} />
+                    </div>
+                    {/* Question Count Badge */}
+                    <div className="bg-white/5 group-hover:bg-neon/10 px-2 py-1 rounded-full text-[10px] font-mono text-white/40 group-hover:text-neon transition-all">
+                      {template.questions} preguntas
+                    </div>
+                  </div>
+                  
+                  <div className="relative z-10">
+                    <h3 className="text-lg font-bold text-white group-hover:text-neon transition-colors">{template.name}</h3>
+                    <p className="text-sm text-white/40 mb-2">{template.desc}</p>
+                    {/* Industry Focus Tag */}
+                    <div className="inline-flex items-center gap-1 bg-white/5 px-2 py-0.5 rounded text-[10px] text-white/30 group-hover:bg-neon/10 group-hover:text-neon/80 transition-all">
+                      <Target size={10} />
+                      {template.focus}
+                    </div>
                   </div>
                 </GlassCard>
               </Reveal>
@@ -819,6 +885,7 @@ export const LandingPage = () => {
           </div>
         </div>
       </section>
+
 
       {/* --- DOCUMENT UPLOADER --- */}
       <section className="py-32 px-6 relative z-10">
@@ -878,14 +945,22 @@ export const LandingPage = () => {
             <Reveal>
               <h2 className="text-4xl md:text-6xl font-semibold text-white mb-6 tracking-tight">Las 6 Dimensiones de la Verdad.</h2>
               <p className="text-xl text-white/50 max-w-2xl mx-auto">
-                No adivinamos. Medimos. Interactúa con el simulador.
+                No adivinamos. Medimos.
               </p>
             </Reveal>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <Reveal delay={0.2}>
-              <ValidationSimulator />
+              <div className="relative">
+                <ValidationSimulator />
+                {/* Pulsing CTA */}
+                <div className="mt-6 flex items-center justify-center gap-3 animate-pulse">
+                  <div className="w-3 h-3 bg-neon rounded-full shadow-[0_0_15px_rgba(0,255,148,0.8)]"></div>
+                  <span className="text-neon font-bold text-lg tracking-wide">Interactúa con el simulador</span>
+                  <div className="w-3 h-3 bg-neon rounded-full shadow-[0_0_15px_rgba(0,255,148,0.8)]"></div>
+                </div>
+              </div>
             </Reveal>
             <Reveal delay={0.4}>
               <div className="space-y-6">
@@ -916,6 +991,136 @@ export const LandingPage = () => {
         </div>
       </section>
 
+      {/* --- HOLO-VERIFY PROTOCOL [BETA] --- */}
+      <section className="py-40 px-6 relative z-10">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+          <Reveal>
+            <div>
+              <div className="mb-4 flex items-center gap-3">
+                <span className="text-purple-400 font-mono text-xs uppercase tracking-widest">Certificación</span>
+                <span className="bg-purple-500/20 text-purple-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-purple-500/30 animate-pulse">BETA</span>
+              </div>
+              <h2 className="text-4xl md:text-6xl font-semibold text-white mb-8 tracking-tight">
+                Holo-Verify™ <br/>
+                <span className="text-white/50">Tu credencial forense.</span>
+              </h2>
+              <p className="text-lg text-white/60 leading-relaxed mb-8">
+                Cualquiera puede hacer un PowerPoint. Solo VALID.AI te da una <strong className="text-white">credencial verificable</strong> que demuestra tracción real ante inversores.
+              </p>
+              <ul className="space-y-6">
+                <li className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center flex-shrink-0">
+                    <Shield size={20} className="text-purple-400" />
+                  </div>
+                  <div>
+                    <h4 className="text-white font-bold mb-1">YC Readiness Score™</h4>
+                    <p className="text-sm text-white/50">Auditoría con severidad de Partner Y Combinator. Volumen, consistencia y performance.</p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-neon/10 border border-neon/30 flex items-center justify-center flex-shrink-0">
+                    <Lock size={20} className="text-neon" />
+                  </div>
+                  <div>
+                    <h4 className="text-white font-bold mb-1">Certificado Vivo</h4>
+                    <p className="text-sm text-white/50">Enlace cinemático y encriptado: valid.ai/verify/... Envíaselo a inversores.</p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </Reveal>
+          
+          <Reveal delay={0.2}>
+            <GlassCard className="h-[450px] relative overflow-hidden flex items-center justify-center" glow>
+              {/* Holographic Scanner Effect */}
+              <div className="absolute inset-0 bg-gradient-to-b from-purple-500/5 via-transparent to-neon/5"></div>
+              
+              {/* Scanning Line Animation */}
+              <div className="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-neon to-transparent animate-scan"></div>
+              
+              {/* Certificate Preview */}
+              <div className="relative z-10 text-center">
+                <div className="w-32 h-32 mx-auto mb-6 rounded-full bg-gradient-to-br from-purple-500/30 to-neon/30 border-2 border-white/20 flex items-center justify-center shadow-[0_0_60px_rgba(147,51,234,0.3)]">
+                  <Shield size={48} className="text-white" />
+                </div>
+                <div className="text-6xl font-black text-white mb-2">87</div>
+                <div className="text-sm text-neon font-mono uppercase tracking-widest mb-4">Viability Score</div>
+                <div className="inline-flex items-center gap-2 bg-neon/10 px-4 py-2 rounded-full border border-neon/30">
+                  <div className="w-2 h-2 bg-neon rounded-full animate-pulse"></div>
+                  <span className="text-xs font-bold text-neon">VERIFICADO</span>
+                </div>
+              </div>
+            </GlassCard>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* --- SMART BUDGETS --- */}
+      <section className="py-40 px-6 bg-white/[0.02] border-y border-white/5 relative z-10">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+          <Reveal delay={0.2}>
+            <GlassCard className="h-[400px] relative overflow-hidden p-8" glow>
+              {/* Token Usage Gauge */}
+              <div className="text-center mb-8">
+                <div className="text-xs font-mono text-white/40 uppercase tracking-widest mb-2">Uso de Tokens</div>
+                <div className="text-5xl font-black text-white">2,847</div>
+                <div className="text-sm text-neon">/ 10,000 este mes</div>
+              </div>
+              
+              {/* Gauge Visual */}
+              <div className="relative h-4 bg-white/10 rounded-full overflow-hidden mb-8">
+                <div className="absolute inset-y-0 left-0 w-[28%] bg-gradient-to-r from-neon to-emerald-500 rounded-full"></div>
+              </div>
+              
+              {/* Mode Toggles */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 bg-neon/10 border border-neon/30 rounded-xl text-center">
+                  <div className="text-neon font-bold text-sm mb-1">Modo Eco</div>
+                  <div className="text-[10px] text-white/40">Análisis rápido</div>
+                </div>
+                <div className="p-4 bg-white/5 border border-white/10 rounded-xl text-center">
+                  <div className="text-white/60 font-bold text-sm mb-1">Deep Research</div>
+                  <div className="text-[10px] text-white/40">Con búsqueda web</div>
+                </div>
+              </div>
+            </GlassCard>
+          </Reveal>
+          
+          <Reveal>
+            <div>
+              <div className="mb-4 text-emerald-400 font-mono text-xs uppercase tracking-widest">Optimización</div>
+              <h2 className="text-4xl md:text-6xl font-semibold text-white mb-8 tracking-tight">
+                Smart Budgets. <br/>
+                <span className="text-white/50">Inteligencia sin desperdicio.</span>
+              </h2>
+              <p className="text-lg text-white/60 leading-relaxed mb-8">
+                Sabemos que cada dólar cuenta en pre-seed. Hemos diseñado un sistema de <strong className="text-white">Gestión de Recursos Líquida</strong> que maximiza tu ROI.
+              </p>
+              <ul className="space-y-6">
+                <li className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center flex-shrink-0">
+                    <Zap size={20} className="text-emerald-400" />
+                  </div>
+                  <div>
+                    <h4 className="text-white font-bold mb-1">Modo Eco</h4>
+                    <p className="text-sm text-white/50">Análisis estructurales sin consumo pesado. Validaciones rápidas con reglas predefinidas.</p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center flex-shrink-0">
+                    <Globe size={20} className="text-blue-400" />
+                  </div>
+                  <div>
+                    <h4 className="text-white font-bold mb-1">Deep Research on Demand</h4>
+                    <p className="text-sm text-white/50">Activa búsqueda web y análisis profundo solo cuando lo necesitas.</p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
       {/* --- MYSTERY VALIDATORS --- */}
       <section className="py-32 px-6 relative z-10">
          <div className="max-w-4xl mx-auto text-center mb-16">
@@ -929,9 +1134,9 @@ export const LandingPage = () => {
          </div>
 
          <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
-            {[
-               { title: "El Arquitecto de Unicornios", role: "Ex-VC Partner LatAm", desc: "Estresando nuestro scoring de inversión." },
-               { title: "La Científica de Datos", role: "PhD Consumer Behavior", desc: "Auditando nuestros patrones de detección de mentiras." }
+             {[
+               { title: "El Arquitecto de Unicornios", role: "Identidad Clasificada", desc: "Sometiendo el sistema a estándares de inversión de clase mundial." },
+               { title: "La Profeta de Datos", role: "Identidad Clasificada", desc: "Auditando la precisión científica de nuestros algoritmos de predicción." }
             ].map((profile, i) => (
                <Reveal key={i} delay={i * 0.2}>
                   <div className="relative group cursor-help">
@@ -974,7 +1179,13 @@ export const LandingPage = () => {
                         <CheckCircle size={18} className="text-emerald-400" /> Deep Research con Google Data
                      </li>
                      <li className="flex items-center gap-3 text-white/80">
-                        <CheckCircle size={18} className="text-emerald-400" /> Export certificada
+                        <CheckCircle size={18} className="text-emerald-400" /> Voice Command & Entrevistas Híbridas
+                     </li>
+                     <li className="flex items-center gap-3 text-white/80">
+                        <CheckCircle size={18} className="text-emerald-400" /> Reportes Mensuales de Tendencias
+                     </li>
+                     <li className="flex items-center gap-3 text-white/80">
+                        <CheckCircle size={18} className="text-emerald-400" /> Certificación Holo-Verify™
                      </li>
                   </ul>
                </div>
@@ -1010,11 +1221,20 @@ export const LandingPage = () => {
 
       {/* --- GRAND FINALE (LEAD CAPTURE) --- */}
       <section className="min-h-screen flex items-center justify-center py-20 px-6 relative z-10 overflow-hidden">
-        {/* Cosmic Background */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-[#0a0a1a] to-black"></div>
-        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[150px] animate-pulse pointer-events-none"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-blue-600/20 rounded-full blur-[150px] animate-pulse pointer-events-none" style={{animationDelay: '1s'}}></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-neon/10 rounded-full blur-[200px] pointer-events-none"></div>
+        {/* Enhanced Animated Background (Like Login) */}
+        <div className="absolute inset-0 bg-black z-0 overflow-hidden">
+          {/* Ambient Orbs with Chaos Animation */}
+          <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-emerald-500/20 rounded-full blur-[100px] animate-chaos-slow mix-blend-screen"></div>
+          <div className="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] bg-purple-500/20 rounded-full blur-[100px] animate-chaos-slow mix-blend-screen" style={{animationDelay: '-5s', animationDirection: 'reverse'}}></div>
+          <div className="absolute top-[20%] right-[20%] w-[30vw] h-[30vw] bg-cyan-500/10 rounded-full blur-[80px] animate-float"></div>
+          <div className="absolute bottom-[20%] left-[30%] w-[40vw] h-[40vw] bg-blue-600/15 rounded-full blur-[120px] animate-pulse-slow"></div>
+          
+          {/* Central Neon Glow */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-neon/10 rounded-full blur-[200px] pointer-events-none animate-pulse"></div>
+          
+          {/* Noise Texture */}
+          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
+        </div>
         
         {/* Floating Glassmorphism Card */}
         <motion.div 
