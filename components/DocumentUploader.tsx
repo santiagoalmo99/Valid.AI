@@ -127,7 +127,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
               </p>
               <input
                 type="file"
-                accept=".txt,.pdf,.docx"
+                accept=".txt,.pdf,.docx,.md"
                 onChange={handleFileSelect}
                 className="hidden"
                 id="file-upload"
@@ -139,7 +139,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                 Seleccionar Archivo
               </label>
               <p className="text-slate-500 text-sm mt-4">
-                Formatos soportados: .txt, .pdf (próximamente), .docx (próximamente)
+                Formatos soportados: .txt, .pdf, .docx, .md
               </p>
             </div>
           )}
