@@ -2228,6 +2228,33 @@ function AppContent() {
   const [showCreate, setShowCreate] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  
+  // Trend Notification State (restored)
+  const [showTrendNotification, setShowTrendNotification] = useState(false);
+  const [activeTrendReport, setActiveTrendReport] = useState<TrendReport | null>(null);
+  const [isGeneratingTrends, setIsGeneratingTrends] = useState(false);
+
+  // Trend handler
+  const handleGenerateTrends = async () => {
+    setIsGeneratingTrends(true);
+    try {
+      const report = await TrendService.generateMonthlyReport();
+      setActiveTrendReport(report);
+      setShowTrendNotification(false);
+    } catch (error) {
+      console.error("Failed to generate trends", error);
+      alert("Error conectando con la inteligencia global. Intente más tarde.");
+    }
+    setIsGeneratingTrends(false);
+  };
+
+  // Check for trend updates on mount
+  useEffect(() => {
+    const hasUpdate = !TrendService.hasReportForCurrentMonth();
+    if (hasUpdate) {
+      setShowTrendNotification(true);
+    }
+  }, []);
 
   // Theme Effect
   useEffect(() => {
