@@ -269,7 +269,7 @@ export const SmartChat = ({ project, interviews, onNotify, userName }: any) => {
                      key="messages"
                      initial={{ opacity: 0 }}
                      animate={{ opacity: 1 }}
-                     className="space-y-8 max-w-2xl mx-auto px-4"
+                     className="space-y-8 max-w-5xl mx-auto px-6 w-full"
                    >
                       {messages.map((msg) => (
                          <motion.div 
@@ -286,8 +286,8 @@ export const SmartChat = ({ project, interviews, onNotify, userName }: any) => {
                             )}
                             
                             {/* Bubble */}
-                            <div className={`max-w-[90%] md:max-w-[70%] ${msg.role === 'user' ? 'order-1' : 'order-2'}`}>
-                               <div className={`px-5 py-4 rounded-2xl text-[15px] leading-relaxed ${
+                            <div className={`max-w-[85%] ${msg.role === 'user' ? 'order-1' : 'order-2'}`}>
+                               <div className={`px-6 py-4 rounded-2xl text-[16px] leading-relaxed ${
                                   msg.role === 'user' 
                                      ? 'bg-[#3AFF97] text-black font-medium rounded-tr-sm shadow-lg' 
                                      : 'bg-white/[0.03] text-slate-200 border border-white/5 rounded-tl-sm'
@@ -339,8 +339,7 @@ export const SmartChat = ({ project, interviews, onNotify, userName }: any) => {
              </AnimatePresence>
           </div>
 
-          {/* ============ INPUT AREA ============ */}
-          <div className="p-4 md:p-6 mx-auto w-full max-w-3xl">
+          {/* ============ INPUT AREA ============ */}\n          <div className="p-4 md:p-6 mx-auto w-full max-w-5xl">
              {/* Action Chips */}
              {hasMessages && (
                 <div className="flex gap-2 mb-3 overflow-x-auto pb-2 custom-scrollbar">
