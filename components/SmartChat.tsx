@@ -269,7 +269,7 @@ export const SmartChat = ({ project, interviews, onNotify, userName }: any) => {
                      key="messages"
                      initial={{ opacity: 0 }}
                      animate={{ opacity: 1 }}
-                     className="space-y-6 max-w-3xl mx-auto"
+                     className="space-y-8 max-w-2xl mx-auto px-4"
                    >
                       {messages.map((msg) => (
                          <motion.div 
@@ -286,11 +286,11 @@ export const SmartChat = ({ project, interviews, onNotify, userName }: any) => {
                             )}
                             
                             {/* Bubble */}
-                            <div className={`max-w-[85%] md:max-w-[75%] ${msg.role === 'user' ? 'order-1' : 'order-2'}`}>
-                               <div className={`p-5 rounded-2xl text-base leading-relaxed ${
+                            <div className={`max-w-[90%] md:max-w-[70%] ${msg.role === 'user' ? 'order-1' : 'order-2'}`}>
+                               <div className={`px-5 py-4 rounded-2xl text-[15px] leading-relaxed ${
                                   msg.role === 'user' 
-                                     ? 'bg-[#3AFF97] text-black font-medium rounded-tr-sm' 
-                                     : 'bg-transparent text-slate-200 pl-0 border-l-2 border-[#3AFF97]/30'
+                                     ? 'bg-[#3AFF97] text-black font-medium rounded-tr-sm shadow-lg' 
+                                     : 'bg-white/[0.03] text-slate-200 border border-white/5 rounded-tl-sm'
                                }`}>
                                   {msg.role === 'user' ? (
                                      msg.content
