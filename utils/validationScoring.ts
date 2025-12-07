@@ -205,7 +205,7 @@ const SCORING_RULES: ScoringRule[] = [
       ],
       low: [
         /rara vez|ocasionalmente/i,
-        /casi(nunca/i,
+        /casi\s*nunca/i,
         /hace mucho (que no|tiempo)/i,
       ],
       veryLow: [

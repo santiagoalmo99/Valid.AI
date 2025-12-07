@@ -23,6 +23,7 @@ import { VoiceInput } from './components/VoiceInput';
 import { YCReadinessBadge } from './components/YCReadinessBadge';
 import { TrendService, TrendReport } from './services/trendService';
 import { CertificateModal } from './components/CertificateModal';
+import { ConfirmationModal } from './components/ConfirmationModal';
 import { PublicVerificationPage } from './components/PublicVerificationPage';
 import { calculateYCReadiness } from './services/scoringService';
 
@@ -2745,6 +2746,19 @@ function AppContent() {
             score={calculateYCReadiness(interviews).totalScore}
         />
       )}
+
+      {/* GLOBAL CONFIRMATION MODAL */}
+      <ConfirmationModal 
+         isOpen={confirmState.isOpen}
+         title={confirmState.title}
+         message={confirmState.message}
+         confirmText={confirmState.confirmText}
+         cancelText={confirmState.cancelText}
+         variant={confirmState.variant}
+         onConfirm={confirmState.onConfirm}
+         onCancel={confirmState.onCancel}
+         onClose={() => setConfirmState(prev => ({ ...prev, isOpen: false }))}
+      />
 
       {/* EMERGENCY RESET BUTTON */}
       <button 
