@@ -20,7 +20,7 @@ async function discoverAvailableModel(): Promise<string> {
     const models = data.models || [];
     
     // Prioritize newer models
-    const preferredModels = ['gemini-2.0-flash-exp', 'gemini-1.5-flash', 'gemini-1.5-pro'];
+    const preferredModels = ['gemini-1.5-flash-latest', 'gemini-1.5-flash-001', 'gemini-1.5-pro-latest'];
     
     let validModel;
     for (const pref of preferredModels) {
@@ -44,7 +44,7 @@ async function discoverAvailableModel(): Promise<string> {
     
     // Fallback to common model names if discovery fails
     console.warn('⚠️ No models found via discovery, trying fallbacks...');
-    const fallbacks = ['gemini-2.0-flash-exp', 'gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-pro'];
+    const fallbacks = ['gemini-1.5-flash-latest', 'gemini-1.5-flash', 'gemini-2.0-flash-exp', 'gemini-pro'];
     for (const model of fallbacks) {
       try {
         await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}?key=${API_KEY}`);
@@ -113,10 +113,11 @@ export async function callGeminiAPI(prompt: string, json: boolean = false, useWe
 
   // Models to try - ensuring we use STANDARD public API names
   const modelsToTry = [
-    'gemini-1.5-flash',      // Standard stable version
-    'gemini-1.5-pro',        // Standard stable version
-    'gemini-2.0-flash-exp',  // Experimental (keep as option but deprioritized if needed)
-    'gemini-pro'             // Legacy
+    'gemini-1.5-flash-latest', // Most reliable
+    'gemini-1.5-flash-001',    // Specific version
+    'gemini-1.5-pro-latest',   // Pro
+    'gemini-2.0-flash-exp',    // Experimental (High Rate Limit Risk)
+    'gemini-pro'               // Legacy Fallback
   ];
   
   // Ensure the auto-discovered model is tried first if not already in list

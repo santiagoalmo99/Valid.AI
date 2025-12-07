@@ -275,154 +275,193 @@ const ConfigStep: React.FC<{
 }> = ({ sections, selectedSections, onToggle, totalCost, credits, hasEnoughCredits, error }) => {
   const [currency, setCurrency] = useState<'USD' | 'COP'>('COP');
 
-  // MARKET VALUE SIMULATION (Anchoring)
-  // 1 Credit ~ $2.5 USD value
+  // MARKET VALUE SIMULATION
   const marketValueAmount = totalCost * 2.5; 
-  
-  const formattedMarketValue = currency === 'USD' 
-    ? `$${marketValueAmount.toFixed(0)} USD` 
-    : `$${(marketValueAmount * 4100).toLocaleString('es-CO')} COP`;
+  const displayValue = currency === 'USD' ? marketValueAmount : marketValueAmount * 4100;
 
   return (
-  <div className="space-y-8 animate-fade-in">
-    {/* PREMIUM VALUE CARD */}
-    <div className="bg-gradient-to-br from-[#111] to-black border border-white/10 rounded-2xl p-6 relative overflow-hidden group shadow-2xl">
-       {/* Background Effects */}
-       <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
-       <div className="absolute bottom-0 left-0 w-40 h-40 bg-blue-500/5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
+  <div className="space-y-8 animate-fade-in font-sans">
+    
+    {/* PREMIUM FINANCIAL DASHBOARD */}
+    <div className="bg-[#0f0f0f] border border-white/10 rounded-2xl p-0 overflow-hidden relative group shadow-2xl">
+       <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
        
-       <div className="relative z-10">
-          <div className="flex justify-between items-start mb-6">
-             <div>
-                <div className="flex items-center gap-2 mb-2">
-                   <h3 className="text-white font-bold text-lg">Resumen de Inversión</h3>
-                   <span className="bg-emerald-500/10 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-500/20 uppercase tracking-wide">
-                      BETA GRATUITO
-                   </span>
-                </div>
-                <p className="text-slate-400 text-sm max-w-sm">
-                   Genera reportes de nivel consultoría estratégica utilizando tus créditos de cortesía.
-                </p>
-             </div>
-             
-             {/* Sleek Currency Toggle */}
-             <div className="bg-white/5 p-1 rounded-lg border border-white/5 flex">
-                <button 
-                  onClick={() => setCurrency('USD')} 
-                  className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${currency === 'USD' ? 'bg-white/10 text-white shadow-sm border border-white/5' : 'text-slate-500 hover:text-slate-300'}`}
-                >
-                   USD
-                </button>
-                <button 
-                  onClick={() => setCurrency('COP')} 
-                  className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${currency === 'COP' ? 'bg-white/10 text-white shadow-sm border border-white/5' : 'text-slate-500 hover:text-slate-300'}`}
-                >
-                   COP
-                </button>
-             </div>
+       <div className="flex justify-between items-center p-6 border-b border-white/5 bg-white/[0.02]">
+           <div className="flex items-center gap-3">
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Panel de Inversión</span>
+           </div>
+           
+           <div className="flex bg-black/40 rounded-lg p-1 border border-white/10">
+              <button 
+                onClick={() => setCurrency('USD')} 
+                className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all duration-300 ${currency === 'USD' ? 'bg-white text-black shadow-lg' : 'text-slate-500 hover:text-white'}`}
+              >
+                 USD
+              </button>
+              <button 
+                onClick={() => setCurrency('COP')} 
+                className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all duration-300 ${currency === 'COP' ? 'bg-white text-black shadow-lg' : 'text-slate-500 hover:text-white'}`}
+              >
+                 COP
+              </button>
+           </div>
+       </div>
+
+       <div className="grid grid-cols-1 md:grid-cols-2">
+          {/* Market Value Column */}
+          <div className="p-8 border-r border-white/5 relative">
+              <p className="text-slate-500 text-xs font-medium mb-2">Valor Comercial (Mercado Real)</p>
+              <div className="flex items-baseline gap-1">
+                  <span className="text-3xl lg:text-4xl font-bold text-white tracking-tighter">
+                    {currency === 'USD' ? '$' : '$'}
+                    <NumberTicker value={displayValue} />
+                  </span>
+                  <span className="text-sm text-slate-500 font-bold">{currency}</span>
+              </div>
+              <p className="text-[10px] text-slate-600 mt-2 max-w-[200px] leading-relaxed">
+                  Costo estimado si contrataras una consultora externa para este análisis.
+              </p>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
-             <div className="bg-white/[0.02] rounded-xl p-4 border border-white/5">
-                <p className="text-slate-500 text-xs uppercase tracking-widest font-bold mb-1">Valor Comercial Estimado</p>
-                <div className="text-2xl font-bold text-white tracking-tight flex items-baseline gap-2">
-                   {formattedMarketValue}
-                   <span className="text-xs text-slate-500 font-normal opacity-50 block sm:inline">precio de mercado</span>
-                </div>
-             </div>
-             
-             <div className="flex items-center justify-between bg-emerald-900/10 rounded-xl p-4 border border-emerald-500/20">
-                <div className="flex items-center gap-3">
-                   <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
-                      <Zap className="w-5 h-5 text-emerald-400 fill-emerald-400/20" />
-                   </div>
-                   <div>
-                      <p className="text-emerald-400 font-bold text-sm">Costo en Créditos</p>
-                      <p className="text-[10px] text-emerald-300/70">Incluido en tu saldo inicial</p>
-                   </div>
-                </div>
-                <div className="text-right">
-                   <div className="text-2xl font-bold text-white">{totalCost}</div>
-                   <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Créditos</div>
-                </div>
-             </div>
+
+          {/* Your Cost Column */}
+          <div className="p-8 bg-emerald-900/5 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+              
+              <div className="relative z-10">
+                  <div className="flex justify-between items-start mb-2">
+                      <p className="text-emerald-400 text-xs font-bold uppercase tracking-wide">Tu Inversión Hoy</p>
+                      <span className="bg-emerald-500/20 text-emerald-300 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-500/30">
+                         PLAN BETA: GRATIS
+                      </span>
+                  </div>
+                  
+                  <div className="flex items-baseline gap-2 mt-1">
+                      <span className="text-4xl font-bold text-white tracking-tighter tabular-nums">
+                         {totalCost}
+                      </span>
+                      <span className="text-xs text-slate-400 font-bold uppercase">Créditos</span>
+                  </div>
+
+                  <div className="mt-4 flex items-center gap-2 text-[10px] text-emerald-400/80 bg-emerald-500/5 p-2 rounded-lg border border-emerald-500/10">
+                      <Check size={12} />
+                      Cubierto por tus 100 Créditos de Cortesía
+                  </div>
+              </div>
           </div>
        </div>
     </div>
     
     {error && (
-      <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 flex items-center gap-3 animate-shake">
-        <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
-        <p className="text-red-300 text-sm font-medium">{error}</p>
-      </div>
+      <motion.div 
+        initial={{ y: -10, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="bg-red-500/5 border-l-4 border-red-500 p-4 rounded-r-xl flex items-center gap-3"
+      >
+        <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+        <p className="text-red-200 text-sm font-medium">{error}</p>
+      </motion.div>
     )}
     
     {!hasEnoughCredits && credits && (
-      <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4 flex items-center gap-3">
-        <Lock className="w-5 h-5 text-yellow-500 flex-shrink-0" />
+      <div className="bg-yellow-500/5 border border-yellow-500/20 rounded-xl p-4 flex items-center gap-4">
+        <div className="p-2 bg-yellow-500/10 rounded-lg text-yellow-500">
+           <Lock size={20} />
+        </div>
         <div>
-           <p className="text-yellow-400 text-sm font-bold">Saldo insuficiente</p>
-           <p className="text-yellow-300/80 text-xs">Necesitas {totalCost - credits.available} créditos adicionales.</p>
+           <p className="text-yellow-100 text-sm font-bold">Saldo insuficiente</p>
+           <p className="text-yellow-500/70 text-xs mt-0.5">Te faltan {totalCost - credits.available} créditos para generar este reporte.</p>
         </div>
       </div>
     )}
     
     <div>
-      <div className="flex justify-between items-end mb-4">
-         <h3 className="text-lg font-bold text-white">Configuración del Reporte</h3>
-         <span className="text-xs text-slate-500">Selecciona las secciones a generar</span>
-      </div>
+      <h3 className="text-white font-bold text-lg mb-4 flex items-center gap-2">
+         <Sparkles size={16} className="text-neon" /> Personalizar Alcance
+      </h3>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {sections.map(section => {
           const isSelected = selectedSections.includes(section.id);
           return (
-            <button
+            <motion.button
               key={section.id}
               onClick={() => onToggle(section.id)}
+              whileHover={{ scale: 1.01, y: -1 }}
+              whileTap={{ scale: 0.99 }}
               className={`
-                group flex items-start gap-4 p-4 rounded-xl border text-left transition-all duration-300
+                group relative flex items-center gap-4 p-4 rounded-xl text-left transition-all duration-300 border
                 ${isSelected 
-                  ? 'bg-gradient-to-br from-emerald-500/10 to-transparent border-emerald-500/40 shadow-[0_0_20px_rgba(16,185,129,0.05)]' 
-                  : 'bg-white/[0.02] border-white/5 hover:bg-white/[0.04] hover:border-white/10'
+                  ? 'bg-white/[0.03] border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.1)]' 
+                  : 'bg-transparent border-white/5 hover:border-white/20 hover:bg-white/[0.02]'
                 }
               `}
             >
+              {isSelected && (
+                 <motion.div 
+                   layoutId="active-glow"
+                   className="absolute inset-0 bg-emerald-500/5 rounded-xl" 
+                   initial={false} 
+                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                 />
+              )}
+
               <div className={`
-                w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-300
+                w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-300 relative z-10 border
                 ${isSelected 
-                   ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 scale-100' 
-                   : 'bg-white/5 text-slate-500 group-hover:scale-110'
+                   ? 'bg-emerald-500 text-black border-emerald-400' 
+                   : 'bg-white/5 text-slate-400 border-white/5 group-hover:border-white/20 group-hover:text-white'
                 }
               `}>
-                {isSelected ? <Check className="w-5 h-5" /> : section.icon}
+                {isSelected ? <Check size={20} strokeWidth={3} /> : section.icon}
               </div>
               
-              <div className="flex-1 min-w-0">
-                <div className="flex justify-between items-start">
-                   <span className={`font-semibold transition-colors ${isSelected ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'}`}>
-                      {section.titleEs}
-                   </span>
-                   <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border transition-colors ${
-                      isSelected 
-                         ? 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10' 
-                         : 'text-slate-600 border-white/5 bg-white/5'
-                   }`}>
-                      {section.creditCost} CR
-                   </span>
-                </div>
-                <p className="text-xs text-slate-500 mt-1 leading-relaxed group-hover:text-slate-400 transition-colors">
-                   {section.description}
+              <div className="relative z-10">
+                <p className={`text-sm font-bold transition-colors ${isSelected ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'}`}>
+                   {section.title}
                 </p>
+                <div className="flex items-center gap-2 mt-1">
+                   <p className="text-[10px] text-slate-500 font-medium bg-black/20 px-1.5 py-0.5 rounded border border-white/5 group-hover:border-white/10 transition-colors">
+                      {section.cost} créditos
+                   </p>
+                </div>
               </div>
-            </button>
+            </motion.button>
           );
         })}
       </div>
     </div>
-    
   </div>
   );
+};
+
+// Animated Number Component
+const NumberTicker = ({ value }: { value: number }) => {
+   const [display, setDisplay] = useState(0);
+   
+   useEffect(() => {
+      let start = 0;
+      const end = value;
+      const duration = 1000;
+      const startTime = performance.now();
+      
+      const animate = (currentTime: number) => {
+         const elapsed = currentTime - startTime;
+         const progress = Math.min(elapsed / duration, 1);
+         const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+         
+         const current = Math.floor(easeOutQuart * end);
+         setDisplay(current);
+         
+         if (progress < 1) {
+            requestAnimationFrame(animate);
+         }
+      };
+      
+      requestAnimationFrame(animate);
+   }, [value]);
+   
+   return <>{display.toLocaleString('es-CO')}</>;
 };
 
 const GeneratingStep: React.FC<{
@@ -442,7 +481,6 @@ const GeneratingStep: React.FC<{
       <p className="text-slate-400">{currentStage}</p>
     </div>
     
-    {/* Progress bar - Zeigarnik Effect */}
     <div className="space-y-2">
       <div className="flex justify-between text-sm">
         <span className="text-slate-400">Progreso</span>
@@ -470,7 +508,6 @@ const CompleteStep: React.FC<{
   onOpenNew: () => void;
 }> = ({ report, onDownload, onOpenNew }) => (
   <div className="py-8 space-y-6 text-center">
-    {/* Success animation */}
     <motion.div
       initial={{ scale: 0 }}
       animate={{ scale: 1 }}
@@ -509,8 +546,6 @@ const CompleteStep: React.FC<{
     </p>
   </div>
 );
-
-// ============ CONFETTI EFFECT ============
 
 const ConfettiEffect: React.FC = () => {
   const colors = ['#00FF94', '#3B82F6', '#8B5CF6', '#F59E0B', '#EC4899'];

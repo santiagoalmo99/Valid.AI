@@ -2307,6 +2307,22 @@ function AppContent() {
     }
   }, [pendingProjectId, projects, activeProject]);
 
+  // PERSIST VIEW STATE
+  useEffect(() => {
+     const savedView = localStorage.getItem('validai_view');
+     if (savedView === 'project' || savedView === 'hub') {
+        setView(savedView as any);
+     }
+     
+     const savedProjectId = localStorage.getItem('validai_active_project_id');
+     if (savedProjectId) setPendingProjectId(savedProjectId);
+  }, []);
+
+  useEffect(() => {
+     localStorage.setItem('validai_view', view);
+     if (activeProject) localStorage.setItem('validai_active_project_id', activeProject.id);
+  }, [view, activeProject]);
+
   // Load interviews for active project
   useEffect(() => {
     if (activeProject) {
@@ -2366,7 +2382,11 @@ function AppContent() {
     } else {
        setProjects(INITIAL_PROJECTS);
     }
-    setShowOnboarding(true); 
+    // Only show onboarding if NO projects and NOT completed before
+    const onboardingDone = localStorage.getItem('onboarding_completed') === 'true';
+    if (!savedDemo && !onboardingDone) {
+       setShowOnboarding(true);
+    } 
   }, []);
 
   // FIRESTORE SUBSCRIPTION with localStorage fallback
@@ -2528,7 +2548,7 @@ function AppContent() {
                projects={projects.length > 0 ? projects : [DEMO_PROJECT]} 
                onSelect={(p: ProjectTemplate) => { setActiveProject(p); setView('project'); }} 
                onCreate={() => setShowCreate(true)}
-               onDelete={handleDelete}
+                onDelete={handleDeleteProject}
                onUpdate={handleUpdateProject}
                lang={lang}
                user={user}
