@@ -273,74 +273,107 @@ const ConfigStep: React.FC<{
   hasEnoughCredits: boolean;
   error: string | null;
 }> = ({ sections, selectedSections, onToggle, totalCost, credits, hasEnoughCredits, error }) => {
-  const [currency, setCurrency] = useState<'USD' | 'COP'>('COP'); // Default to COP for localization
+  const [currency, setCurrency] = useState<'USD' | 'COP'>('COP');
 
-  // PRECIO DINÁMICO:
-  // Asumimos que 1 crédito = $5 USD de "Valor de Mercado" (Anchor)
-  // Asumimos que 1 crédito = $0.4 USD de "Costo Real Estimado" (lo que pagaría en API/Suscripción)
-  const marketValueUSD = totalCost * 5.4; 
-  const estimatedCostUSD = totalCost * 0.4;
-
-  const marketValue = currency === 'USD' 
-    ? `$${Math.round(marketValueUSD)} USD` 
-    : `$${(marketValueUSD * 4200).toLocaleString('es-CO')} COP`;
-
-  const estimatedCost = currency === 'USD'
-    ? `$${Math.round(estimatedCostUSD)} USD`
-    : `$${(estimatedCostUSD * 4200).toLocaleString('es-CO')} COP`;
+  // MARKET VALUE SIMULATION (Anchoring)
+  // 1 Credit ~ $2.5 USD value
+  const marketValueAmount = totalCost * 2.5; 
+  
+  const formattedMarketValue = currency === 'USD' 
+    ? `$${marketValueAmount.toFixed(0)} USD` 
+    : `$${(marketValueAmount * 4100).toLocaleString('es-CO')} COP`;
 
   return (
-  <div className="space-y-6">
-    {/* Value Anchor (Neuromarketing) */}
-    <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-xl p-4 text-center relative overflow-hidden group">
-      <div className="absolute top-2 right-2 flex bg-black/20 rounded-lg p-0.5 border border-white/5">
-         <button 
-           onClick={() => setCurrency('USD')}
-           className={`px-2 py-1 rounded-md text-[10px] font-bold transition-all ${currency === 'USD' ? 'bg-white text-black' : 'text-slate-400 hover:text-white'}`}
-         >
-           USD
-         </button>
-         <button 
-           onClick={() => setCurrency('COP')}
-           className={`px-2 py-1 rounded-md text-[10px] font-bold transition-all ${currency === 'COP' ? 'bg-white text-black' : 'text-slate-400 hover:text-white'}`}
-         >
-           COP
-         </button>
-      </div>
-
-      <p className="text-slate-400 text-xs uppercase tracking-widest mb-1">Valor de mercado</p>
-      <p className="text-2xl font-bold mb-1">
-        <span className="text-slate-500 line-through mr-2 decoration-red-500/50 decoration-2">
-          {marketValue}
-        </span>
-        <span className="text-emerald-400 text-lg bg-emerald-500/10 px-2 py-1 rounded-lg border border-emerald-500/20">
-           ~ {estimatedCost} costo real
-        </span>
-      </p>
-      <p className="text-xs text-slate-500 mt-2">
-         Adquiérelo por solo <span className="text-emerald-400 font-bold">{totalCost} créditos</span>
-      </p>
+  <div className="space-y-8 animate-fade-in">
+    {/* PREMIUM VALUE CARD */}
+    <div className="bg-gradient-to-br from-[#111] to-black border border-white/10 rounded-2xl p-6 relative overflow-hidden group shadow-2xl">
+       {/* Background Effects */}
+       <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+       <div className="absolute bottom-0 left-0 w-40 h-40 bg-blue-500/5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
+       
+       <div className="relative z-10">
+          <div className="flex justify-between items-start mb-6">
+             <div>
+                <div className="flex items-center gap-2 mb-2">
+                   <h3 className="text-white font-bold text-lg">Resumen de Inversión</h3>
+                   <span className="bg-emerald-500/10 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-500/20 uppercase tracking-wide">
+                      BETA GRATUITO
+                   </span>
+                </div>
+                <p className="text-slate-400 text-sm max-w-sm">
+                   Genera reportes de nivel consultoría estratégica utilizando tus créditos de cortesía.
+                </p>
+             </div>
+             
+             {/* Sleek Currency Toggle */}
+             <div className="bg-white/5 p-1 rounded-lg border border-white/5 flex">
+                <button 
+                  onClick={() => setCurrency('USD')} 
+                  className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${currency === 'USD' ? 'bg-white/10 text-white shadow-sm border border-white/5' : 'text-slate-500 hover:text-slate-300'}`}
+                >
+                   USD
+                </button>
+                <button 
+                  onClick={() => setCurrency('COP')} 
+                  className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${currency === 'COP' ? 'bg-white/10 text-white shadow-sm border border-white/5' : 'text-slate-500 hover:text-slate-300'}`}
+                >
+                   COP
+                </button>
+             </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+             <div className="bg-white/[0.02] rounded-xl p-4 border border-white/5">
+                <p className="text-slate-500 text-xs uppercase tracking-widest font-bold mb-1">Valor Comercial Estimado</p>
+                <div className="text-2xl font-bold text-white tracking-tight flex items-baseline gap-2">
+                   {formattedMarketValue}
+                   <span className="text-xs text-slate-500 font-normal opacity-50 block sm:inline">precio de mercado</span>
+                </div>
+             </div>
+             
+             <div className="flex items-center justify-between bg-emerald-900/10 rounded-xl p-4 border border-emerald-500/20">
+                <div className="flex items-center gap-3">
+                   <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                      <Zap className="w-5 h-5 text-emerald-400 fill-emerald-400/20" />
+                   </div>
+                   <div>
+                      <p className="text-emerald-400 font-bold text-sm">Costo en Créditos</p>
+                      <p className="text-[10px] text-emerald-300/70">Incluido en tu saldo inicial</p>
+                   </div>
+                </div>
+                <div className="text-right">
+                   <div className="text-2xl font-bold text-white">{totalCost}</div>
+                   <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Créditos</div>
+                </div>
+             </div>
+          </div>
+       </div>
     </div>
     
     {error && (
-      <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 flex items-center gap-3">
-        <AlertCircle className="w-5 h-5 text-red-500" />
-        <p className="text-red-400">{error}</p>
+      <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 flex items-center gap-3 animate-shake">
+        <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
+        <p className="text-red-300 text-sm font-medium">{error}</p>
       </div>
     )}
     
     {!hasEnoughCredits && credits && (
-      <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 flex items-center gap-3">
-        <Lock className="w-5 h-5 text-yellow-500" />
-        <p className="text-yellow-400">
-          Necesitas {totalCost - credits.available} créditos más. Contacta al equipo para obtener más.
-        </p>
+      <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4 flex items-center gap-3">
+        <Lock className="w-5 h-5 text-yellow-500 flex-shrink-0" />
+        <div>
+           <p className="text-yellow-400 text-sm font-bold">Saldo insuficiente</p>
+           <p className="text-yellow-300/80 text-xs">Necesitas {totalCost - credits.available} créditos adicionales.</p>
+        </div>
       </div>
     )}
     
     <div>
-      <h3 className="text-lg font-semibold text-white mb-4">Selecciona las secciones</h3>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="flex justify-between items-end mb-4">
+         <h3 className="text-lg font-bold text-white">Configuración del Reporte</h3>
+         <span className="text-xs text-slate-500">Selecciona las secciones a generar</span>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {sections.map(section => {
           const isSelected = selectedSections.includes(section.id);
           return (
@@ -348,26 +381,39 @@ const ConfigStep: React.FC<{
               key={section.id}
               onClick={() => onToggle(section.id)}
               className={`
-                flex items-start gap-3 p-4 rounded-xl border transition-all text-left
+                group flex items-start gap-4 p-4 rounded-xl border text-left transition-all duration-300
                 ${isSelected 
-                  ? 'bg-emerald-500/10 border-emerald-500/50' 
-                  : 'bg-white/5 border-white/10 hover:border-white/20'
+                  ? 'bg-gradient-to-br from-emerald-500/10 to-transparent border-emerald-500/40 shadow-[0_0_20px_rgba(16,185,129,0.05)]' 
+                  : 'bg-white/[0.02] border-white/5 hover:bg-white/[0.04] hover:border-white/10'
                 }
               `}
             >
               <div className={`
-                w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 mt-0.5
-                ${isSelected ? 'bg-emerald-500 text-white' : 'bg-white/10'}
+                w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-300
+                ${isSelected 
+                   ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 scale-100' 
+                   : 'bg-white/5 text-slate-500 group-hover:scale-110'
+                }
               `}>
-                {isSelected ? <Check className="w-4 h-4" /> : null}
+                {isSelected ? <Check className="w-5 h-5" /> : section.icon}
               </div>
+              
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span>{section.icon}</span>
-                  <span className="font-medium text-white truncate">{section.titleEs}</span>
+                <div className="flex justify-between items-start">
+                   <span className={`font-semibold transition-colors ${isSelected ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'}`}>
+                      {section.titleEs}
+                   </span>
+                   <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border transition-colors ${
+                      isSelected 
+                         ? 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10' 
+                         : 'text-slate-600 border-white/5 bg-white/5'
+                   }`}>
+                      {section.creditCost} CR
+                   </span>
                 </div>
-                <p className="text-xs text-slate-500 mt-1">{section.description}</p>
-                <p className="text-xs text-emerald-400 mt-1">{section.creditCost} créditos</p>
+                <p className="text-xs text-slate-500 mt-1 leading-relaxed group-hover:text-slate-400 transition-colors">
+                   {section.description}
+                </p>
               </div>
             </button>
           );
@@ -375,10 +421,6 @@ const ConfigStep: React.FC<{
       </div>
     </div>
     
-    <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
-      <span className="text-slate-400">Costo total:</span>
-      <span className="text-2xl font-bold text-emerald-400">{totalCost} créditos</span>
-    </div>
   </div>
   );
 };

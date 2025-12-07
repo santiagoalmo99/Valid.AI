@@ -176,7 +176,7 @@ const NotificationToast = ({ notifications, removeNotification }: { notification
 // --- COMPONENTS ---
 
 // 1. Session Hub (Project Grid)
-const SessionHub = ({ projects, onSelect, onCreate, onDelete, onUpdate, lang, user, logout, toggleTheme, theme, isDemo }: any) => {
+const SessionHub = ({ projects, onSelect, onCreate, onDelete, onUpdate, lang, user, logout, toggleTheme, theme, isDemo, onRequestConfirm }: any) => {
   const t = TRANSLATIONS[lang];
   
   // NUCLEAR OPTION: Force Default Project Visibility
@@ -200,25 +200,29 @@ const SessionHub = ({ projects, onSelect, onCreate, onDelete, onUpdate, lang, us
              {projects.length === 0 && localStorage.getItem('valid_ai_projects') && (
                 <button 
                   onClick={async () => {
-                     if(!confirm("¿Importar proyectos antiguos a la nube?")) return;
-                     const localProjs = JSON.parse(localStorage.getItem('valid_ai_projects') || '[]');
-                     const localInterviews = JSON.parse(localStorage.getItem('valid_ai_interviews') || '[]');
-                     
-                     if (localProjs.length === 0) return alert("No hay datos locales.");
-                     
-                     // Migrate Projects
-                     for (const p of localProjs) {
-                        await FirebaseService.createProject(user.uid, p);
-                     }
-                     
-                     // Migrate Interviews
-                     for (const i of localInterviews) {
-                        await FirebaseService.addInterview(i);
-                     }
-                     
-                     alert("¡Migración completada! Tus proyectos ahora están en la nube.");
-                     // Optional: Clear local storage to avoid confusion? 
-                     // localStorage.removeItem('valid_ai_projects');
+                     onRequestConfirm({
+                        title: "¿Importar proyectos antiguos?",
+                        message: "Se copiarán tus proyectos locales a la nube para que no los pierdas.",
+                        confirmText: "Importar Ahora",
+                        onConfirm: async () => {
+                           const localProjs = JSON.parse(localStorage.getItem('valid_ai_projects') || '[]');
+                           const localInterviews = JSON.parse(localStorage.getItem('valid_ai_interviews') || '[]');
+                           
+                           if (localProjs.length === 0) return alert("No hay datos locales.");
+                           
+                           // Migrate Projects
+                           for (const p of localProjs) {
+                              await FirebaseService.createProject(user.uid, p);
+                           }
+                           
+                           // Migrate Interviews
+                           for (const i of localInterviews) {
+                              await FirebaseService.addInterview(i);
+                           }
+                           
+                           alert("¡Migración completada! Tus proyectos ahora están en la nube."); // Este alert es informativo, se puede dejar o cambiar por toast luego
+                        }
+                     });
                   }}
                   className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white text-xs font-bold transition-colors border border-white/5 flex items-center gap-2"
                 >
@@ -298,7 +302,8 @@ const SessionHub = ({ projects, onSelect, onCreate, onDelete, onUpdate, lang, us
                     <button 
                        onClick={(e) => {
                           e.stopPropagation();
-                          if(confirm("¿Eliminar proyecto permanentemente?")) onDelete(p.id);
+                          // Delegate confirmation to the handler which now uses the Modal
+                          onDelete(p.id);
                        }}
                        className="p-2 bg-black/60 backdrop-blur-md hover:bg-red-500/80 text-white rounded-full border border-white/10 transition-colors shadow-lg"
                        title="Eliminar Proyecto"
@@ -328,7 +333,7 @@ const SessionHub = ({ projects, onSelect, onCreate, onDelete, onUpdate, lang, us
 };
 
 // 2. Project Detail View
-const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, setLang, theme, setTheme }: any) => {
+const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, setLang, theme, setTheme, onRequestConfirm }: any) => {
   const [activeTab, setActiveTab] = useState('dashboard'); // dashboard, interviews, deep_research
   const [interviews, setInterviews] = useState<Interview[]>(() => {
      try {
@@ -619,54 +624,60 @@ const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, 
                    project={project} 
                    onSelect={setSelectedInterview}
                    onDelete={async (id: string) => {
-                      if (!window.confirm("¿Eliminar esta entrevista?")) return;
-                      
-                      // DEMO MODE: Local Only
-                      if (project.id === 'demo_project_001') {
-                         setInterviews(prev => prev.filter(i => i.id !== id));
-                         const offlineKey = `offline_interviews_${project.id}`;
-                         const offline = JSON.parse(localStorage.getItem(offlineKey) || '[]');
-                         const newOffline = offline.filter((i: any) => i.id !== id);
-                         localStorage.setItem(offlineKey, JSON.stringify(newOffline));
-                         return;
-                      }
+                      onRequestConfirm({
+                         title: "¿Eliminar entrevista?",
+                         message: "Se borrarán los datos de esta entrevista permanentemente.",
+                         confirmText: "Eliminar",
+                         variant: "danger",
+                         onConfirm: async () => {
+                              // DEMO MODE: Local Only
+                              if (project.id === 'demo_project_001') {
+                                 setInterviews(prev => prev.filter(i => i.id !== id));
+                                 const offlineKey = `offline_interviews_${project.id}`;
+                                 const offline = JSON.parse(localStorage.getItem(offlineKey) || '[]');
+                                 const newOffline = offline.filter((i: any) => i.id !== id);
+                                 localStorage.setItem(offlineKey, JSON.stringify(newOffline));
+                                 return;
+                              }
 
-                      // LOCK subscription to prevent restore
-                      deletionInProgress.current = true;
-                      
-                      try {
-                         // Try Firebase delete with 3s timeout
-                         const deletePromise = FirebaseService.deleteInterview(id);
-                         const timeoutPromise = new Promise((_, reject) => 
-                            setTimeout(() => reject(new Error("Timeout: Firebase blocked or offline")), 3000)
-                         );
-                         
-                         await Promise.race([deletePromise, timeoutPromise]);
-                         
-                         console.log("✅ Firebase delete successful");
-                      } catch (e: any) {
-                         console.error("Delete failed", e);
-                         
-                         // Show alert for blocked/timeout cases
-                         if (e.message && e.message.includes("Timeout")) {
-                            console.warn("⚠️ Firebase timeout, forcing local delete");
-                            alert("⚠️ Eliminado LOCALMENTE.\n\nTu navegador bloqueó la conexión a Firebase.\nDesactiva el bloqueador de anuncios para sincronizar.");
-                         } else if (e.code === 'permission-denied') {
-                            alert("No tienes permiso para eliminar esta entrevista.");
-                         } else {
-                            alert("Error al eliminar. Si usas un bloqueador de anuncios, desactívalo para este sitio.");
+                              // LOCK subscription to prevent restore
+                              deletionInProgress.current = true;
+                              
+                              try {
+                                 // Try Firebase delete with 3s timeout
+                                 const deletePromise = FirebaseService.deleteInterview(id);
+                                 const timeoutPromise = new Promise((_, reject) => 
+                                    setTimeout(() => reject(new Error("Timeout: Firebase blocked or offline")), 3000)
+                                 );
+                                 
+                                 await Promise.race([deletePromise, timeoutPromise]);
+                                 
+                                 console.log("✅ Firebase delete successful");
+                              } catch (e: any) {
+                                 console.error("Delete failed", e);
+                                 
+                                 // Show alert for blocked/timeout cases
+                                 if (e.message && e.message.includes("Timeout")) {
+                                    console.warn("⚠️ Firebase timeout, forcing local delete");
+                                    alert("⚠️ Eliminado LOCALMENTE.\n\nTu navegador bloqueó la conexión a Firebase.\nDesactiva el bloqueador de anuncios para sincronizar.");
+                                 } else if (e.code === 'permission-denied') {
+                                    alert("No tienes permiso para eliminar esta entrevista.");
+                                 } else {
+                                    alert("Error al eliminar. Si usas un bloqueador de anuncios, desactívalo para este sitio.");
+                                 }
+                              } finally {
+                                 // Update local state AND unlock after small delay
+                                 setInterviews(prev => prev.filter(i => i.id !== id));
+                                 const offlineKey = `offline_interviews_${project.id}`;
+                                 const offline = JSON.parse(localStorage.getItem(offlineKey) || '[]');
+                                 const newOffline = offline.filter((i: any) => i.id !== id);
+                                 localStorage.setItem(offlineKey, JSON.stringify(newOffline));
+                                 
+                                 // Unlock after 1 second to allow delete to propagate
+                                 setTimeout(() => { deletionInProgress.current = false; }, 1000);
+                              }
                          }
-                      } finally {
-                         // Update local state AND unlock after small delay
-                         setInterviews(prev => prev.filter(i => i.id !== id));
-                         const offlineKey = `offline_interviews_${project.id}`;
-                         const offline = JSON.parse(localStorage.getItem(offlineKey) || '[]');
-                         const newOffline = offline.filter((i: any) => i.id !== id);
-                         localStorage.setItem(offlineKey, JSON.stringify(newOffline));
-                         
-                         // Unlock after 1 second to allow delete to propagate
-                         setTimeout(() => { deletionInProgress.current = false; }, 1000);
-                      }
+                      });
                    }}
                    onDeleteAll={async () => {
                       if (!window.confirm("¿ELIMINAR TODAS LAS ENTREVISTAS? Esta acción no se puede deshacer.")) return;
@@ -1628,20 +1639,40 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
 
   // Removed showVoice toggle - now Dual Mode by default
   // DRAFT PERSISTENCE
+  // DRAFT PERSISTENCE
+  const [showDraftRestore, setShowDraftRestore] = useState(false);
+  const [draftData, setDraftData] = useState<any>(null);
+
   useEffect(() => {
     const draftKey = `draft_interview_${project.id}`;
     const saved = localStorage.getItem(draftKey);
     if (saved) {
-       const data = JSON.parse(saved);
-       if(confirm("¿Restaurar entrevista anterior no terminada?")) {
-          setAnswers(data.answers || {});
-          setRegData(data.regData || {});
-          setStep(data.step || -1);
-       } else {
-          localStorage.removeItem(draftKey);
+       try {
+         const data = JSON.parse(saved);
+         // Only prompt if there is meaningful data
+         if (Object.keys(data.answers || {}).length > 0) {
+            setDraftData(data);
+            setShowDraftRestore(true);
+         }
+       } catch (e) {
+         localStorage.removeItem(draftKey);
        }
     }
   }, [project.id]);
+
+  const handleRestoreDraft = () => {
+     if (draftData) {
+        setAnswers(draftData.answers || {});
+        setRegData(draftData.regData || {});
+        setStep(draftData.step || -1);
+        setShowDraftRestore(false);
+     }
+  };
+
+  const handleDiscardDraft = () => {
+     localStorage.removeItem(`draft_interview_${project.id}`);
+     setShowDraftRestore(false);
+  };
 
   useEffect(() => {
      if (Object.keys(answers).length > 0 || step > -1) {
@@ -2219,6 +2250,53 @@ export default function App() {
 import * as FirebaseService from './services/firebase';
 import { subscribeToInterviews } from './services/firebase';
 
+// CONFIRMATION MODAL COMPONENT
+interface ConfirmationState {
+  isOpen: boolean;
+  title: string;
+  message: string;
+  onConfirm: () => void;
+  confirmText?: string;
+  cancelText?: string;
+  variant?: 'danger' | 'warning' | 'info';
+}
+
+const ConfirmationModal = ({ state, onClose }: { state: ConfirmationState, onClose: () => void }) => {
+  if (!state.isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+       <div className="bg-[#111] border border-white/10 rounded-2xl max-w-md w-full overflow-hidden shadow-2xl scale-in">
+          <div className="p-6">
+             <h3 className={`text-xl font-bold mb-2 ${state.variant === 'danger' ? 'text-red-400' : 'text-white'}`}>
+                {state.title}
+             </h3>
+             <p className="text-slate-300 leading-relaxed mb-6">
+                {state.message}
+             </p>
+             <div className="flex justify-end gap-3">
+                <button 
+                   onClick={onClose}
+                   className="px-4 py-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition-colors text-sm font-medium"
+                >
+                   {state.cancelText || 'Cancelar'}
+                </button>
+                <button 
+                   onClick={() => { state.onConfirm(); onClose(); }}
+                   className={`px-5 py-2 rounded-lg text-black font-bold text-sm transition-transform hover:scale-[1.02] shadow-lg ${
+                      state.variant === 'danger' ? 'bg-red-500 hover:bg-red-400 shadow-red-500/20' : 
+                      'bg-neon hover:bg-emerald-400 shadow-neon/20'
+                   }`}
+                >
+                   {state.confirmText || 'Confirmar'}
+                </button>
+             </div>
+          </div>
+       </div>
+    </div>
+  );
+};
+
 function AppContent() {
   const { user, logout } = useAuth();
   const [lang, setLang] = useState<Language>('es');
@@ -2236,12 +2314,23 @@ function AppContent() {
   
   // FIRESTORE MIGRATION: Projects are now fetched from Cloud
   const [projects, setProjects] = useState<ProjectTemplate[]>([]);
-  
   const [showCreate, setShowCreate] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
-  const [showCertModal, setShowCertModal] = useState(false);
+  const [showCertModal, setShowCertModal] = useState(false); 
   const [interviews, setInterviews] = useState<Interview[]>([]);
+  
+  // GLOBAL CONFIRMATION STATE
+  const [confirmState, setConfirmState] = useState<ConfirmationState>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+  });
+
+  const requestConfirm = (options: Omit<ConfirmationState, 'isOpen'>) => {
+     setConfirmState({ ...options, isOpen: true });
+  };
 
   // PERSIST view to localStorage when it changes
   useEffect(() => {
@@ -2281,7 +2370,7 @@ function AppContent() {
     }
   }, [activeProject]);
   
-  // Trend Notification State (restored)
+  // Trend Notification State
   const [showTrendNotification, setShowTrendNotification] = useState(false);
   const [activeTrendReport, setActiveTrendReport] = useState<TrendReport | null>(null);
   const [isGeneratingTrends, setIsGeneratingTrends] = useState(false);
@@ -2313,18 +2402,13 @@ function AppContent() {
     document.body.setAttribute('data-theme', theme);
   }, [theme]);
 
-  // Onboarding Check
+  // Onboarding Check & Initial Project Load
   useEffect(() => {
-    // Only show onboarding if not visited before (or force it    // Initialize projects with local storage check for Demo Project persistence
+    // Initialize projects with local storage check for Demo Project persistence
     const savedDemo = localStorage.getItem('demo_project_001');
     if (savedDemo) {
        try {
           const parsedDemo = JSON.parse(savedDemo);
-          // Merge saved demo with initial projects, replacing the default demo if it exists
-          const initial = INITIAL_PROJECTS.map(p => p.id === 'demo_project_001' ? parsedDemo : p);
-          // If demo not in initial (e.g. different ID structure), append or handle accordingly. 
-          // For now, assuming INITIAL_PROJECTS contains the demo or we append it.
-          // actually INITIAL_PROJECTS usually has the demo. Let's just use the saved one.
           setProjects([parsedDemo]); 
        } catch (e) {
           console.error("Failed to load saved demo project", e);
@@ -2333,8 +2417,6 @@ function AppContent() {
     } else {
        setProjects(INITIAL_PROJECTS);
     }
-
-    // For now, keeping user request logic but simplified
     setShowOnboarding(true); 
   }, []);
 
@@ -2347,7 +2429,6 @@ function AppContent() {
           const localProjects = JSON.parse(localStorage.getItem('validai_projects') || '[]');
           const userProjects = localProjects.filter((p: any) => p.userId === user.uid);
           if (userProjects.length > 0) {
-            console.log('📦 [LocalStorage] Loaded', userProjects.length, 'local projects');
             return userProjects;
           }
         } catch (e) {
@@ -2357,86 +2438,45 @@ function AppContent() {
       };
       
       const localProjects = loadLocalProjects();
-      
-      // ALWAYS set local projects first
       if (localProjects.length > 0) {
         setProjects(localProjects);
-        console.log('🎯 [App] Displaying', localProjects.length, 'local projects');
       }
       
-      // Then try to subscribe to Firebase (may fail due to index issues)
       let unsubscribe = () => {};
       try {
         unsubscribe = FirebaseService.subscribeToProjects(user.uid, (data) => {
-          console.log('☁️ [Firebase] Received', data.length, 'projects from Firestore');
-          
           // Merge Firebase + localStorage (remove duplicates)
           const allProjectIds = new Set<string>();
           const mergedProjects: ProjectTemplate[] = [];
           
-          // 1. ALWAYS add the Default Project (Holistic Biohacking) first
-          // This ensures we always have the LATEST version from code (with reverted widgets)
           const defaultProject = INITIAL_PROJECTS[0];
           if (defaultProject) {
              mergedProjects.push(defaultProject);
              allProjectIds.add(defaultProject.id);
           }
           
-          // 2. Add Firebase projects
-          data.forEach((p: ProjectTemplate) => {
-            // Filter out if it conflicts with default project ID or NAME
-            if (p.id === defaultProject.id || p.name === defaultProject.name) return;
-            
-            if (!allProjectIds.has(p.id)) {
-               allProjectIds.add(p.id);
-               mergedProjects.push(p);
-            }
+          data.forEach(p => {
+             if (p.id !== defaultProject.id && p.name !== defaultProject.name && !allProjectIds.has(p.id)) {
+                mergedProjects.push(p);
+                allProjectIds.add(p.id);
+             }
           });
           
-          // 3. Add localStorage projects
-          localProjects.forEach((p: ProjectTemplate) => {
-            // CRITICAL: Filter out any local project that matches the default project's NAME or ID
-            // This forces the app to use the code version (defaultProject) instead of stale local data
-            if (p.id === defaultProject.id || p.name === defaultProject.name) {
-               console.log('🧹 [App] Ignoring stale local default project:', p.id);
-               return;
-            }
-            
-            if (!allProjectIds.has(p.id)) {
-              mergedProjects.push(p);
-              allProjectIds.add(p.id);
-            }
-          });
-          
-          // 4. Sort
-          mergedProjects.sort((a, b) => {
-             if (a.id === defaultProject.id) return -1;
-             if (a.name === defaultProject.name) return -1;
-             
-             const dateA = new Date(a.createdAt || 0).getTime();
-             const dateB = new Date(b.createdAt || 0).getTime();
-             return dateB - dateA;
-          });
-          
-          if (mergedProjects.length > 0) {
-            setProjects(mergedProjects);
-            console.log('✅ [App] Total projects:', mergedProjects.length);
-          } else {
-             // Should not happen since we force default, but safe fallback
-             setProjects(INITIAL_PROJECTS);
+          if (localProjects.length > 0) {
+             localProjects.forEach(p => {
+                if (p.id !== defaultProject.id && p.name !== defaultProject.name && !allProjectIds.has(p.id)) {
+                   mergedProjects.push(p);
+                   allProjectIds.add(p.id);
+                }
+             });
           }
+          
+          setProjects(mergedProjects);
         });
-      } catch (err) {
-        console.error('❌ [Firebase] Subscription error:', err);
-        // Keep local projects on error
-        if (localProjects.length > 0) {
-          setProjects(localProjects);
-        }
+      } catch (e) {
+         console.warn("⚠️ Firestore subscription failed, using local data only.");
       }
-      
       return () => unsubscribe();
-    } else {
-      setProjects([]);
     }
   }, [user]);
 
@@ -2444,64 +2484,70 @@ function AppContent() {
     setShowOnboarding(false);
   };
 
-  const handleCreate = async (p: ProjectTemplate) => {
-     console.log('🏁 handleCreate called with:', p);
-     
-     if (!user) {
-       console.error('❌ No user logged in handleCreate');
-       alert('Error: No has iniciado sesión. Por favor inicia sesión e intenta de nuevo.');
-       return;
-     }
+  const handleCreateProject = async (templateId: string) => {
+    const template = templateToProject(templateId);
+    if (!user) return alert("Inicia sesión primero");
 
-     try {
-       console.log('🔥 Calling FirebaseService.createProject for user:', user.uid);
-       await FirebaseService.createProject(user.uid, p);
-       console.log('✅ Project created (Firebase or localStorage fallback)');
-       
-       // Add project to local state immediately
-       setProjects(prev => {
-         const exists = prev.find(proj => proj.id === p.id);
-         if (exists) return prev;
-         return [{ ...p, userId: user.uid } as ProjectTemplate, ...prev];
-       });
-       
-       setShowCreate(false);
-       setActiveProject(p);
+    const newProject: ProjectTemplate = {
+      ...template,
+      id: Date.now().toString(),
+      userId: user.uid,
+      createdAt: new Date().toISOString(),
+      interviews: [],
+      questions: template.questions || [],
+      hypothesis: template.hypothesis || { problem: '', solution: '' }
+    };
+
+    try {
+       await FirebaseService.createProject(user.uid, newProject);
+       setProjects(prev => [...prev, newProject]);
+       setActiveProject(newProject);
        setView('project');
-       console.log('🎉 View switched to project');
-     } catch (e: any) {
-       console.error('❌ Error in handleCreate:', e);
-       // Note: localStorage fallback doesn't throw, so this means both failed
-       alert(`Error crítico: No se pudo guardar el proyecto. ${e.message || e}`);
-     }
+       setShowCreate(false);
+    } catch (e) {
+       console.error("Failed to create project:", e);
+       alert("Error creando proyecto.");
+    }
   };
 
-  const handleDelete = async (id: string) => {
-     await FirebaseService.deleteProject(id);
-     if (activeProject?.id === id) {
-        setActiveProject(null);
-        setView('hub');
-     }
+  const handleDeleteProject = async (id: string) => {
+    // USING GLOBAL CONFIRMATION
+    requestConfirm({
+       title: '¿Eliminar Proyecto?',
+       message: 'Esta acción no se puede deshacer. Se perderán todas las entrevistas asociadas.',
+       confirmText: 'Sí, Eliminar',
+       variant: 'danger',
+       onConfirm: async () => {
+          try {
+             await FirebaseService.deleteProject(id);
+             setProjects(prev => prev.filter(p => p.id !== id));
+             if (activeProject?.id === id) {
+                setActiveProject(null);
+                setView('hub');
+             }
+          } catch (e) {
+             console.error("Delete failed", e);
+             alert("Error eliminando proyecto.");
+          }
+       }
+    });
   };
 
   const handleUpdateProject = async (updated: ProjectTemplate) => {
      // Special handling for Demo Project (Local Only)
      if (updated.id === 'demo_project_001') {
-        console.log("⚠️ Demo Project Update: Skipping Firebase, updating local state only.");
-        
-        // Persist to LocalStorage
         localStorage.setItem('demo_project_001', JSON.stringify(updated));
-        
         setActiveProject(updated);
-        // Also update the projects list locally if needed, though SessionHub might re-render from props
-        // For demo, we might need to update the 'projects' state if it's being used
         setProjects(prev => prev.map(p => p.id === updated.id ? updated : p));
         return;
      }
 
-     await FirebaseService.updateProject(updated);
-     // Subscription updates list
-     setActiveProject(updated); // Update local active view
+     try {
+        await FirebaseService.updateProject(updated);
+        setActiveProject(updated);
+     } catch (e) {
+        console.error("Failed to update project:", e);
+     }
   };
 
   if (!user) {
@@ -2554,6 +2600,7 @@ function AppContent() {
                setLang={setLang}
                theme={theme}
                setTheme={setTheme}
+               onRequestConfirm={requestConfirm}
             />
          )}
 
@@ -2714,3 +2761,13 @@ function AppContent() {
     </div>
   );
 }
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
+  );
+}
+
+export default App;

@@ -339,7 +339,8 @@ export const SmartChat = ({ project, interviews, onNotify, userName }: any) => {
              </AnimatePresence>
           </div>
 
-          {/* ============ INPUT AREA ============ */}\n          <div className="p-4 md:p-6 mx-auto w-full max-w-5xl">
+          {/* ============ INPUT AREA ============ */}
+          <div className="p-4 md:p-6 mx-auto w-full max-w-5xl">
              {/* Action Chips */}
              {hasMessages && (
                 <div className="flex gap-2 mb-3 overflow-x-auto pb-2 custom-scrollbar">
@@ -376,13 +377,25 @@ export const SmartChat = ({ project, interviews, onNotify, userName }: any) => {
                 
                 <div className="flex justify-between items-center px-3 pb-3">
                    <div className="flex gap-1">
-                      <button className="p-2.5 text-slate-500 hover:text-[#3AFF97] hover:bg-[#3AFF97]/10 rounded-xl transition-colors" title="Adjuntar archivo">
+                      <button 
+                        onClick={() => setInput(prev => prev + " [Archivo adjunto] ")}
+                        className="p-2.5 text-slate-500 hover:text-[#3AFF97] hover:bg-[#3AFF97]/10 rounded-xl transition-colors" 
+                        title="Adjuntar archivo (Simulado)"
+                      >
                          <Paperclip size={18} />
                       </button>
-                      <button className="p-2.5 text-slate-500 hover:text-[#3AFF97] hover:bg-[#3AFF97]/10 rounded-xl transition-colors" title="Métricas">
+                      <button 
+                        onClick={() => setInput("Genera un análisis de métricas basado en mis entrevistas.")}
+                        className="p-2.5 text-slate-500 hover:text-[#3AFF97] hover:bg-[#3AFF97]/10 rounded-xl transition-colors" 
+                        title="Métricas rápidas"
+                      >
                          <PieChart size={18} />
                       </button>
-                      <button className="p-2.5 text-slate-500 hover:text-[#3AFF97] hover:bg-[#3AFF97]/10 rounded-xl transition-colors" title="Voz">
+                      <button 
+                        onClick={() => alert("Función de voz disponible próximamente en versión Pro.")}
+                        className="p-2.5 text-slate-500 hover:text-[#3AFF97] hover:bg-[#3AFF97]/10 rounded-xl transition-colors" 
+                        title="Dictado por voz"
+                      >
                          <Mic size={18} />
                       </button>
                    </div>
