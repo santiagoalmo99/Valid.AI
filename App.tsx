@@ -613,17 +613,6 @@ const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, 
              {activeTab === 'interviews' && <div className="p-8">
                 <InterviewsView 
                    interviews={interviews} 
-                   project={project} 
-                   onSelect={setSelectedInterview}
-                   onDelete={async (id: string) => {
-                      onRequestConfirm({
-                         title: "¿Eliminar entrevista?",
-                         message: "Se borrarán los datos de esta entrevista permanentemente.",
-                         confirmText: "Eliminar",
-                         variant: "danger",
-                         onConfirm: async () => {
-                              // DEMO MODE: Local Only
-                              if (project.id === 'demo_project_001') {
                                  setInterviews(prev => prev.filter(i => i.id !== id));
                                  const offlineKey = `offline_interviews_${project.id}`;
                                  const offline = JSON.parse(localStorage.getItem(offlineKey) || '[]');
@@ -723,7 +712,7 @@ const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, 
              {activeTab === 'questions' && (
                <div className="p-8">
                  <React.Suspense fallback={<LoadingSpinner />}>
-                   <QuestionAnalysis project={project} interviews={interviews} />
+                   <QuestionAnalysis project={project} interviews={interviews} lang={lang} />
                  </React.Suspense>
                </div>
              )}

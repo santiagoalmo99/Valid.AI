@@ -3,21 +3,80 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell,
   PieChart, Pie, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, AreaChart, Area
 } from 'recharts';
-import { MessageSquare, Hash, PieChart as PieIcon, BarChart3, Activity, Cloud, Filter, Search, ChevronRight, TrendingUp, Users, Brain, Sparkles, Quote } from 'lucide-react';
+import { MessageSquare, Hash, PieChart as PieIcon, BarChart3, Activity, Cloud, Filter, Search, ChevronRight, TrendingUp, Users, Brain, Sparkles, Quote, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ProjectTemplate, Interview, Question } from '../types';
 
 interface QuestionAnalysisProps {
   project: ProjectTemplate;
   interviews: Interview[];
+  lang?: 'es' | 'en';
 }
 
 const GLASS_PANEL = "bg-[#09090b] border border-[#1f1f23] rounded-[24px] overflow-hidden shadow-2xl relative group";
 const NEON_GLOW = "hover:border-neon/30 hover:shadow-[0_0_40px_-10px_rgba(0,255,148,0.15)] transition-all duration-500";
 
-export const QuestionAnalysis = ({ project, interviews }: QuestionAnalysisProps) => {
+const TRANSLATIONS = {
+   es: {
+      deepInsights: "Deep Insights",
+      analyzing: "Analizando",
+      interviews: "entrevistas",
+      basedOn: "basado en",
+      allResponses: "todas las respuestas",
+      promoters: "Promotores",
+      detractors: "Detractores",
+      avgScore: "Puntaje Validación",
+      marketViability: "Viabilidad Mercado",
+      dataVolume: "Volumen Datos",
+      wordsAnalyzed: "Palabras Procesadas",
+      sentiment: "Sentimiento",
+      overallTone: "Tono General",
+      noData: "Sin Datos Aún",
+      startInterviewing: "Comienza a entrevistar para ver insights en tiempo real.",
+      lowDataWarning: "Data Limitada",
+      lowDataMsg: "Se requieren al menos 5 entrevistas para relevancia estadística.",
+      responses: "Respuestas",
+      aiAnalyzed: "Analizado por IA",
+      chart: "Gráfico",
+      quotes: "Citas",
+      keywords: "Palabras Clave",
+      positive: "Positivo",
+      neutral: "Neutral",
+      critical: "Crítico"
+   },
+   en: {
+      deepInsights: "Deep Insights",
+      analyzing: "Analyzing",
+      interviews: "interviews",
+      basedOn: "based on",
+      allResponses: "all responses",
+      promoters: "Promoters",
+      detractors: "Detractors",
+      avgScore: "Validation Score",
+      marketViability: "Market Viability",
+      dataVolume: "Data Volume",
+      wordsAnalyzed: "Words Analyzed",
+      sentiment: "Sentiment",
+      overallTone: "Overall Tone",
+      noData: "No Data Available",
+      startInterviewing: "Start interviewing to see real-time insights.",
+      lowDataWarning: "Low Data",
+      lowDataMsg: "At least 5 interviews needed for statistical relevance.",
+      responses: "Responses",
+      aiAnalyzed: "AI Analyzed",
+      chart: "Chart",
+      quotes: "Quotes",
+      keywords: "Keywords",
+      positive: "Positive",
+      neutral: "Neutral",
+      critical: "Critical"
+   }
+};
+
+export const QuestionAnalysis = ({ project, interviews, lang = 'es' }: QuestionAnalysisProps) => {
   const [filterMode, setFilterMode] = useState<'all' | 'high_score' | 'low_score'>('all');
-  
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.es;
+
   // Filter Data
   const filteredInterviews = useMemo(() => {
     switch(filterMode) {
@@ -32,9 +91,9 @@ export const QuestionAnalysis = ({ project, interviews }: QuestionAnalysisProps)
     if (!filteredInterviews.length) return null;
     const avgScore = Math.round(filteredInterviews.reduce((acc, i) => acc + i.totalScore, 0) / filteredInterviews.length);
     const totalWords = filteredInterviews.reduce((acc, i) => acc + Object.values(i.answers || {}).reduce((w: number, a: any) => w + String(a?.rawValue || '').length, 0), 0);
-    const sentiment = avgScore > 75 ? 'Positive' : avgScore > 50 ? 'Neutral' : 'Critical';
+    const sentiment = avgScore > 75 ? t.positive : avgScore > 50 ? t.neutral : t.critical;
     return { avgScore, totalWords, sentiment };
-  }, [filteredInterviews]);
+  }, [filteredInterviews, t]);
 
   if (!interviews || !Array.isArray(interviews) || interviews.length === 0) {
     return (
@@ -42,11 +101,13 @@ export const QuestionAnalysis = ({ project, interviews }: QuestionAnalysisProps)
         <div className="w-24 h-24 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center mb-6 animate-pulse">
            <BarChart3 size={48} className="opacity-20" />
         </div>
-        <h2 className="text-xl font-bold text-white mb-2">No Data Available</h2>
-        <p className="max-w-md mx-auto">Start interviewing to see real-time insights and analytics appear here.</p>
+        <h2 className="text-xl font-bold text-white mb-2">{t.noData}</h2>
+        <p className="max-w-md mx-auto">{t.startInterviewing}</p>
       </div>
     );
   }
+
+  const isLowData = interviews.length < 5;
 
   return (
     <div className="min-h-screen bg-[#050505] p-2 md:p-8 animate-fade-in pb-32">
@@ -60,23 +121,32 @@ export const QuestionAnalysis = ({ project, interviews }: QuestionAnalysisProps)
                <div className="p-2 bg-neon/10 rounded-lg text-neon">
                   <Brain size={20} />
                </div>
-               <h1 className="text-3xl font-bold text-white tracking-tight">Deep Insights</h1>
+               <h1 className="text-3xl font-bold text-white tracking-tight">{t.deepInsights}</h1>
             </div>
             <p className="text-slate-500 text-sm hidden md:block">
-              Analyzing <span className="text-white font-bold">{filteredInterviews.length}</span> interviews based on {filterMode === 'all' ? 'all responses' : filterMode === 'high_score' ? 'high intent users' : 'skeptical users'}.
+              {t.analyzing} <span className="text-white font-bold">{filteredInterviews.length}</span> {t.interviews} {t.basedOn} {filterMode === 'all' ? t.allResponses : filterMode === 'high_score' ? 'high intent users' : 'skeptical users'}.
             </p>
           </div>
           
-          <div className="flex bg-black/40 border border-white/10 rounded-full p-1 gap-1">
-             <button onClick={() => setFilterMode('all')} className={`px-4 py-2 rounded-full text-xs font-bold transition-all ${filterMode === 'all' ? 'bg-white text-black shadow-lg' : 'text-slate-400 hover:text-white'}`}>
-                All
-             </button>
-             <button onClick={() => setFilterMode('high_score')} className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-2 ${filterMode === 'high_score' ? 'bg-neon text-black shadow-lg shadow-neon/20' : 'text-slate-400 hover:text-white'}`}>
-                <TrendingUp size={12} /> Promoters
-             </button>
-             <button onClick={() => setFilterMode('low_score')} className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-2 ${filterMode === 'low_score' ? 'bg-red-500 text-white shadow-lg shadow-red-500/20' : 'text-slate-400 hover:text-white'}`}>
-                <Activity size={12} /> Detractors
-             </button>
+          <div className="flex items-center gap-4">
+             {isLowData && (
+                <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-yellow-500/10 border border-yellow-500/20 rounded-lg text-yellow-500 text-xs font-medium animate-pulse">
+                   <AlertTriangle size={14} />
+                   {t.lowDataMsg}
+                </div>
+             )}
+
+             <div className="flex bg-black/40 border border-white/10 rounded-full p-1 gap-1">
+                <button onClick={() => setFilterMode('all')} className={`px-4 py-2 rounded-full text-xs font-bold transition-all ${filterMode === 'all' ? 'bg-white text-black shadow-lg' : 'text-slate-400 hover:text-white'}`}>
+                   All
+                </button>
+                <button onClick={() => setFilterMode('high_score')} className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-2 ${filterMode === 'high_score' ? 'bg-neon text-black shadow-lg shadow-neon/20' : 'text-slate-400 hover:text-white'}`}>
+                   <TrendingUp size={12} /> {t.promoters}
+                </button>
+                <button onClick={() => setFilterMode('low_score')} className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-2 ${filterMode === 'low_score' ? 'bg-red-500 text-white shadow-lg shadow-red-500/20' : 'text-slate-400 hover:text-white'}`}>
+                   <Activity size={12} /> {t.detractors}
+                </button>
+             </div>
           </div>
        </div>
 
@@ -84,25 +154,25 @@ export const QuestionAnalysis = ({ project, interviews }: QuestionAnalysisProps)
        {globalStats && (
          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 relative z-10">
             <MetricCard 
-              label="Avg. Validation Score" 
+              label={t.avgScore} 
               value={`${globalStats.avgScore}%`} 
-              sub="Market Viability"
+              sub={t.marketViability}
               icon={<TrendingUp size={20} className="text-neon" />}
               chart={<div className="w-full h-1 my-2 bg-slate-800 rounded-full overflow-hidden"><div className="h-full bg-neon" style={{width: `${globalStats.avgScore}%`}}></div></div>}
             />
             <MetricCard 
-              label="Data Volume" 
+              label={t.dataVolume} 
               value={(globalStats.totalWords / 1000).toFixed(1) + 'k'} 
-              sub="Words Analyzed"
+              sub={t.wordsAnalyzed}
               icon={<MessageSquare size={20} className="text-blue-400" />}
               chart={<Sparkline color="#60a5fa" />}
             />
             <MetricCard 
-              label="Sentiment" 
+              label={t.sentiment} 
               value={globalStats.sentiment} 
-              sub="Overall Tone"
-              icon={<Sparkles size={20} className={globalStats.sentiment === 'Positive' ? 'text-green-400' : 'text-yellow-400'} />}
-              chart={<Sparkline color={globalStats.sentiment === 'Positive' ? '#4ade80' : '#facc15'} />}
+              sub={t.overallTone}
+              icon={<Sparkles size={20} className={globalStats.sentiment === t.positive ? 'text-green-400' : 'text-yellow-400'} />}
+              chart={<Sparkline color={globalStats.sentiment === t.positive ? '#4ade80' : '#facc15'} />}
             />
          </div>
        )}
@@ -111,7 +181,7 @@ export const QuestionAnalysis = ({ project, interviews }: QuestionAnalysisProps)
        <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6 relative z-10">
           {(project?.questions || []).map((q, index) => (
             <div key={q.id} className="break-inside-avoid">
-               <QuestionCard question={q} interviews={filteredInterviews} index={index} />
+               <QuestionCard question={q} interviews={filteredInterviews} index={index} t={t} />
             </div>
           ))}
        </div>
@@ -149,12 +219,25 @@ const Sparkline = ({ color }: { color: string }) => (
 
 // --- QUESTION CARD LOGIC ---
 
-const QuestionCard = ({ question, interviews, index }: { question: Question, interviews: Interview[], index: number }) => {
+const QuestionCard = ({ question, interviews, index, t }: { question: Question, interviews: Interview[], index: number, t: any }) => {
   const data = useMemo(() => processData(question, interviews), [question, interviews]);
   const colors = ['#00FF94', '#00FFFF', '#3b82f6', '#8b5cf6', '#ec4899', '#ef4444'];
   const [activeTab, setActiveTab] = useState<'chart' | 'quotes'>('chart');
   
   if (!data) return null;
+
+  // Force chart if low data but valid numeric data exists
+  // This addresses user request: "Show charts visually even if 1 interview"
+  const hasChartData = data.chartData && data.chartData.length > 0;
+  
+  // Decide what to show (Chart vs Quotes)
+  // If it's a text question, default to quotes. If numeric, chart.
+  const isNumeric = ['scale', 'select', 'multiselect', 'frequency'].includes(question.widgetType);
+  
+  // Initialize tab correctly
+  React.useEffect(() => {
+     if (!isNumeric && data.rawAnswers.length > 0) setActiveTab('quotes');
+  }, [isNumeric]);
 
   return (
     <motion.div 
@@ -184,28 +267,32 @@ const QuestionCard = ({ question, interviews, index }: { question: Question, int
       <div className="p-6 bg-black/20 min-h-[250px] relative">
          {/* Toggle Active View */}
          <div className="absolute top-4 right-4 z-20 flex bg-black/40 border border-white/10 rounded-lg p-0.5">
-            <button onClick={() => setActiveTab('chart')} className={`p-1.5 rounded-md transition-all ${activeTab === 'chart' ? 'bg-white/10 text-white' : 'text-slate-500'}`}><BarChart3 size={14}/></button>
-            <button onClick={() => setActiveTab('quotes')} className={`p-1.5 rounded-md transition-all ${activeTab === 'quotes' ? 'bg-white/10 text-white' : 'text-slate-500'}`}><Quote size={14}/></button>
+            <button onClick={() => setActiveTab('chart')} className={`p-1.5 rounded-md transition-all ${activeTab === 'chart' ? 'bg-white/10 text-white' : 'text-slate-500'}`} title={t.chart}><BarChart3 size={14}/></button>
+            <button onClick={() => setActiveTab('quotes')} className={`p-1.5 rounded-md transition-all ${activeTab === 'quotes' ? 'bg-white/10 text-white' : 'text-slate-500'}`} title={t.quotes}><Quote size={14}/></button>
          </div>
 
          {activeTab === 'chart' ? (
              <div className="h-[200px] w-full">
-                {renderWidget(question, data, colors, null, () => {})}
+                {renderWidget(question, data, colors, null, () => {}, t)}
              </div>
          ) : (
              <div className="h-[200px] overflow-y-auto pr-2 custom-scrollbar space-y-3">
-                {(data.rawAnswers || []).slice(0, 5).map((ans: string, i: number) => (
-                   <div key={i} className="p-3 bg-white/5 rounded-lg border border-white/5 text-xs text-slate-300 italic">
-                      "{ans}"
-                   </div>
-                ))}
+                {(data.rawAnswers || []).length > 0 ? (
+                   (data.rawAnswers).slice(0, 10).map((ans: string, i: number) => (
+                      <div key={i} className="p-3 bg-white/5 rounded-lg border border-white/5 text-xs text-slate-300 italic">
+                         "{ans}"
+                      </div>
+                   ))
+                ) : (
+                   <div className="text-slate-600 text-xs italic text-center mt-10">{t.noData}</div>
+                )}
              </div>
          )}
          
          {/* Footer Stats */}
          <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between text-[10px] text-slate-500 uppercase tracking-widest font-bold">
-            <span>{data.total} Responses</span>
-            <span className="flex items-center gap-1 text-emerald-500"><Sparkles size={10}/> AI Analyzed</span>
+            <span>{data.total} {t.responses}</span>
+            <span className="flex items-center gap-1 text-emerald-500"><Sparkles size={10}/> {t.aiAnalyzed}</span>
          </div>
       </div>
     </motion.div>
@@ -220,28 +307,30 @@ const Badge = ({ icon, text, color = "text-slate-400" }: any) => (
 
 // --- RENDERERS ---
 
-const renderWidget = (question: Question, data: any, colors: string[], selectedKeyword: string | null = null, setSelectedKeyword: (k: string | null) => void) => {
+const renderWidget = (question: Question, data: any, colors: string[], selectedKeyword: string | null = null, setSelectedKeyword: (k: string | null) => void, t: any) => {
    if (!data) return null;
 
    // 1. Bar Chart (Scale / Select)
    if (['scale', 'select', 'multiselect', 'frequency'].includes(question.widgetType)) {
-      return (
-         <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data.chartData} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-               <XAxis type="number" hide />
-               <YAxis dataKey="name" type="category" width={100} tick={{fill: '#64748b', fontSize: 10}} tickLine={false} axisLine={false} />
-               <Tooltip 
-                  cursor={{fill: 'rgba(255,255,255,0.05)'}}
-                  contentStyle={{ backgroundColor: '#09090b', border: '1px solid #333', borderRadius: '12px' }}
-               />
-               <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={20}>
-                  {data.chartData.map((entry: any, index: number) => (
-                     <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-                  ))}
-               </Bar>
-            </BarChart>
-         </ResponsiveContainer>
-      );
+      if (data.chartData && data.chartData.length > 0) {
+         return (
+            <ResponsiveContainer width="100%" height="100%">
+               <BarChart data={data.chartData} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                  <XAxis type="number" hide />
+                  <YAxis dataKey="name" type="category" width={100} tick={{fill: '#64748b', fontSize: 10}} tickLine={false} axisLine={false} />
+                  <Tooltip 
+                     cursor={{fill: 'rgba(255,255,255,0.05)'}}
+                     contentStyle={{ backgroundColor: '#09090b', border: '1px solid #333', borderRadius: '12px' }}
+                  />
+                  <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={20}>
+                     {data.chartData.map((entry: any, index: number) => (
+                        <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                     ))}
+                  </Bar>
+               </BarChart>
+            </ResponsiveContainer>
+         );
+      }
    }
    
    // 2. Word Cloud / Keywords (Text)
@@ -262,16 +351,26 @@ const renderWidget = (question: Question, data: any, colors: string[], selectedK
       );
    }
 
-   // Fallback for empty text
+   // Fallback for empty text (or text questions with 0 keywords but raw answers)
+   // If we have raw answers but no keywords (e.g. very short answers), show a simple count or placeholder
+   if (data.rawAnswers && data.rawAnswers.length > 0) {
+      return (
+         <div className="flex items-center justify-center h-full flex-col gap-2">
+            <MessageSquare size={24} className="text-slate-600"/>
+            <p className="text-slate-500 text-xs italic">{data.rawAnswers.length} {t.responses}</p>
+            <p className="text-slate-700 text-[10px]">Ver pestaña "Citas" para detalles</p>
+         </div>
+      );
+   }
+
    return (
       <div className="flex items-center justify-center h-full text-slate-600 text-xs italic">
-         No sufficient text data for visualization.
+         {t.noData}
       </div>
    );
 };
 
-// --- DATA PROCESSING (Fixed for Crash) ---
-// Extracted from original file and enhanced
+// --- DATA PROCESSING ---
 
 const STOP_WORDS = new Set(['el', 'la', 'los', 'las', 'un', 'una', 'y', 'o', 'pero', 'si', 'no', 'en', 'de', 'del', 'a', 'al', 'con', 'sin', 'por', 'para', 'es', 'son', 'que', 'se', 'su', 'sus', 'mi', 'mis', 'tu', 'tus', 'yo', 'tú', 'and', 'or', 'the', 'is', 'are', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'it', 'that', 'this']);
 
@@ -305,6 +404,7 @@ const processData = (question: Question, interviews: Interview[]) => {
          counts[key] = (counts[key] || 0) + 1;
       });
       const chartData = Object.entries(counts).map(([name, value]) => ({ name, value }));
+      // Ensure we pass chartData even if only 1 item
       return { type: 'chart', chartData, total: validAnswers.length, rawAnswers: rawValues };
    }
 
