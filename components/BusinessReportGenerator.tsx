@@ -529,7 +529,7 @@ const GeneratingStep: React.FC<{
     </div>
   </div>
   );
-};
+
 
 const CompleteStep: React.FC<{
   report: GeneratedReport;
@@ -577,7 +577,7 @@ const CompleteStep: React.FC<{
     </div>
   </div>
   );
-};
+
 
 const ConfettiEffect: React.FC = () => {
   const colors = ['#00FF94', '#3B82F6', '#8B5CF6', '#F59E0B', '#EC4899'];
