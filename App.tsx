@@ -177,16 +177,14 @@ const NotificationToast = ({ notifications, removeNotification }: { notification
 
 // --- COMPONENTS ---
 
-// 1. Session Hub (Project Grid)
+// 1. Session Hub (Project Grid - Bento Style)
 const SessionHub = ({ projects, onSelect, onCreate, onDelete, onUpdate, lang, user, logout, toggleTheme, theme, isDemo, onRequestConfirm }: any) => {
   const t = TRANSLATIONS[lang];
   
   // NUCLEAR OPTION: Force Default Project Visibility
-  // We construct the list right here in the render to guarantee it appears
   const defaultProject = INITIAL_PROJECTS[0];
   const finalProjects = [defaultProject];
   
-  // Add other projects, filtering out duplicates of the default one
   projects.forEach((p: ProjectTemplate) => {
      if (p.id !== defaultProject.id && p.name !== defaultProject.name) {
         finalProjects.push(p);
@@ -194,142 +192,132 @@ const SessionHub = ({ projects, onSelect, onCreate, onDelete, onUpdate, lang, us
   });
 
   return (
-    <div className="p-8 max-w-7xl mx-auto animate-fade-in relative z-10">
-       <div className="flex justify-between items-center mb-12">
-          <Logo size="small" />
-          <div className="flex items-center gap-4">
-             {/* Migration Button (Only if needed) */}
-             {projects.length === 0 && localStorage.getItem('valid_ai_projects') && (
-                <button 
-                  onClick={async () => {
-                     onRequestConfirm({
-                        title: "¿Importar proyectos antiguos?",
-                        message: "Se copiarán tus proyectos locales a la nube para que no los pierdas.",
-                        confirmText: "Importar Ahora",
-                        onConfirm: async () => {
-                           const localProjs = JSON.parse(localStorage.getItem('valid_ai_projects') || '[]');
-                           const localInterviews = JSON.parse(localStorage.getItem('valid_ai_interviews') || '[]');
-                           
-                           if (localProjs.length === 0) return alert("No hay datos locales.");
-                           
-                           // Migrate Projects
-                           for (const p of localProjs) {
-                              await FirebaseService.createProject(user.uid, p);
-                           }
-                           
-                           // Migrate Interviews
-                           for (const i of localInterviews) {
-                              await FirebaseService.addInterview(i);
-                           }
-                           
-                           alert("¡Migración completada! Tus proyectos ahora están en la nube."); // Este alert es informativo, se puede dejar o cambiar por toast luego
-                        }
-                     });
-                  }}
-                  className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white text-xs font-bold transition-colors border border-white/5 flex items-center gap-2"
-                >
-                   <Upload size={14} /> Importar Proyectos Antiguos
-                </button>
-             )}
+    <div className="min-h-screen bg-[#050505] p-8 md:p-12 relative overflow-x-hidden">
+       {/* Ambient Background Glows */}
+       <div className="fixed top-[-20%] left-[-10%] w-[50%] h-[50%] bg-neon/5 rounded-full blur-[120px] pointer-events-none"></div>
+       <div className="fixed bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-blue-500/5 rounded-full blur-[120px] pointer-events-none"></div>
 
-             <div className="flex items-center gap-3 mr-4 border-r border-white/10 pr-4">
-                <img src={user?.photoURL || "https://ui-avatars.com/api/?name=User&background=random"} alt="user" className="w-8 h-8 rounded-full border border-white/20" />
-                <span className="text-xs text-slate-400 font-medium hidden md:block">{user?.email?.split('@')[0]}</span>
-             </div>
-             <button onClick={logout} className="p-2 rounded-full hover:bg-red-500/10 text-slate-400 hover:text-red-400 transition-colors" title="Cerrar Sesión">
-                <X size={20} />
-             </button>
-             <button onClick={onCreate} className="btn-premium px-6 py-3 rounded-xl flex items-center gap-2 font-bold text-sm shadow-lg hover:shadow-neon/20">
-                <Plus size={18} /> {t.newSession}
-             </button>
-          </div>
+       <div className="max-w-[1600px] mx-auto relative z-10">
+         {/* Minimal Header */}
+         <div className="flex flex-col md:flex-row justify-between items-end md:items-center mb-16 gap-6">
+            <div>
+               <div className="mb-2 flex items-center gap-2">
+                 <div className="w-2 h-2 rounded-full bg-neon animate-pulse"></div>
+                 <span className="text-[10px] font-bold tracking-[0.2em] text-neon/80 uppercase">Workspace</span>
+               </div>
+               <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight">Valid<span className="text-zinc-600">.ai</span></h1>
+            </div>
+            
+            <div className="flex items-center gap-4 bg-[#0a0a0a] border border-white/5 p-1.5 rounded-full shadow-2xl">
+               <button onClick={onCreate} className="btn-premium px-6 py-3 rounded-full flex items-center gap-2 font-bold text-sm shadow-lg hover:shadow-neon/20 transition-all">
+                  <Plus size={18} /> <span className="hidden md:inline">{t.newSession}</span>
+               </button>
+               
+               <div className="h-8 w-[1px] bg-white/10 mx-1"></div>
+               
+               <div className="flex items-center gap-2 px-2">
+                  <img src={user?.photoURL || "https://ui-avatars.com/api/?name=User&background=random"} alt="user" className="w-8 h-8 rounded-full border border-white/10" />
+               </div>
+               
+               <button onClick={logout} className="w-10 h-10 rounded-full bg-white/5 hover:bg-red-500/10 text-zinc-400 hover:text-red-400 flex items-center justify-center transition-colors">
+                  <Power size={18} />
+               </button>
+            </div>
+         </div>
+
+         {/* Bento Grid */}
+         <motion.div 
+           key={`projects-${finalProjects.length}`}
+           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+           variants={staggerContainer}
+           initial="initial"
+           animate="animate"
+         >
+            {finalProjects.map((p: ProjectTemplate) => (
+               <motion.div 
+                 key={p.id} 
+                 variants={staggerItem}
+                 onClick={() => onSelect(p)} 
+                 className={`
+                    group relative bg-[#09090b] border border-[#1f1f23] rounded-[32px] p-1.5 
+                    overflow-hidden hover:border-neon/30 transition-all duration-500 
+                    hover:shadow-[0_0_50px_-20px_rgba(0,255,148,0.15)] 
+                    hover:-translate-y-1 cursor-pointer flex flex-col h-[400px]
+                    ${isDemo ? 'ring-1 ring-neon/20' : ''}
+                 `}
+               >
+                  {/* Card Image Area */}
+                  <div className="h-[220px] w-full rounded-[26px] overflow-hidden relative mb-2 bg-[#000]">
+                     <div className="absolute inset-0 bg-gradient-to-t from-[#09090b] via-transparent to-transparent z-10 opacity-80"></div>
+                     <img src={p.coverImage} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-60 group-hover:opacity-80" alt="cover" />
+                     
+                     {/* Floating Date Badge */}
+                     <div className="absolute top-4 right-4 z-20 bg-black/40 backdrop-blur-md border border-white/5 px-3 py-1.5 rounded-full">
+                        <span className="text-[10px] font-bold text-zinc-300">{new Date(p.createdAt).toLocaleDateString()}</span>
+                     </div>
+                     
+                     {/* Emoji Icon */}
+                     <div className="absolute bottom-4 left-4 z-20 w-12 h-12 bg-black/50 backdrop-blur-xl border border-white/10 rounded-2xl flex items-center justify-center text-2xl shadow-lg">
+                        {p.emoji}
+                     </div>
+                  </div>
+                  
+                  {/* Card Content */}
+                  <div className="px-5 pb-5 flex flex-col flex-1 relative">
+                     {/* Title */}
+                     <h3 className="text-xl font-bold text-white mb-2 leading-tight group-hover:text-neon transition-colors">{p.name}</h3>
+                     
+                     {/* Description */}
+                     <p className="text-xs text-zinc-500 line-clamp-3 leading-relaxed mb-auto font-medium">
+                        {p.description}
+                     </p>
+                     
+                     {/* Footer Metrics */}
+                     <div className="pt-5 mt-4 border-t border-white/5 flex items-center justify-between">
+                        {p.deepAnalysis ? (
+                           <div className="flex flex-col">
+                              <span className="text-[10px] uppercase tracking-wider text-zinc-600 font-bold mb-0.5">Validation</span>
+                              <div className="flex items-baseline gap-1.5">
+                                 <span className="text-2xl font-bold text-white group-hover:text-neon transition-colors">{p.deepAnalysis.viabilityScore}</span>
+                                 <span className="text-xs text-zinc-500">/100</span>
+                              </div>
+                           </div>
+                        ) : (
+                           <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-900/50 border border-white/5">
+                              <div className="w-1.5 h-1.5 rounded-full bg-zinc-700"></div>
+                              <span className="text-xs text-zinc-500 font-medium">Draft</span>
+                           </div>
+                        )}
+                        
+                        <div className="w-10 h-10 rounded-full border border-white/5 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all duration-300">
+                           <ArrowRight size={16} className="-rotate-45 group-hover:rotate-0 transition-transform duration-300" />
+                        </div>
+                     </div>
+                     
+                     {/* Card Actions (Hover) */}
+                     <div className="absolute top-[-210px] left-4 z-30 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
+                        <button 
+                           onClick={(e) => { e.stopPropagation(); onDelete(p.id); }}
+                           className="p-2 bg-black/60 backdrop-blur-md hover:bg-red-500/20 text-white hover:text-red-400 rounded-xl border border-white/10 transition-colors"
+                        >
+                           <Trash2 size={16} />
+                        </button>
+                        <button 
+                           onClick={(e) => { 
+                              e.stopPropagation(); 
+                              const newCover = getCoverByIdea(p.name + ' ' + p.description);
+                              onUpdate({ ...p, coverImage: newCover });
+                           }}
+                           className="p-2 bg-black/60 backdrop-blur-md hover:bg-neon/20 text-white hover:text-neon rounded-xl border border-white/10 transition-colors"
+                        >
+                           <RefreshCw size={16} />
+                        </button>
+                     </div>
+                  </div>
+               </motion.div>
+            ))}
+         </motion.div>
        </div>
-
-       <motion.div 
-         key={`projects-${finalProjects.length}`}
-         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-         variants={staggerContainer}
-         initial="initial"
-         animate="animate"
-       >
-          {finalProjects.map((p: ProjectTemplate) => (
-             <motion.div 
-               key={p.id} 
-               variants={staggerItem}
-               onClick={() => onSelect(p)} 
-               className={`group glass-panel rounded-[24px] overflow-hidden hover:border-neon/50 transition-all cursor-pointer hover:-translate-y-2 duration-500 ${isDemo ? 'border-neon/30 shadow-[0_0_20px_rgba(58,255,151,0.1)]' : ''}`}
-             >
-                <div className="h-56 overflow-hidden relative">
-                   <div className="absolute inset-0 bg-gradient-to-t from-void via-transparent to-transparent z-10"></div>
-                   <img src={p.coverImage} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt="cover" />
-                   
-                   <div className="absolute top-3 right-3 z-20 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 text-[10px] font-bold text-white uppercase tracking-wider shadow-lg">
-                      {new Date(p.createdAt).toLocaleDateString()}
-                   </div>
-
-                   {isDemo && (
-                      <div className="absolute top-3 left-3 z-20 bg-neon text-black px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-lg animate-pulse">
-                         EJEMPLO DEMO
-                      </div>
-                   )}
-
-                   <div className="absolute bottom-4 left-4 z-20 flex items-center gap-3">
-                      <span className="text-5xl drop-shadow-2xl filter">{p.emoji}</span>
-                   </div>
-                </div>
-                
-                <div className="p-6 relative">
-                   <div className="absolute top-0 right-0 w-32 h-32 bg-neon/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-neon/10 transition-colors"></div>
-                   <h3 className="text-xl font-bold text-white mb-2 relative z-10 group-hover:text-neon transition-colors">{p.name}</h3>
-                   <p className="text-sm text-slate-400 line-clamp-2 mb-6 relative z-10 font-light">{p.description}</p>
-                   
-                   <div className="flex items-center justify-between relative z-10 border-t border-white/5 pt-4">
-                      {p.deepAnalysis ? (
-                         <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-neon animate-pulse"></div>
-                            <span className="text-xs font-bold text-neon">Score: {p.deepAnalysis.viabilityScore}</span>
-                         </div>
-                      ) : (
-                         <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-slate-600"></div>
-                            <span className="text-xs text-slate-500">Pending Analysis</span>
-                         </div>
-                      )}
-                       <ArrowRight size={16} className="text-slate-500 group-hover:text-white group-hover:translate-x-1 transition-all" />
-                    </div>
-                 </div>
-                 
-                 {/* Actions: Delete & Regenerate Cover */}
-                 <div className="absolute top-3 left-3 z-20 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
-                    <button 
-                       onClick={(e) => {
-                          e.stopPropagation();
-                          // Delegate confirmation to the handler which now uses the Modal
-                          onDelete(p.id);
-                       }}
-                       className="p-2 bg-black/60 backdrop-blur-md hover:bg-red-500/80 text-white rounded-full border border-white/10 transition-colors shadow-lg"
-                       title="Eliminar Proyecto"
-                    >
-                       <Trash2 size={14} />
-                    </button>
-                    
-                    <button 
-                       onClick={(e) => {
-                          e.stopPropagation();
-                          // No API call - instant cover change
-                          const newCover = getCoverByIdea(p.name + ' ' + p.description);
-                          onUpdate({ ...p, coverImage: newCover });
-                          console.log('✅ [Cover] Assigned without API call');
-                       }}
-                       className="p-2 bg-black/60 backdrop-blur-md hover:bg-neon/80 hover:text-black text-white rounded-full border border-white/10 transition-colors shadow-lg"
-                       title="Regenerar Portada con IA"
-                    >
-                       <RefreshCw size={14} />
-                    </button>
-                 </div>
-              </motion.div>
-           ))}
-       </motion.div>
     </div>
   );
 };
