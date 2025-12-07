@@ -678,8 +678,115 @@ export const chat = async (prompt: string): Promise<string> => {
 };
 
 // ===== NEW: ENHANCED AI SERVICES =====
-// Export surgical-level AI analysis and self-healing wrapper
-export { analyzeFullInterviewEnhanced } from './aiService.enhanced';
-export { analyzeWithRecovery } from './aiService.selfHealing';
-export type { EnhancedAnalysisResult, Contradiction } from '../types';
+
+export interface EnhancedAnalysisResult {
+  scores: {
+    totalScore: number;
+    dimensionScores: {
+       problemIntensity: number;
+       solutionFit: number;
+       currentBehavior: number;
+       painPoint: number;
+       earlyAdopter: number;
+       willingnessToPay: number;
+    }
+  };
+  summary: string;
+  keyInsights: string[];
+  oneLinerVerdict?: string;
+  signals?: { buying: string[] };
+}
+
+export const analyzeFullInterviewEnhanced = async (project: ProjectTemplate, answers: any, regData: any): Promise<EnhancedAnalysisResult> => {
+     try {
+     const enrichedAnswers = Object.values(answers).map((ans: any) => {
+        const q = project.questions.find((q: any) => q.id === ans.questionId);
+        return {
+           question: q ? q.text : "Unknown Question",
+           answer: ans.rawValue,
+           observation: ans.observation,
+           dimension: q ? q.dimension : "unknown"
+        };
+     });
+ 
+     const prompt = `
+     ROL: Eres un Analista Senior de Venture Capital y Psicólogo Conductual experto en validación de productos. Tu trabajo es analizar entrevistas de descubrimiento de clientes para determinar la viabilidad real de una idea de negocio.
+     
+     CONTEXTO DEL PROYECTO:
+     Nombre: "${project.name}"
+     Descripción: "${project.description}"
+     
+     DATOS DEL ENTREVISTADO:
+     ${JSON.stringify(regData, null, 2)}
+     
+     TRANSCRIPCIÓN DE LA ENTREVISTA (Pregunta -> Respuesta):
+     ${JSON.stringify(enrichedAnswers, null, 2)}
+     
+     TAREA:
+     Realiza un análisis crítico y profundo.
+     
+     SISTEMA DE CALIFICACIÓN (0-10):
+     - Problem Intensity (40%)
+     - Solution Fit (30%)
+     - Willingness to Pay (30%)
+     
+     FORMATO DE SALIDA (JSON PURO):
+     {
+       "scores": {
+         "totalScore": number, // Promedio ponderado (0.0 - 10.0) 
+         "dimensionScores": {
+           "problemIntensity": number,
+           "solutionFit": number,
+           "willingnessToPay": number,
+           "currentBehavior": number,
+           "painPoint": number,
+           "earlyAdopter": number
+         }
+       },
+       "summary": "string",
+       "keyInsights": ["string"],
+       "oneLinerVerdict": "string",
+       "signals": { "buying": ["string"] }
+     }
+     
+     REGLAS:
+     1. IDIOMA: 100% Español Latinoamericano Profesional.
+     2. FORMATO: JSON válido minificado.
+     `;
+ 
+     const response = await callGeminiAPI(prompt, true);
+     const cleanText = repairJSON(response);
+     const parsed = JSON.parse(cleanText);
+     
+     return {
+         scores: {
+             totalScore: Number(parsed.scores?.totalScore || 0),
+             dimensionScores: {
+                 problemIntensity: Number(parsed.scores?.dimensionScores?.problemIntensity || 0),
+                 solutionFit: Number(parsed.scores?.dimensionScores?.solutionFit || 0),
+                 willingnessToPay: Number(parsed.scores?.dimensionScores?.willingnessToPay || 0),
+                 currentBehavior: Number(parsed.scores?.dimensionScores?.currentBehavior || 0),
+                 painPoint: Number(parsed.scores?.dimensionScores?.painPoint || 0),
+                 earlyAdopter: Number(parsed.scores?.dimensionScores?.earlyAdopter || 0)
+             }
+         },
+         summary: String(parsed.summary || ''),
+         keyInsights: Array.isArray(parsed.keyInsights) ? parsed.keyInsights : [],
+         oneLinerVerdict: parsed.oneLinerVerdict,
+         signals: parsed.signals
+     };
+   } catch (error) {
+     console.error("❌ Enhanced AI Analysis Error:", error);
+     return {
+        scores: {
+          totalScore: 0,
+          dimensionScores: {
+              problemIntensity: 0, solutionFit: 0, willingnessToPay: 0, currentBehavior: 0, painPoint: 0, earlyAdopter: 0
+          }
+        },
+        summary: "Analysis failed due to error.",
+        keyInsights: ["AI Analysis Unavailable"]
+     };
+   }
+ };
 

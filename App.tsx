@@ -27,6 +27,16 @@ import { CertificateModal } from './components/CertificateModal';
 import { ConfirmationModal } from './components/ConfirmationModal';
 import { PublicVerificationPage } from './components/PublicVerificationPage';
 import { calculateYCReadiness } from './services/scoringService';
+import { EnhancedAnalysisResult } from './services/aiService';
+
+// --- TYPES ---
+interface ConfirmationState {
+  title: string;
+  message: string;
+  confirmText: string;
+  variant: 'danger' | 'info';
+  onConfirm: () => Promise<void>;
+}
 
 // Lazy Load Heavy Components
 const QuestionAnalysis = React.lazy(() => import('./components/QuestionAnalysis').then(module => ({ default: module.QuestionAnalysis })));
@@ -1357,14 +1367,7 @@ const DeepResearchView = ({ project, interviews, onUpdate, t }: any) => {
                </div>
                
                {/* CERTIFICATE BUTTON (If Passing) */}
-               {calculateYCReadiness(interviews).totalScore >= 70 && (
-                   <button 
-                     onClick={() => setShowCertModal(true)}
-                     className="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 px-4 py-3 rounded-xl text-xs font-bold border border-emerald-500/30 flex items-center gap-2 transition-all hover:scale-105"
-                   >
-                      <Award size={16} /> Certificado
-                   </button>
-               )}
+
 
                <button onClick={runAnalysis} className="bg-white/5 hover:bg-white/10 text-white px-6 py-3 rounded-xl text-sm font-bold border border-white/10 flex items-center gap-2 transition-all hover:border-white/30">
                   <RefreshCw size={16} /> Re-Analizar
