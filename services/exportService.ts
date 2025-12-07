@@ -324,6 +324,51 @@ export function generateInterviewExport(
     `).join('')
     : `<p style="color: var(--text-muted);">${isSpanish ? 'No hay insights disponibles' : 'No insights available'}</p>`;
   
+  // Enhanced Analysis (Surgical) HTML
+  const enhancedHTML = interview.enhancedAnalysis ? `
+      <section class="section">
+        <h2>🧠 ${isSpanish ? 'Análisis Quirúrgico (AI Enhanced)' : 'Surgical Analysis (AI)'}</h2>
+        
+        <div class="metric-grid">
+           <div class="metric-card">
+              <div class="value">${interview.enhancedAnalysis.trustSignal?.score || 0}/100</div>
+              <div class="label">${isSpanish ? 'Señal de Confianza' : 'Trust Signal'}</div>
+           </div>
+           <div class="metric-card">
+              <div class="value" style="font-size: 20px;">${interview.enhancedAnalysis.buyingIntent?.level || '-'}</div>
+              <div class="label">${isSpanish ? 'Intención de Compra' : 'Buying Intent'}</div>
+           </div>
+           <div class="metric-card">
+              <div class="value" style="font-size: 20px;">${interview.enhancedAnalysis.salesResistance?.level || '-'}</div>
+              <div class="label">${isSpanish ? 'Resistencia' : 'Sales Resistance'}</div>
+           </div>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; margin-top: 20px;">
+           <h3 style="margin-top: 0;">🎭 ${isSpanish ? 'Perfil Psicográfico' : 'Psychographic Profile'}</h3>
+           <p><strong>${isSpanish ? 'Arquetipo' : 'Archetype'}:</strong> <span style="color: var(--primary); font-weight: bold;">${interview.enhancedAnalysis.psychographicProfile?.archetype || 'N/A'}</span></p>
+           <p style="font-size: 12px; color: var(--text-muted); margin-top: 5px;"><strong>${isSpanish ? 'Impulsores:' : 'Drivers:'}</strong> ${(interview.enhancedAnalysis.psychographicProfile?.drivers || []).join(', ')}</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+            <div>
+              <h3 style="font-size: 14px; margin-bottom: 10px;">🚫 ${isSpanish ? 'Objeciones Ocultas' : 'Hidden Objections'}</h3>
+              <ul style="color: var(--text-secondary); padding-left: 20px; font-size: 13px;">
+                ${(interview.enhancedAnalysis.hiddenObjections || []).map(obj => `<li>${obj}</li>`).join('')}
+              </ul>
+            </div>
+            <div>
+               <h3 style="font-size: 14px; margin-bottom: 10px;">❤️ ${isSpanish ? 'Emociones Detectadas' : 'Detected Emotions'}</h3>
+               <div style="display: flex; flex-wrap: wrap; gap: 5px;">
+                 ${(interview.enhancedAnalysis.emotionalContext || []).map(emo => `
+                    <span class="tag ${emo.intensity > 7 ? 'positive' : 'warning'}">${emo.emotion} (${emo.intensity}/10)</span>
+                 `).join('')}
+               </div>
+            </div>
+        </div>
+      </section>
+  ` : '';
+
   // Answers table
   const answersHTML = Object.entries(interview.answers || {}).map(([questionId, answer]) => {
     const question = project.questions.find(q => q.id === questionId);
@@ -408,6 +453,9 @@ export function generateInterviewExport(
       <h3>${isSpanish ? 'Insights Clave' : 'Key Insights'}</h3>
       ${insightsHTML}
     </section>
+
+    <!-- NEW: Surgical Analysis -->
+    ${enhancedHTML}
     
     <!-- Detailed Answers -->
     <section class="section">

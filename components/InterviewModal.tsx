@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, User, Mail, Phone, MapPin, Calendar, MessageSquare, Brain, Target, Zap, DollarSign, Activity, AlertTriangle } from 'lucide-react';
+import { X, User, Mail, Phone, MapPin, Calendar, MessageSquare, Brain, Target, Zap, DollarSign, Activity, AlertTriangle, Quote } from 'lucide-react';
 import { Interview, ProjectTemplate } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ExportButton } from './ExportButton';
@@ -107,92 +107,109 @@ export const InterviewModal: React.FC<InterviewModalProps> = ({ interview, proje
           {/* Content */}
           <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
             
-            {/* AI Summary Section */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-               <div className={`md:col-span-2 bg-white/5 p-6 rounded-2xl border transition-all duration-500 ${justUpdated ? 'border-neon shadow-[0_0_20px_rgba(58,255,151,0.3)]' : 'border-white/5'} relative overflow-hidden`}>
-                  {justUpdated && (
-                     <div className="absolute top-2 right-2 text-neon text-xs font-bold animate-pulse">
-                        ✨ Updated!
-                     </div>
-                  )}
-                  <h3 className="text-neon font-bold uppercase tracking-widest text-xs mb-4 flex items-center gap-2">
-                     <Brain size={16} /> AI Executive Summary
-                  </h3>
-                  
-                  {isAnalysisFailed ? (
-                     <div className="flex flex-col items-start gap-4">
-                        <p className="text-red-400 italic text-sm">
-                           {interview.summary?.includes("Analysis failed:") ? interview.summary : "Analysis failed or incomplete."}
-                        </p>
-                        {onRetryAnalysis && (
-                           <button 
-                              onClick={handleRetry} 
-                              disabled={isRetrying}
-                              className="bg-neon/10 hover:bg-neon/20 text-neon border border-neon/50 px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                           >
-                              {isRetrying ? (
-                                <>
-                                  <div className="w-4 h-4 border-2 border-neon border-t-transparent rounded-full animate-spin" />
-                                  Analizando...
-                                </>
-                              ) : (
-                                <>
-                                  <Zap size={16}/>
-                                  Reintentar Análisis
-                                </>
-                              )}
-                           </button>
-                        )}
-                     </div>
-                  ) : (
-                     <p className="text-slate-300 leading-relaxed italic">"{interview.summary}"</p>
-                  )}
-                  
-                  {interview.keyInsights && interview.keyInsights.length > 0 && (
-                     <div className="mt-6 space-y-2">
-                        {interview.keyInsights.map((insight, idx) => (
-                           <div key={idx} className="flex items-start gap-2 text-sm text-slate-400">
-                              <span className="text-neon mt-1">•</span>
-                              <span>{insight}</span>
-                           </div>
-                        ))}
-                     </div>
-                  )}
-               </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 group">
+                 <motion.div 
+                   initial={{ opacity: 0, y: 20 }}
+                   animate={{ opacity: 1, y: 0 }}
+                   transition={{ delay: 0.1 }}
+                   className={`md:col-span-2 bg-[#0F0F0F] p-8 rounded-3xl border transition-all duration-500 ${justUpdated ? 'border-neon shadow-[0_0_30px_rgba(58,255,151,0.15)]' : 'border-white/5'} relative overflow-hidden group`}
+                >
+                   <div className="absolute top-0 right-0 w-32 h-32 bg-neon/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-neon/10 transition-colors"></div>
+                   
+                   {justUpdated && (
+                      <div className="absolute top-4 right-4 bg-neon/10 text-neon text-xs font-bold px-3 py-1 rounded-full border border-neon/20 animate-pulse flex items-center gap-2">
+                         <Zap size={12} fill="currentColor"/> Updated Now
+                      </div>
+                   )}
+                   
+                   <h3 className="text-neon font-bold uppercase tracking-widest text-xs mb-6 flex items-center gap-2">
+                      <Brain size={16} /> AI Executive Summary
+                   </h3>
+                   
+                   {isAnalysisFailed ? (
+                      <div className="flex flex-col items-start gap-4">
+                         <p className="text-red-400 italic text-sm border-l-2 border-red-500 pl-4 py-1">
+                            {interview.summary?.includes("Analysis failed:") ? interview.summary : "Analysis failed or incomplete."}
+                         </p>
+                         {onRetryAnalysis && (
+                            <button 
+                               onClick={handleRetry} 
+                               disabled={isRetrying}
+                               className="bg-neon/10 hover:bg-neon/20 text-neon border border-neon/50 px-6 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105"
+                            >
+                               {isRetrying ? (
+                                 <>
+                                   <div className="w-4 h-4 border-2 border-neon border-t-transparent rounded-full animate-spin" />
+                                   Re-analyzing...
+                                 </>
+                               ) : (
+                                 <>
+                                   <Zap size={16}/>
+                                   Retry Analysis
+                                 </>
+                               )}
+                            </button>
+                         )}
+                      </div>
+                   ) : (
+                      <div className="relative z-10">
+                         <div className="mb-6 relative">
+                            <Quote className="absolute -top-2 -left-2 text-white/5 transform -scale-x-100" size={40} />
+                            <p className="text-slate-200 text-lg leading-relaxed font-light italic pl-6 border-l-2 border-neon/30">
+                              "{interview.summary}"
+                            </p>
+                         </div>
+                      </div>
+                   )}
+                   
+                   {interview.keyInsights && interview.keyInsights.length > 0 && (
+                      <div className="mt-8 pt-6 border-t border-white/5 grid grid-cols-1 md:grid-cols-2 gap-4">
+                         {interview.keyInsights.slice(0, 4).map((insight, idx) => (
+                            <div key={idx} className="flex items-start gap-3 text-sm text-slate-400 bg-white/[0.02] p-3 rounded-lg hover:bg-white/5 transition-colors">
+                               <div className="mt-1 w-1.5 h-1.5 rounded-full bg-neon flex-shrink-0 shadow-[0_0_5px_rgba(58,255,151,0.5)]"></div>
+                               <span>{insight}</span>
+                            </div>
+                         ))}
+                      </div>
+                   )}
+                </motion.div>
 
-               <div className="bg-white/5 p-6 rounded-2xl border border-white/5 flex flex-col justify-center items-center text-center">
-                  <div className="text-6xl font-bold text-white mb-2 drop-shadow-[0_0_15px_rgba(58,255,151,0.5)]">
-                     {interview.totalScore}
-                  </div>
-                  <div className="text-xs text-slate-500 uppercase font-bold tracking-widest mb-6">Validation Score</div>
-                  
-                  <div className="w-full space-y-3">
-                     <ScoreBar label="Problem" value={interview.dimensionScores?.problemIntensity || 0} icon={<AlertTriangle size={12}/>} />
-                     <ScoreBar label="Solution" value={interview.dimensionScores?.solutionFit || 0} icon={<Target size={12}/>} />
-                     <ScoreBar label="Willingness" value={interview.dimensionScores?.willingnessToPay || 0} icon={<DollarSign size={12}/>} />
-                  </div>
-                  
-                  {/* Always show retry button */}
-                  {onRetryAnalysis && (
-                     <button 
-                        onClick={handleRetry} 
-                        disabled={isRetrying}
-                        className="mt-6 w-full bg-white/5 hover:bg-neon/20 text-slate-300 hover:text-neon border border-white/10 hover:border-neon/50 px-4 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                     >
-                        {isRetrying ? (
-                          <>
-                            <div className="w-3 h-3 border-2 border-neon border-t-transparent rounded-full animate-spin" />
-                            Analizando...
-                          </>
-                        ) : (
-                          <>
-                            <Zap size={14}/>
-                            Re-analizar
-                          </>
-                        )}
-                     </button>
-                  )}
-               </div>
+                <motion.div 
+                   initial={{ opacity: 0, scale: 0.9 }}
+                   animate={{ opacity: 1, scale: 1 }}
+                   transition={{ delay: 0.2 }}
+                   className="bg-[#0F0F0F] p-8 rounded-3xl border border-white/5 flex flex-col justify-between items-center text-center relative overflow-hidden"
+                >
+                   <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-50 pointer-events-none"></div>
+                   
+                   <div className="relative z-10 w-full flex flex-col items-center">
+                      <div className="text-xs text-slate-500 uppercase font-bold tracking-widest mb-6">Validation Score</div>
+                      
+                      <CircularScore score={interview.totalScore} />
+                      
+                      <div className="w-full space-y-4 mt-8">
+                         <ScoreBar label="Problem" value={interview.dimensionScores?.problemIntensity || 0} icon={<AlertTriangle size={12}/>} />
+                         <ScoreBar label="Solution" value={interview.dimensionScores?.solutionFit || 0} icon={<Target size={12}/>} />
+                         <ScoreBar label="Willingness" value={interview.dimensionScores?.willingnessToPay || 0} icon={<DollarSign size={12}/>} />
+                      </div>
+                   </div>
+                   
+                   {/* Always show retry button */}
+                   {onRetryAnalysis && (
+                      <button 
+                         onClick={handleRetry} 
+                         disabled={isRetrying}
+                         className="mt-8 w-full bg-white/5 hover:bg-neon/10 text-slate-400 hover:text-white border border-white/10 hover:border-neon/30 px-4 py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
+                      >
+                         {isRetrying ? (
+                           <div className="w-3 h-3 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
+                         ) : (
+                           <Zap size={14} className="group-hover:text-neon transition-colors"/>
+                         )}
+                         {isRetrying ? 'Processing...' : 'Recalculate Score'}
+                      </button>
+                   )}
+                </motion.div>
             </div>
 
             {/* SURGICAL ANALYSIS (PHASE 19) */}
@@ -315,13 +332,75 @@ export const InterviewModal: React.FC<InterviewModalProps> = ({ interview, proje
 
 const ScoreBar = ({ label, value, icon }: any) => (
    <div className="flex items-center gap-3 text-xs">
-      <div className="w-20 text-slate-400 flex items-center gap-1">{icon} {label}</div>
-      <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
-         <div 
-            className={`h-full rounded-full ${value > 7 ? 'bg-neon' : value > 4 ? 'bg-yellow-400' : 'bg-red-400'}`} 
-            style={{ width: `${value * 10}%` }}
-         ></div>
+      <div className="w-24 text-slate-400 flex items-center gap-1.5 font-medium">{icon} {label}</div>
+      <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/5">
+         <motion.div 
+            initial={{ width: 0 }}
+            animate={{ width: `${value * 10}%` }}
+            transition={{ duration: 1, ease: 'easeOut' }}
+            className={`h-full rounded-full ${value > 7 ? 'bg-neon shadow-[0_0_10px_rgba(58,255,151,0.5)]' : value > 4 ? 'bg-yellow-400' : 'bg-red-400'}`} 
+         ></motion.div>
       </div>
-      <div className="w-6 text-right font-bold text-white">{value}</div>
+      <div className="w-6 text-right font-mono font-bold text-white">{value}</div>
    </div>
 );
+
+const CircularScore = ({ score }: { score: number }) => {
+  const radius = 58;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (score / 100) * circumference;
+  
+  const getColor = (s: number) => {
+      if (s >= 70) return '#3AFF97'; 
+      if (s >= 40) return '#FACC15'; 
+      return '#EF4444'; 
+  };
+  const color = getColor(score);
+  
+  return (
+    <div className="relative w-40 h-40 flex items-center justify-center group cursor-default">
+       {/* Background Glow */}
+       <div className={`absolute inset-0 rounded-full blur-[40px] opacity-20 transition-colors duration-500`} style={{ backgroundColor: color }}></div>
+       
+       <svg className="transform -rotate-90 w-full h-full relative z-10 drop-shadow-2xl">
+         {/* Track */}
+         <circle
+           cx="80"
+           cy="80"
+           r={radius}
+           stroke="rgba(255,255,255,0.05)"
+           strokeWidth="10"
+           fill="transparent"
+         />
+         {/* Progress */}
+         <motion.circle
+           initial={{ strokeDashoffset: circumference }}
+           animate={{ strokeDashoffset }}
+           transition={{ duration: 1.5, ease: "easeOut", delay: 0.2 }}
+           cx="80"
+           cy="80"
+           r={radius}
+           stroke={color}
+           strokeWidth="10"
+           strokeDasharray={circumference}
+           strokeLinecap="round"
+           fill="transparent"
+           className="drop-shadow-[0_0_10px_rgba(0,0,0,0.5)]"
+         />
+       </svg>
+       
+       {/* Center Score */}
+       <div className="absolute flex flex-col items-center justify-center z-20">
+         <motion.span 
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.5, type: 'spring' }}
+            className="text-5xl font-bold text-white tracking-tighter"
+            style={{ textShadow: `0 0 20px ${color}50` }}
+         >
+            {score}
+         </motion.span>
+       </div>
+    </div>
+  );
+};

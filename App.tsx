@@ -19,6 +19,7 @@ import { SmartQuestionWidget } from './components/SmartQuestionWidget';
 import { LandingPage } from './components/LandingPage';
 import { BusinessReportGenerator } from './components/BusinessReportGenerator';
 import { ExportButton } from './components/ExportButton';
+import { DynamicNotification, NotificationPayload } from './components/DynamicNotification';
 import { VoiceInput } from './components/VoiceInput';
 import { YCReadinessBadge } from './components/YCReadinessBadge';
 import { TrendService, TrendReport } from './services/trendService';
@@ -2280,6 +2281,11 @@ function AppContent() {
   const { user, logout } = useAuth();
   const [lang, setLang] = useState<Language>('es');
   const [theme, setTheme] = useState<'dark' | 'light'>('dark'); 
+  const [notification, setNotification] = useState<NotificationPayload | null>(null);
+
+  const notify = (title: string, type: 'success'|'error'|'info'|'live' = 'info', message?: string, duration: number = 4000) => {
+      setNotification({ title, type, message, duration });
+  }; 
   
   // PERSISTENT STATE: Restore from localStorage on mount
   const [view, setView] = useState(() => {
@@ -2555,6 +2561,7 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-void text-slate-200 font-sans selection:bg-neon selection:text-black">
+       <DynamicNotification notification={notification} onClose={() => setNotification(null)} />
       {/* Dynamic Background - High Fidelity 3D Elements */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
          {/* Ambient Background - Active & Fluid */}

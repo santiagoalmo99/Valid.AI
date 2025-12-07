@@ -15,7 +15,7 @@ const GLASS_PANEL = "bg-black/40 backdrop-blur-xl border border-white/10 shadow-
 
 export const QuestionAnalysis = ({ project, interviews }: QuestionAnalysisProps) => {
   
-  if (!interviews || interviews.length === 0) {
+  if (!interviews || !Array.isArray(interviews) || interviews.length === 0) {
     return (
       <div className="text-center py-20 text-slate-500">
         <BarChart3 size={48} className="mx-auto mb-4 opacity-50" />
@@ -26,7 +26,7 @@ export const QuestionAnalysis = ({ project, interviews }: QuestionAnalysisProps)
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {project.questions.map((q, index) => (
+      {(project?.questions || []).map((q, index) => (
         <QuestionCard key={q.id} question={q} interviews={interviews} index={index} />
       ))}
     </div>
@@ -37,6 +37,9 @@ const QuestionCard = ({ question, interviews, index }: { question: Question, int
   const data = useMemo(() => processData(question, interviews), [question, interviews]);
   const colors = ['#3AFF97', '#818cf8', '#c084fc', '#f472b6', '#fbbf24', '#34d399'];
   const [selectedKeyword, setSelectedKeyword] = React.useState<string | null>(null);
+
+  // Safety check for empty data
+  if (!data) return null;
 
   return (
     <div className={`${GLASS_PANEL} rounded-2xl p-6 flex flex-col h-[400px] hover:border-neon/30 transition-colors group`}>
@@ -73,16 +76,18 @@ const STOP_WORDS = new Set([
 ]);
 
 const extractKeywords = (texts: string[]): { name: string, value: number }[] => {
+  if (!texts || !Array.isArray(texts)) return [];
   const frequency: Record<string, number> = {};
   
   texts.forEach(text => {
+    if (!text || typeof text !== 'string') return;
     // Normalize: lowercase, remove punctuation, split by spaces
     const words = text.toLowerCase()
       .replace(/[.,/#!$%^&*;:{}=\-_`~()?"']/g, "")
       .split(/\s+/);
       
     words.forEach(word => {
-      if (word.length > 3 && !STOP_WORDS.has(word)) {
+      if (word && word.length > 3 && !STOP_WORDS.has(word)) {
         frequency[word] = (frequency[word] || 0) + 1;
       }
     });
@@ -95,7 +100,12 @@ const extractKeywords = (texts: string[]): { name: string, value: number }[] => 
 };
 
 const processData = (question: Question, interviews: Interview[]) => {
-  const answers = interviews.map(i => i.answers[question.id]?.rawValue).filter(Boolean);
+  if (!interviews || !question) return null;
+  // Robust mapping: handle undefined answers, force String conversion
+  const answers = (interviews || [])
+    .map(i => i?.answers?.[question.id]?.rawValue)
+    .filter(val => val !== null && val !== undefined)
+    .map(String);
   
   if (question.widgetType === 'boolean_donut') {
     const yes = answers.filter(a => a.toLowerCase().includes('sí') || a.toLowerCase().includes('yes') || a === 'true').length;
@@ -122,7 +132,8 @@ const processData = (question: Question, interviews: Interview[]) => {
     // Fill missing keys for scale
     const max = question.widgetType === 'gauge_1_10' ? 10 : 5;
     for (let i = 1; i <= max; i++) {
-        if (!counts[i.toString()]) counts[i.toString()] = 0;
+        const key = i.toString();
+        if (!counts[key]) counts[key] = 0;
     }
     return Object.entries(counts)
         .map(([name, value]) => ({ name, value }))
@@ -145,7 +156,11 @@ const renderWidget = (
   selectedKeyword?: string | null, 
   setSelectedKeyword?: (k: string | null) => void
 ) => {
-  if (!data || (Array.isArray(data) && data.length === 0) || (data.keywords && data.keywords.length === 0 && data.rawAnswers.length === 0)) {
+  if (!data) return <div className="text-slate-500">Sin datos</div>;
+  if (Array.isArray(data) && data.length === 0) return <div className="text-slate-500">Sin datos</div>;
+  
+  // Check for keyword cloud empty state
+  if (data.keywords && Array.isArray(data.keywords) && data.keywords.length === 0 && data.rawAnswers && data.rawAnswers.length === 0) {
      return <div className="flex items-center justify-center h-full text-slate-600">Sin datos</div>;
   }
 
@@ -169,7 +184,7 @@ const renderWidget = (
             </Pie>
             <Tooltip contentStyle={{backgroundColor: '#020617', border: '1px solid #334155', borderRadius: '12px'}} />
             <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className="fill-white text-2xl font-bold">
-              {Math.round((data.find((d: any) => d.name === 'Sí')?.value || 0) / data.reduce((a: any,b: any) => a + b.value, 0) * 100)}%
+              {Math.round((data.find((d: any) => d.name === 'Sí')?.value || 0) / (data.reduce((a: any,b: any) => a + b.value, 0) || 1) * 100)}%
             </text>
           </PieChart>
         </ResponsiveContainer>
@@ -195,7 +210,7 @@ const renderWidget = (
       return (
         <div className="h-full flex flex-col gap-4">
            {/* 1. Tag Cloud Section (Interactive) */}
-           {keywords.length > 0 && (
+           {keywords && keywords.length > 0 && (
              <div className="flex flex-wrap gap-2 max-h-[35%] overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 pr-1 shrink-0">
                 {keywords.map((k, i) => (
                   <button 
@@ -226,7 +241,7 @@ const renderWidget = (
                  )}
               </div>
               
-              {filteredAnswers.length > 0 ? (
+              {filteredAnswers && filteredAnswers.length > 0 ? (
                 filteredAnswers.slice(0, 20).map((ans, i) => (
                   <div key={i} className="bg-white/5 p-3 rounded-xl border border-white/5 text-xs text-slate-300 italic">
                     "{ans}"
@@ -251,10 +266,10 @@ const renderWidget = (
 // --- CSS Chart Components (Robust & Premium) ---
 
 const HorizontalBarChart = ({ data, colors }: { data: any[], colors: string[] }) => {
-  const max = Math.max(...data.map(d => d.value)) || 1;
+  const max = Math.max(...(data || []).map(d => d.value)) || 1;
   return (
     <div className="w-full h-full overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-white/10 space-y-4 py-2">
-      {data.map((item, i) => (
+      {(data || []).map((item, i) => (
         <div key={i} className="w-full group">
           <div className="flex justify-between text-xs text-slate-400 mb-1.5">
             <span className="font-medium text-slate-300">{item.name}</span>
@@ -265,7 +280,7 @@ const HorizontalBarChart = ({ data, colors }: { data: any[], colors: string[] })
               className="h-full rounded-full transition-all duration-1000 ease-out group-hover:brightness-125 relative overflow-hidden"
               style={{ 
                 width: `${(item.value / max) * 100}%`,
-                backgroundColor: colors[i % colors.length]
+                backgroundColor: (colors || [])[i % (colors || []).length || 0] || '#ccc'
               }}
             >
                <div className="absolute inset-0 bg-gradient-to-r from-transparent to-white/20"></div>
@@ -278,10 +293,10 @@ const HorizontalBarChart = ({ data, colors }: { data: any[], colors: string[] })
 };
 
 const VerticalBarChart = ({ data }: { data: any[] }) => {
-  const max = Math.max(...data.map(d => d.value)) || 1;
+  const max = Math.max(...(data || []).map(d => d.value)) || 1;
   return (
     <div className="w-full h-full flex items-end justify-between gap-1 pt-8 pb-2 px-2">
-      {data.map((item, i) => {
+      {(data || []).map((item, i) => {
         const height = (item.value / max) * 100;
         return (
           <div key={i} className="h-full flex flex-col justify-end items-center flex-1 group relative">
