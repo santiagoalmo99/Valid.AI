@@ -107,15 +107,24 @@ export const BusinessReportGenerator: React.FC<Props> = ({
         depth: 'detailed',
       };
       
-      const generatedReport = await generateBusinessReport(
-        config,
-        project,
-        interviews,
-        ({ progress, stage }) => {
-          setProgress(progress);
-          setCurrentStage(stage);
-        }
+      // Safety Timeout (30s)
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout: El reporte está tardando demasiado. Verifica tu conexión.')), 30000)
       );
+
+      const generatedReport = await Promise.race([
+        generateBusinessReport(
+          config,
+          project,
+          interviews,
+          ({ progress, stage }) => {
+            console.log(`[Report Gen] Progress: ${progress}% - ${stage}`);
+            setProgress(progress);
+            setCurrentStage(stage);
+          }
+        ),
+        timeoutPromise
+      ]) as GeneratedReport;
       
       setReport(generatedReport);
       setStep('complete');
@@ -124,9 +133,9 @@ export const BusinessReportGenerator: React.FC<Props> = ({
       // Hide confetti after 3 seconds
       setTimeout(() => setShowConfetti(false), 3000);
       
-    } catch (err) {
+    } catch (err: any) {
       console.error('Report generation error:', err);
-      setError('Error generando el reporte. Por favor intenta de nuevo.');
+      setError(err.message || 'Error generando el reporte. Por favor intenta de nuevo.');
       setStep('config');
     } finally {
       setGenerating(false);

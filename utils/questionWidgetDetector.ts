@@ -197,7 +197,7 @@ export function detectWidgetType(question: Question): WidgetConfig {
     };
   }
   
-  // 🧠 SEMANTIC PRIORITY: Frequency questions need frequency widget
+  // 🧠 SEMANTIC PRIORITY: Frequency questions need context-aware options
   const FREQUENCY_TRIGGERS = [
     /cada cuánto/i,
     /con qué frecuencia/i,
@@ -211,9 +211,57 @@ export function detectWidgetType(question: Question): WidgetConfig {
   
   if (isFrequencyQuestion) {
     console.log(`🎯 [Widget] SEMANTIC: Frequency question detected → frequency`);
-    return {
-      type: 'frequency',
-      options: [
+    
+    // Detect question context to provide appropriate time ranges
+    const PURCHASE_RENEWAL_PATTERNS = /compra|renueva|adquiere|cambias|reemplaza|repones|comprar|renovar|adquirir/i;
+    const DAILY_ACTIVITY_PATTERNS = /haces|realizas|practicas|comes|duermes|entrenas|meditas|visitas|vas|asistes/i;
+    const SERVICE_USAGE_PATTERNS = /usas|utilizas|consultas|abres|revisas|accedes|entras/i;
+    
+    const isPurchaseRenewal = PURCHASE_RENEWAL_PATTERNS.test(question.text);
+    const isDailyActivity = DAILY_ACTIVITY_PATTERNS.test(question.text);
+    const isServiceUsage = SERVICE_USAGE_PATTERNS.test(question.text);
+    
+    let frequencyOptions: string[];
+    
+    if (isPurchaseRenewal) {
+      // Product purchases/renewals: weeks → months
+      frequencyOptions = [
+        'Cada 1-2 semanas',
+        'Cada 3-4 semanas',
+        'Cada 1-2 meses',
+        'Cada 3-4 meses',
+        'Cada 5-6 meses',
+        'Más de 6 meses',
+        'Nunca'
+      ];
+      console.log(`   → Context: Purchase/Renewal (weekly-monthly range)`);
+    } else if (isServiceUsage) {
+      // App/service usage: multiple times per day → monthly
+      frequencyOptions = [
+        'Varias veces al día',
+        'Diariamente',
+        '3-4 veces por semana',
+        '1-2 veces por semana',
+        'Quincenalmente',
+        'Mensualmente',
+        'Rara vez'
+      ];
+      console.log(`   → Context: Service/App Usage (daily range)`);
+    } else if (isDailyActivity) {
+      // Daily activities: daily → monthly
+      frequencyOptions = [
+        'Diariamente',
+        'Varias veces a la semana',
+        'Semanalmente',
+        'Quincenalmente',
+        'Mensualmente',
+        'Rara vez',
+        'Nunca'
+      ];
+      console.log(`   → Context: Daily Activity (daily-weekly range)`);
+    } else {
+      // Default: general frequency
+      frequencyOptions = [
         'Diariamente',
         'Varias veces a la semana', 
         'Semanalmente',
@@ -222,7 +270,13 @@ export function detectWidgetType(question: Question): WidgetConfig {
         'Cada 2-3 meses',
         'Rara vez',
         'Nunca'
-      ],
+      ];
+      console.log(`   → Context: General Frequency (default range)`);
+    }
+    
+    return {
+      type: 'frequency',
+      options: frequencyOptions,
     };
   }
   

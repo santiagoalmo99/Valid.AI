@@ -37,7 +37,12 @@ export async function generateBusinessReport(
     onProgress?.({ progress, stage });
   };
   
-  onProgress?.({ progress: 5, stage: 'Preparando datos de validación...' });
+  // FORCE IMMEDIATE UPDATE
+  console.log("🚀 Starting report generation...");
+  onProgress?.({ progress: 1, stage: 'Iniciando motor de IA...' });
+  
+  // Discovery check
+  onProgress?.({ progress: 5, stage: 'Verificando modelos disponibles...' });
   
   // Collect validation data
   const validationData = prepareValidationData(project, interviews);

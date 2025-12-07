@@ -100,6 +100,7 @@ async function retryWithBackoff<T>(
 }
 
 // Helper function for API calls with retry
+// Helper function for API calls with retry and model fallback
 export async function callGeminiAPI(prompt: string, json: boolean = false, useWeb: boolean = false): Promise<string> {
   // 1. Check strict key-value Cache first (skip cache if using web to get fresh data)
   if (!useWeb) {
@@ -110,77 +111,115 @@ export async function callGeminiAPI(prompt: string, json: boolean = false, useWe
     }
   }
 
-  // Wrap the actual API call in retry logic
-  const makeRequest = async (): Promise<string> => {
-    const modelName = await discoverAvailableModel();
-    // Use v1beta for tools support
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${API_KEY}`;
-    
-    const body: any = {
-      system_instruction: {
-        parts: [{
-          text: "IMPORTANTE: Siempre responde en español latinoamericano (no español de España). Usa vocabulario neutro y claro de Latinoamérica."
-        }]
-      },
-      contents: [{
-        parts: [{
-          text: prompt
-        }]
-      }],
-      generationConfig: json ? {
-        response_mime_type: "application/json"
-      } : {}
-    };
-
-    // INJECT TOOLS IF WEB ACCESS REQUESTED
-    if (useWeb) {
-      body.tools = [{ google_search: {} }];
-      console.log('🌐 Google Search Grounding ENABLED for this request');
-    }
-
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body)
-    });
-
-    if (!response.ok) {
-      const error: any = new Error(`API Error: ${response.status}`);
-      error.status = response.status;
-      
-      if (response.status === 429) {
-        console.warn('⚠️ Rate limit hit (429)');
+  // Models to try in order of preference/capability vs stability
+  const modelsToTry = ['gemini-2.0-flash-exp', 'gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-pro'];
+  
+  // Ensure the auto-discovered model is tried first if not already in list
+  const discovered = await discoverAvailableModel();
+  if (discovered && !modelsToTry.includes(discovered)) {
+      modelsToTry.unshift(discovered);
+  } else if (discovered) {
+      // Move discovered to front
+      const idx = modelsToTry.indexOf(discovered);
+      if (idx > 0) {
+          modelsToTry.splice(idx, 1);
+          modelsToTry.unshift(discovered);
       }
-      
-      throw error;
-    }
-
-    const data = await response.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    
-    if (!text) {
-      throw new Error('No response from AI');
-    }
-
-    return text;
-  };
-
-  try {
-    // Use retry with backoff for rate limits
-    const text = await retryWithBackoff(makeRequest, 3, 2000);
-    
-    // Cache successful response (Standard TTL)
-    cacheService.set(prompt, text);
-    
-    console.log('✅ AI response received and cached');
-    return text;
-  } catch (error: any) {
-    console.error('❌ Gemini API call failed after retries:', error.message);
-    throw error;
   }
+
+  let lastError: any = new Error('No models available');
+
+  // Loop through models until one works
+  for (const modelName of modelsToTry) {
+      try {
+          console.log(`🤖 Attempting AI call with model: ${modelName}`);
+          
+          const result = await retryWithBackoff(async () => {
+              const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${API_KEY}`;
+              
+              const body: any = {
+                system_instruction: {
+                  parts: [{
+                    text: "IMPORTANTE: Siempre responde en español latinoamericano (no español de España). Usa vocabulario neutro y claro de Latinoamérica."
+                  }]
+                },
+                contents: [{
+                  parts: [{
+                    text: prompt
+                  }]
+                }],
+                generationConfig: json ? {
+                  response_mime_type: "application/json"
+                } : {}
+              };
+
+              // INJECT TOOLS IF WEB ACCESS REQUESTED
+              if (useWeb) {
+                body.tools = [{ google_search: {} }];
+                console.log('🌐 Google Search Grounding ENABLED for this request');
+              }
+
+              const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(body)
+              });
+
+              if (!response.ok) {
+                const error: any = new Error(`API Error: ${response.status}`);
+                error.status = response.status;
+                
+                if (response.status === 429) {
+                  console.warn(`⚠️ Rate limit hit (429) on ${modelName}`);
+                  // Throw specific error to trigger backoff within retryWithBackoff, 
+                  // BUT we also want to fall through to next model if retries fail.
+                }
+                
+                throw error;
+              }
+
+              const data = await response.json();
+              
+              if (!data.candidates || data.candidates.length === 0) {
+                  // If blocked, try next model
+                  if (data.promptFeedback?.blockReason) {
+                      throw new Error(`Blocked: ${data.promptFeedback.blockReason}`);
+                  }
+                  throw new Error('No candidates returned');
+              }
+              
+              return data.candidates[0].content.parts[0].text;
+          }, 1, 1000); // 1 retry per model (quick failover is better than waiting)
+
+          // Success if we reached here
+          if (!useWeb) {
+             cacheService.set(prompt, result);
+          }
+          return result;
+
+      } catch (error: any) {
+          lastError = error;
+          
+          // Only switch models on Rate Limit (429) or Server Overload (503) or Blocked
+          const isRetryableModel = error.status === 429 || error.status === 503 || error.message?.includes('429') || error.message?.includes('Blocked');
+          
+          if (isRetryableModel) {
+              console.warn(`⚠️ Model ${modelName} failed/throttled. Switching to next fallback...`);
+              continue; // Try next model in loop
+          }
+          
+          // If it's a client error (400), don't try other models, it will fail anyway
+          if (error.status >= 400 && error.status < 500 && error.status !== 429) {
+              break; 
+          }
+      }
+  }
+
+  throw lastError;
 }
+
 
 // Aggressive JSON repair function
 function repairJSON(jsonString: string): string {
