@@ -3,7 +3,7 @@ import { ProjectTemplate, Interview, Question, Answer, DeepAnalysisReport, Langu
 import { TRANSLATIONS, INITIAL_PROJECTS, DEMO_PROJECT } from './constants';
 import * as Gemini from './services/aiService';
 import { getCoverByIdea } from './utils/projectCovers';
-import { Sparkles, Zap, Target, ArrowRight, CheckCircle2, ChevronRight, BarChart3, PieChart as PieChartIcon, TrendingUp, Activity, Plus, Play, Users, X, Search, FileText, MessageSquare, Cpu, Globe, Lock, ArrowLeft, RefreshCw, Trash2, LayoutGrid, Upload, Settings, Download, Sun, Moon, Smartphone, CheckCircle, Mail, Phone, MapPin } from 'lucide-react';
+import { Sparkles, Zap, Target, ArrowRight, CheckCircle2, ChevronRight, BarChart3, PieChart as PieChartIcon, TrendingUp, Activity, Plus, Play, Users, X, Search, FileText, MessageSquare, Cpu, Globe, Lock, ArrowLeft, RefreshCw, Trash2, LayoutGrid, Upload, Settings, Download, Sun, Moon, Smartphone, CheckCircle, Mail, Phone, MapPin, Award } from 'lucide-react';
 import { motion, AnimatePresence, Transition, Variant } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell, PieChart, Pie, LineChart, Line, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Legend } from 'recharts';
@@ -22,6 +22,9 @@ import { ExportButton } from './components/ExportButton';
 import { VoiceInput } from './components/VoiceInput';
 import { YCReadinessBadge } from './components/YCReadinessBadge';
 import { TrendService, TrendReport } from './services/trendService';
+import { CertificateModal } from './components/CertificateModal';
+import { PublicVerificationPage } from './components/PublicVerificationPage';
+import { calculateYCReadiness } from './services/scoringService';
 
 // Lazy Load Heavy Components
 const QuestionAnalysis = React.lazy(() => import('./components/QuestionAnalysis').then(module => ({ default: module.QuestionAnalysis })));
@@ -1753,17 +1756,17 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
             // + Store the full new object in 'enhancedAnalysis'
             
             const safeAnalysis = {
-               totalScore: analysis.matchScore || 0, // NEW field
-               summary: analysis.oneLinerVerdict || analysis.summary || "Sin resumen", // NEW field
+               totalScore: (analysis as any).matchScore || 0, // NEW field
+               summary: (analysis as any).oneLinerVerdict || (analysis as any).summary || "Sin resumen", // NEW field
                dimensionScores: {
-                  problemIntensity: analysis.scores?.problemIntensity || 0,
-                  solutionFit: analysis.scores?.solutionFit || 0,
+                  problemIntensity: (analysis as any).scores?.problemIntensity || 0,
+                  solutionFit: (analysis as any).scores?.solutionFit || 0,
                   willingnessToPay: 0, // Not in new scores directly?
                   currentBehavior: 0,
                   painPoint: 0,
                   earlyAdopter: 0
                },
-               keyInsights: analysis.signals?.buying || [] // Map buying signals to insights for now
+               keyInsights: (analysis as any).signals?.buying || [] // Map buying signals to insights for now
             };
 
             const interview: Interview = {
@@ -2214,6 +2217,7 @@ export default function App() {
 
 // ... imports
 import * as FirebaseService from './services/firebase';
+import { subscribeToInterviews } from './services/firebase';
 
 function AppContent() {
   const { user, logout } = useAuth();
@@ -2228,6 +2232,20 @@ function AppContent() {
   const [showCreate, setShowCreate] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showCertModal, setShowCertModal] = useState(false);
+  const [interviews, setInterviews] = useState<Interview[]>([]);
+
+  // Load interviews for active project
+  useEffect(() => {
+    if (activeProject) {
+      const unsubscribe = subscribeToInterviews(activeProject.id, (data) => {
+        setInterviews(data);
+      });
+      return () => unsubscribe();
+    } else {
+      setInterviews([]);
+    }
+  }, [activeProject]);
   
   // Trend Notification State (restored)
   const [showTrendNotification, setShowTrendNotification] = useState(false);

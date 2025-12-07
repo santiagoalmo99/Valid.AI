@@ -20,7 +20,7 @@ async function discoverAvailableModel(): Promise<string> {
     const models = data.models || [];
     
     // Prioritize newer models
-    const preferredModels = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'];
+    const preferredModels = ['gemini-2.0-flash-exp', 'gemini-1.5-flash', 'gemini-1.5-pro'];
     
     let validModel;
     for (const pref of preferredModels) {
@@ -44,7 +44,7 @@ async function discoverAvailableModel(): Promise<string> {
     
     // Fallback to common model names if discovery fails
     console.warn('⚠️ No models found via discovery, trying fallbacks...');
-    const fallbacks = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-pro'];
+    const fallbacks = ['gemini-2.0-flash-exp', 'gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-pro'];
     for (const model of fallbacks) {
       try {
         await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}?key=${API_KEY}`);
