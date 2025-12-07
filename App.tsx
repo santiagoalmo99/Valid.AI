@@ -529,24 +529,26 @@ const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, 
   return (
     <div className="flex h-screen overflow-hidden bg-void transition-colors duration-500 relative">
        {/* Floating Pill Sidebar */}
-       <div className="absolute left-6 top-1/2 -translate-y-1/2 w-20 hover:w-64 glass-panel bg-black/20 rounded-[40px] flex flex-col justify-between items-center hover:items-stretch py-6 z-50 transition-all duration-300 group !overflow-y-auto !overflow-x-hidden no-scrollbar h-[80vh] border border-white/10 shadow-2xl">
-          <div className="w-full flex flex-col items-center hover:items-stretch">
-             <button onClick={onBack} className="p-3 text-slate-400 hover:text-white mb-6 hover:bg-white/10 rounded-full transition-all flex items-center gap-4 justify-center group-hover:justify-start mx-auto group-hover:mx-0 group-hover:px-4 group-hover:w-full">
+       <div className="fixed bottom-0 md:bottom-auto left-0 md:left-6 right-0 md:right-auto md:top-1/2 md:-translate-y-1/2 w-full md:w-20 md:hover:w-64 glass-panel bg-[#050505]/90 md:bg-black/20 backdrop-blur-xl border-t md:border border-white/10 md:rounded-[40px] flex flex-row md:flex-col justify-around md:justify-between items-center md:hover:items-stretch py-2 md:py-6 z-50 transition-all duration-300 group !overflow-visible md:!overflow-y-auto md:!overflow-x-hidden md:no-scrollbar h-20 md:h-[80vh] shadow-[0_-10px_40px_rgba(0,0,0,0.5)] md:shadow-2xl">
+          <div className="flex flex-row md:flex-col items-center hover:items-stretch gap-1 md:gap-0 w-full md:w-auto px-2 md:px-0 justify-around md:justify-start">
+             <button onClick={onBack} className="p-3 text-slate-400 hover:text-white md:mb-6 hover:bg-white/10 rounded-full transition-all flex items-center gap-4 justify-center group-hover:justify-start md:mx-auto md:group-hover:mx-0 md:group-hover:px-4 md:group-hover:w-full hidden md:flex">
                 <ArrowLeft size={20} className="flex-shrink-0" />
                 <span className="whitespace-nowrap opacity-0 group-hover:opacity-100 w-0 group-hover:w-auto overflow-hidden transition-all duration-300 delay-75 text-sm font-bold">{t.backToHub}</span>
              </button>
              
-             <div className="space-y-2 flex flex-col w-full px-2">
+             <div className="flex flex-row md:flex-col w-full px-0 md:px-2 gap-1 md:gap-2 justify-between md:justify-start">
                 <NavBtn icon={<BarChart3 />} label={t.dashboard} active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
                 <NavBtn icon={<Users />} label={t.interviews} active={activeTab === 'interviews'} onClick={() => setActiveTab('interviews')} />
                 <NavBtn icon={<PieChartIcon />} label="Insights" active={activeTab === 'questions'} onClick={() => setActiveTab('questions')} />
-                <NavBtn icon={<Search />} label="Deep Research" active={activeTab === 'deep_research'} onClick={() => setActiveTab('deep_research')} />
+                <div className="hidden md:block w-full">
+                   <NavBtn icon={<Search />} label="Deep Research" active={activeTab === 'deep_research'} onClick={() => setActiveTab('deep_research')} />
+                </div>
                 <NavBtn icon={<MessageSquare />} label="Smart Chat" active={activeTab === 'smart_chat'} onClick={() => setActiveTab('smart_chat')} />
                 
                 {/* Business Lab - Premium Report Generator */}
                 <button 
                   onClick={() => setShowReportGenerator(true)}
-                  className="p-3 text-yellow-400 hover:text-yellow-300 hover:bg-yellow-500/10 rounded-xl transition-all flex items-center gap-4 justify-center group-hover:justify-start w-full relative"
+                  className="p-3 text-yellow-400 hover:text-yellow-300 hover:bg-yellow-500/10 rounded-xl transition-all flex items-center gap-4 justify-center group-hover:justify-start w-full relative hidden md:flex"
                 >
                   <FileText size={20} className="flex-shrink-0" />
                   <span className="whitespace-nowrap opacity-0 group-hover:opacity-100 w-0 group-hover:w-auto overflow-hidden transition-all duration-300 delay-75 text-sm font-bold">Business Lab</span>
@@ -555,7 +557,7 @@ const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, 
              </div>
           </div>
 
-          <div className="flex flex-col gap-2 w-full px-2">
+          <div className="flex-col gap-2 w-full px-2 hidden md:flex">
              <button onClick={handleExport} className="p-3 text-slate-400 hover:text-neon hover:bg-neon/10 rounded-xl transition-all flex items-center gap-4 justify-center group-hover:justify-start w-full">
                 <Download size={20} className="flex-shrink-0" />
                 <span className="whitespace-nowrap opacity-0 group-hover:opacity-100 w-0 group-hover:w-auto overflow-hidden transition-all duration-300 delay-75 text-sm font-bold">{t.exportData}</span>
@@ -595,9 +597,9 @@ const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, 
        </div>
 
        {/* Main Content */}
-       <div className="flex-1 overflow-y-auto relative ml-32 h-full flex flex-col">
+       <div className="flex-1 overflow-y-auto relative ml-0 md:ml-32 h-full flex flex-col pb-24 md:pb-0 font-sans">
           {/* Compact Header */}
-          <div className="sticky top-0 z-40 bg-void/90 backdrop-blur-xl border-b border-white/5 px-6 py-2 flex justify-between items-center shadow-lg">
+          <div className="sticky top-0 z-40 bg-void/90 backdrop-blur-xl border-b border-white/5 px-4 md:px-6 py-3 flex justify-between items-center shadow-lg">
              <div 
                className="flex items-center gap-4 cursor-pointer hover:bg-white/5 p-2 rounded-lg transition-colors group"
                onClick={onOpenProfile}
@@ -1759,7 +1761,7 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
                   console.log(`🤖 Enhanced AI Analysis attempt ${attempt + 1}/${retries + 1}...`);
                   console.log("📦 [DEBUG] Answers sent to analysis:", JSON.stringify(newAnswers, null, 2));
                   
-                  const result = await analyzeFullInterviewEnhanced(project, newAnswers, regData);
+                  const result = await Gemini.analyzeFullInterviewEnhanced(project, newAnswers, regData);
                   
                   if (result) {
                      analysis = result as any;

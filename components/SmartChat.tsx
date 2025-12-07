@@ -385,9 +385,9 @@ export const SmartChat = ({ project, interviews, onNotify, userName }: any) => {
                          <Paperclip size={18} />
                       </button>
                       <button 
-                        onClick={() => setInput("Genera un análisis de métricas basado en mis entrevistas.")}
-                        className="p-2.5 text-slate-500 hover:text-[#3AFF97] hover:bg-[#3AFF97]/10 rounded-xl transition-colors" 
-                        title="Métricas rápidas"
+                        onClick={() => handleSend("📊 Genera un reporte de métricas avanzadas: \n1) Desglose demográfico \n2) Sentiment Analysis promedio \n3) Frecuencia de palabras clave (Pain Points) \n4) Willingness to Pay promedio (estimado). \n\nPreséntalo en tablas Markdown.")}
+                        className="p-2.5 text-slate-500 hover:text-neon hover:bg-neon/10 rounded-xl transition-colors" 
+                        title="Análisis Cuantitativo Avanzado"
                       >
                          <PieChart size={18} />
                       </button>
