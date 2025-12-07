@@ -2238,65 +2238,13 @@ const InterviewsView = ({ interviews, onDelete, onDeleteAll, onSelect, onRetry }
 );
 
 
-// --- MAIN APP ---
-export default function App() {
-  return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
-  );
-}
+
 
 // ... imports
 import * as FirebaseService from './services/firebase';
 import { subscribeToInterviews } from './services/firebase';
 
-// CONFIRMATION MODAL COMPONENT
-interface ConfirmationState {
-  isOpen: boolean;
-  title: string;
-  message: string;
-  onConfirm: () => void;
-  confirmText?: string;
-  cancelText?: string;
-  variant?: 'danger' | 'warning' | 'info';
-}
 
-const ConfirmationModal = ({ state, onClose }: { state: ConfirmationState, onClose: () => void }) => {
-  if (!state.isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-       <div className="bg-[#111] border border-white/10 rounded-2xl max-w-md w-full overflow-hidden shadow-2xl scale-in">
-          <div className="p-6">
-             <h3 className={`text-xl font-bold mb-2 ${state.variant === 'danger' ? 'text-red-400' : 'text-white'}`}>
-                {state.title}
-             </h3>
-             <p className="text-slate-300 leading-relaxed mb-6">
-                {state.message}
-             </p>
-             <div className="flex justify-end gap-3">
-                <button 
-                   onClick={onClose}
-                   className="px-4 py-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition-colors text-sm font-medium"
-                >
-                   {state.cancelText || 'Cancelar'}
-                </button>
-                <button 
-                   onClick={() => { state.onConfirm(); onClose(); }}
-                   className={`px-5 py-2 rounded-lg text-black font-bold text-sm transition-transform hover:scale-[1.02] shadow-lg ${
-                      state.variant === 'danger' ? 'bg-red-500 hover:bg-red-400 shadow-red-500/20' : 
-                      'bg-neon hover:bg-emerald-400 shadow-neon/20'
-                   }`}
-                >
-                   {state.confirmText || 'Confirmar'}
-                </button>
-             </div>
-          </div>
-       </div>
-    </div>
-  );
-};
 
 function AppContent() {
   const { user, logout } = useAuth();
