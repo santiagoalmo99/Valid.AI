@@ -111,8 +111,14 @@ export async function callGeminiAPI(prompt: string, json: boolean = false, useWe
     }
   }
 
-  // Models to try in order of preference/capability vs stability
-  const modelsToTry = ['gemini-2.0-flash-exp', 'gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-pro'];
+  // Models to try in order of preference - using exact API model names
+  // Note: gemini-2.0-flash-exp may have stricter rate limits
+  const modelsToTry = [
+    'gemini-1.5-flash-latest',  // Most stable, good quota
+    'gemini-1.5-pro-latest',     // Higher capability fallback
+    'gemini-2.0-flash-exp',      // Experimental (often rate limited)
+    'gemini-pro'                  // Legacy fallback
+  ];
   
   // Ensure the auto-discovered model is tried first if not already in list
   const discovered = await discoverAvailableModel();

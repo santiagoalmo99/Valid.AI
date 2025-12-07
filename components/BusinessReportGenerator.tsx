@@ -178,7 +178,33 @@ export const BusinessReportGenerator: React.FC<Props> = ({
 
           {/* Content */}
           <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+            {/* Interview Warning */}
+            {interviews.length < 3 && step === 'config' && (
+              <div className="mb-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-yellow-400 font-medium text-sm">Recomendación</p>
+                  <p className="text-yellow-300/80 text-xs mt-1">
+                    Para mejores resultados, te recomendamos tener al menos 5 entrevistas completadas. 
+                    Actualmente tienes {interviews.length}. Puedes continuar de todas formas.
+                  </p>
+                </div>
+              </div>
+            )}
+
             {step === 'config' && (
+              <ConfigStep 
+                sections={REPORT_SECTIONS}
+                selectedSections={selectedSections}
+                onToggle={toggleSection}
+                totalCost={totalCost}
+                credits={credits}
+                hasEnoughCredits={hasEnoughCredits}
+                error={error}
+              />
+            )}
+
+            {step === 'generating' && (
               <GeneratingStep 
                 progress={progress} 
                 currentStage={currentStage} 
