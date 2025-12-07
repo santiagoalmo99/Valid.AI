@@ -1868,6 +1868,37 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
      }
   };
 
+  if (showDraftRestore) {
+     return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+           <div className="bg-[#111] border border-white/10 p-8 rounded-3xl max-w-md w-full shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+              <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-6 mx-auto">
+                 <RefreshCw className="text-neon w-8 h-8" />
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-2 text-center">Sesión Recuperada</h3>
+              <p className="text-slate-400 mb-8 text-center leading-relaxed">
+                 Encontramos una entrevista en progreso ({draftData?.regData?.name || 'Candidato'}). 
+                 <br/>¿Deseas continuar donde la dejaste?
+              </p>
+              <div className="flex gap-4">
+                 <button 
+                  onClick={handleDiscardDraft} 
+                  className="flex-1 py-4 bg-white/5 hover:bg-white/10 text-slate-300 rounded-xl font-bold transition-colors uppercase tracking-wider text-xs"
+                 >
+                    Reiniciar
+                 </button>
+                 <button 
+                  onClick={handleRestoreDraft} 
+                  className="flex-1 py-4 bg-neon hover:bg-emerald-400 text-black rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(58,255,151,0.3)] uppercase tracking-wider text-xs"
+                 >
+                    Continuar
+                 </button>
+              </div>
+           </div>
+        </div>
+     )
+  }
+
   if(step === -1) {
      return (
         <div className="max-w-4xl mx-auto mt-8 animate-fade-in-up pb-20">
@@ -1939,10 +1970,10 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
               <h2 className="text-2xl md:text-3xl font-bold text-white mb-12 leading-tight flex-shrink-0">{question.text}</h2>
                
                {/* Input Area - DUAL MODE */}
-               <div className="mb-4 flex-1 flex flex-col gap-4 overflow-y-auto pr-2 custom-scrollbar">
+               <div className="mb-6 flex-1 flex flex-col gap-6 overflow-y-auto pr-4 custom-scrollbar">
                   
                   {/* 1. Manual Input (Always Visible) */}
-                  <div className="flex-1 min-h-[150px]">
+                  <div className="flex-1 min-h-[160px]">
                      <SmartQuestionWidget
                         question={question}
                         value={currentVal}
@@ -1952,18 +1983,16 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
                   </div>
 
                   {/* 2. Voice Input (Always Available) - Appends to answer */}
-                  <div className="flex-shrink-0 bg-white/5 p-4 rounded-xl border border-white/5">
-                     <p className="text-[10px] text-neon font-bold uppercase tracking-widest mb-3 flex items-center gap-2">
-                        <Play size={10} className="fill-neon"/> Grabadora de Voz (Complemento)
+                  <div className="flex-shrink-0 bg-[#0F0F0F] p-5 rounded-2xl border border-white/5 hover:border-white/10 transition-colors">
+                     <p className="text-xs text-neon font-bold uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-neon animate-pulse"/> 
+                        Grabadora de Voz (Complemento)
                      </p>
                      <VoiceInput
                        language={lang === 'es' ? 'es' : 'en'}
-                       compact={true} // New prop needed likely, or just use as is
+                       compact={true} 
                        onTranscriptChange={(text) => {
                           // Real-time updates could overwrite manual typing, so be careful.
-                          // Ideally, we only update on finalize or if we want real-time dictation 
-                          // that appends to where cursor is (hard). 
-                          // For now, let's rely on RecordingComplete for the "big block" add.
                        }}
                        onRecordingComplete={(data) => {
                          // Append the voice text to existing text
@@ -1971,7 +2000,6 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
                          if (specificTranscript) {
                             const newText = currentVal ? `${currentVal}\n\n[Voz]: ${specificTranscript}` : specificTranscript;
                             handleAnswer(newText);
-                            // Also save full transcript in hidden field if needed, but appending is safer for user visibility
                          }
                        }}
                        placeholder={t.voicePlaceholder || "Graba tu respuesta adicional o completa..."}
@@ -1979,13 +2007,13 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
                   </div>
                </div>
 
-              <div className="mt-auto pt-2 border-t border-white/5 flex-shrink-0">
-                 <div className="flex items-center gap-2 mb-1 text-xs text-slate-400 uppercase font-bold">
-                    <Sparkles size={10} className="text-neon"/> 
-                    Emociones Detectadas por el Entrevistador
+              <div className="mt-auto pt-6 border-t border-white/5 flex-shrink-0">
+                 <div className="flex items-center gap-2 mb-3 text-xs text-slate-400 uppercase font-bold tracking-wider">
+                    <Sparkles size={12} className="text-neon"/> 
+                    Observaciones / Emociones Detectadas
                  </div>
                  <textarea 
-                   className="w-full h-16 bg-black/20 rounded-xl border border-white/5 p-2 text-sm text-slate-300 focus:text-white outline-none resize-none focus:border-neon/50 transition-colors"
+                   className="w-full h-32 bg-black/40 rounded-xl border border-white/10 p-4 text-base text-slate-200 focus:text-white outline-none resize-none focus:border-neon/50 transition-all focus:bg-black/60 placeholder:text-slate-600"
                    placeholder={t.obsLabel + "..."}
                    value={observation}
                    onChange={e => setObservation(e.target.value)}
