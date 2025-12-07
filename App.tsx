@@ -3,7 +3,7 @@ import { ProjectTemplate, Interview, Question, Answer, DeepAnalysisReport, Langu
 import { TRANSLATIONS, INITIAL_PROJECTS, DEMO_PROJECT } from './constants';
 import * as Gemini from './services/aiService';
 import { getCoverByIdea } from './utils/projectCovers';
-import { Sparkles, Zap, Target, ArrowRight, CheckCircle2, ChevronRight, BarChart3, PieChart as PieChartIcon, TrendingUp, Activity, Plus, Play, Users, X, Search, FileText, MessageSquare, Cpu, Globe, Lock, ArrowLeft, RefreshCw, Trash2, LayoutGrid, Upload, Settings, Download, Sun, Moon, Smartphone, CheckCircle, Mail, Phone, MapPin, Award } from 'lucide-react';
+import { Sparkles, Zap, Target, ArrowRight, CheckCircle2, ChevronRight, BarChart3, PieChart as PieChartIcon, TrendingUp, Activity, Plus, Play, Users, X, Search, FileText, MessageSquare, Cpu, Globe, Lock, ArrowLeft, RefreshCw, Trash2, LayoutGrid, Upload, Settings, Download, Sun, Moon, Smartphone, CheckCircle, Mail, Phone, MapPin, Award, Power } from 'lucide-react';
 import { motion, AnimatePresence, Transition, Variant } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell, PieChart, Pie, LineChart, Line, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Legend } from 'recharts';
