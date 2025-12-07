@@ -67,6 +67,1157 @@ const Logo = ({ size = "large" }: { size?: "small" | "large" }) => (
         VALID<span className="text-neon">.AI</span>
       </h1>
       <p className={`text-slate-400 tracking-widest uppercase ${size === "large" ? "text-[10px]" : "text-[8px]"}`}>
+        Intelligence
+      </p>
+    </div>
+  </div>
+);
+
+const LoginView = () => {
+  const { loginWithGoogle, loading } = useAuth();
+  
+  // PUBLIC ROUTE: Verification Page (No Auth Required)
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('verify')) {
+     return <PublicVerificationPage />;
+  }
+  
+  if (loading) return (
+    <div className="flex h-screen items-center justify-center bg-void">
+      <div className="w-16 h-16 border-4 border-white/10 border-t-neon rounded-full animate-spin"></div>
+    </div>
+  );
+
+  return (
+    <div className="flex h-screen items-center justify-center bg-void relative overflow-hidden">
+       {/* High Impact Animated Background - Full Screen */}
+       <div className="absolute inset-0 bg-black z-0 overflow-hidden">
+          {/* Ambient Background (Restored) */}
+          <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-emerald-500/20 rounded-full blur-[100px] animate-pulse-slow"></div>
+          <div className="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] bg-purple-500/20 rounded-full blur-[100px] animate-pulse-slow" style={{animationDelay: '1s'}}></div>
+          <div className="absolute top-[20%] right-[20%] w-[30vw] h-[30vw] bg-cyan-500/10 rounded-full blur-[80px] animate-float"></div>
+          
+          {/* Noise Texture */}
+          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
+       </div>
+
+       {/* Split Card Container */}
+       <div className="relative z-10 w-full max-w-md bg-black/40 backdrop-blur-xl border border-white/10 rounded-[32px] overflow-hidden shadow-2xl animate-fade-in-up flex flex-col">
+          
+          {/* Top Image Section */}
+          <div className="h-48 relative overflow-hidden group">
+             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent z-10"></div>
+             <img 
+               src="https://image.pollinations.ai/prompt/High%20end%20abstract%203D%20technological%20composition%2C%20dark%20architectural%20grid%20background%20with%20rounded%20square%20cells%20and%20soft%20beveled%20edges%2C%20modular%20surface%20with%20depth%20and%20relief.%20Intense%20radiant%20volumetric%20god%20rays%20emanating%20from%20center%20through%20the%20grid%2C%20dramatic%20light%20beams%20towards%20corners%2C%20deep%20contrasted%20shadows.%20Central%20focal%20point%20floating%20matte%20metallic%203D%20emblem%20with%20embossed%20details.%20Monochromatic%20saturated%20neon%20green%20and%20cyan%20lighting%2C%20dense%20glowing%20atmosphere.%20Clean%203D%20render%20style%2C%20futuristic%20minimalism%2C%20cinematic%20lighting%2C%20smooth%20polished%20textures?nologo=true&width=800&height=400" 
+               alt="Login Visual" 
+               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+             />
+             <div className="absolute bottom-4 left-6 z-20">
+                <Logo size="small" />
+             </div>
+          </div>
+
+          {/* Bottom Form Section */}
+          <div className="p-8 pt-6 text-center">
+             <h2 className="text-2xl font-bold text-white mb-2">Bienvenido de nuevo</h2>
+             <p className="text-slate-400 mb-8 text-sm">Inicia sesión para acceder a tu panel de validación.</p>
+             
+             <button onClick={loginWithGoogle} className="btn-premium w-full py-4 rounded-xl flex items-center justify-center gap-3 font-bold text-sm tracking-wide group hover:scale-[1.02] transition-transform shadow-lg hover:shadow-neon/20">
+                <Globe size={18} className="text-slate-600 group-hover:text-black transition-colors" /> 
+                CONTINUAR CON GOOGLE
+             </button>
+             
+             <div className="mt-8 flex items-center justify-center gap-4 text-[10px] text-slate-500 uppercase tracking-widest font-bold">
+               <div className="flex items-center gap-1"><div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div> Seguro</div>
+               <div className="w-1 h-1 bg-slate-700 rounded-full"></div>
+               <span>Privado</span>
+               <div className="w-1 h-1 bg-slate-700 rounded-full"></div>
+               <span>Encriptado</span>
+             </div>
+          </div>
+       </div>
+    </div>
+  );
+};
+
+// --- NOTIFICATIONS ---
+interface Notification {
+  id: string;
+  message: string;
+  type: 'success' | 'info' | 'error';
+}
+
+const NotificationToast = ({ notifications, removeNotification }: { notifications: Notification[], removeNotification: (id: string) => void }) => (
+  <div className="fixed bottom-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none">
+    <AnimatePresence>
+      {notifications.map(n => (
+        <motion.div
+          key={n.id}
+          initial={{ opacity: 0, x: 50, scale: 0.9 }}
+          animate={{ opacity: 1, x: 0, scale: 1 }}
+          exit={{ opacity: 0, x: 50, scale: 0.9 }}
+          className="pointer-events-auto flex items-center gap-4 p-4 min-w-[300px] glass-panel bg-black/60 border-l-4 border-l-neon rounded-xl shadow-[0_0_30px_rgba(0,0,0,0.5)] backdrop-blur-xl"
+          style={{ borderColor: n.type === 'error' ? '#ef4444' : n.type === 'success' ? '#00FF94' : '#00FFFF' }}
+        >
+          <div className={`p-2 rounded-full ${n.type === 'error' ? 'bg-red-500/20 text-red-400' : n.type === 'success' ? 'bg-emerald-500/20 text-neon' : 'bg-cyan-500/20 text-cyan-400'}`}>
+             {n.type === 'success' ? <CheckCircle2 size={20} /> : n.type === 'error' ? <X size={20} /> : <Sparkles size={20} />}
+          </div>
+          <div className="flex-1">
+             <h4 className="text-white font-bold text-sm tracking-wide">{n.type === 'error' ? 'System Error' : n.type === 'success' ? 'Success' : 'System Notice'}</h4>
+             <p className="text-slate-300 text-xs">{n.message}</p>
+          </div>
+          <button onClick={() => removeNotification(n.id)} className="text-slate-500 hover:text-white transition-colors">
+             <X size={16} />
+          </button>
+        </motion.div>
+      ))}
+    </AnimatePresence>
+  </div>
+);
+
+// --- COMPONENTS ---
+
+// 1. Session Hub (Project Grid - Bento Style)
+const SessionHub = ({ projects, onSelect, onCreate, onDelete, onUpdate, lang, user, logout, toggleTheme, theme, isDemo, onRequestConfirm }: any) => {
+  const t = TRANSLATIONS[lang];
+  
+  // NUCLEAR OPTION: Force Default Project Visibility
+  const defaultProject = INITIAL_PROJECTS[0];
+  const finalProjects = [defaultProject];
+  
+  projects.forEach((p: ProjectTemplate) => {
+     if (p.id !== defaultProject.id && p.name !== defaultProject.name) {
+        finalProjects.push(p);
+     }
+  });
+
+  return (
+    <div className="min-h-screen bg-[#050505] p-8 md:p-12 relative overflow-x-hidden">
+       {/* Ambient Background Glows */}
+       <div className="fixed top-[-20%] left-[-10%] w-[50%] h-[50%] bg-neon/5 rounded-full blur-[120px] pointer-events-none"></div>
+       <div className="fixed bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-blue-500/5 rounded-full blur-[120px] pointer-events-none"></div>
+
+       <div className="max-w-[1600px] mx-auto relative z-10">
+         {/* Minimal Header */}
+         <div className="flex flex-col md:flex-row justify-between items-end md:items-center mb-16 gap-6">
+            <div>
+               <div className="mb-2 flex items-center gap-2">
+                 <div className="w-2 h-2 rounded-full bg-neon animate-pulse"></div>
+                 <span className="text-[10px] font-bold tracking-[0.2em] text-neon/80 uppercase">Workspace</span>
+               </div>
+               <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight">Valid<span className="text-zinc-600">.ai</span></h1>
+            </div>
+            
+            <div className="flex items-center gap-4 bg-[#0a0a0a] border border-white/5 p-1.5 rounded-full shadow-2xl">
+               <button onClick={onCreate} className="btn-premium px-6 py-3 rounded-full flex items-center gap-2 font-bold text-sm shadow-lg hover:shadow-neon/20 transition-all">
+                  <Plus size={18} /> <span className="hidden md:inline">{t.newSession}</span>
+               </button>
+               
+               <div className="h-8 w-[1px] bg-white/10 mx-1"></div>
+               
+               <div className="flex items-center gap-2 px-2">
+                  <img src={user?.photoURL || "https://ui-avatars.com/api/?name=User&background=random"} alt="user" className="w-8 h-8 rounded-full border border-white/10" />
+               </div>
+               
+               <button onClick={logout} className="w-10 h-10 rounded-full bg-white/5 hover:bg-red-500/10 text-zinc-400 hover:text-red-400 flex items-center justify-center transition-colors">
+                  <Power size={18} />
+               </button>
+            </div>
+         </div>
+
+         {/* Bento Grid */}
+         <motion.div 
+           key={`projects-${finalProjects.length}`}
+           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+           variants={staggerContainer}
+           initial="initial"
+           animate="animate"
+         >
+            {finalProjects.map((p: ProjectTemplate) => (
+               <motion.div 
+                 key={p.id} 
+                 variants={staggerItem}
+                 onClick={() => onSelect(p)} 
+                 className={`
+                    group relative bg-[#09090b] border border-[#1f1f23] rounded-[32px] p-1.5 
+                    overflow-hidden hover:border-neon/30 transition-all duration-500 
+                    hover:shadow-[0_0_50px_-20px_rgba(0,255,148,0.15)] 
+                    hover:-translate-y-1 cursor-pointer flex flex-col h-[400px]
+                    ${isDemo ? 'ring-1 ring-neon/20' : ''}
+                 `}
+               >
+                  {/* Card Image Area */}
+                  <div className="h-[220px] w-full rounded-[26px] overflow-hidden relative mb-2 bg-[#000]">
+                     <div className="absolute inset-0 bg-gradient-to-t from-[#09090b] via-transparent to-transparent z-10 opacity-80"></div>
+                     <img src={p.coverImage} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-60 group-hover:opacity-80" alt="cover" />
+                     
+                     {/* Floating Date Badge */}
+                     <div className="absolute top-4 right-4 z-20 bg-black/40 backdrop-blur-md border border-white/5 px-3 py-1.5 rounded-full">
+                        <span className="text-[10px] font-bold text-zinc-300">{new Date(p.createdAt).toLocaleDateString()}</span>
+                     </div>
+                     
+                     {/* Emoji Icon */}
+                     <div className="absolute bottom-4 left-4 z-20 w-12 h-12 bg-black/50 backdrop-blur-xl border border-white/10 rounded-2xl flex items-center justify-center text-2xl shadow-lg">
+                        {p.emoji}
+                     </div>
+                  </div>
+                  
+                  {/* Card Content */}
+                  <div className="px-5 pb-5 flex flex-col flex-1 relative">
+                     {/* Title */}
+                     <h3 className="text-xl font-bold text-white mb-2 leading-tight group-hover:text-neon transition-colors">{p.name}</h3>
+                     
+                     {/* Description */}
+                     <p className="text-xs text-zinc-500 line-clamp-3 leading-relaxed mb-auto font-medium">
+                        {p.description}
+                     </p>
+                     
+                     {/* Footer Metrics */}
+                     <div className="pt-5 mt-4 border-t border-white/5 flex items-center justify-between">
+                        {p.deepAnalysis ? (
+                           <div className="flex flex-col">
+                              <span className="text-[10px] uppercase tracking-wider text-zinc-600 font-bold mb-0.5">Validation</span>
+                              <div className="flex items-baseline gap-1.5">
+                                 <span className="text-2xl font-bold text-white group-hover:text-neon transition-colors">{p.deepAnalysis.viabilityScore}</span>
+                                 <span className="text-xs text-zinc-500">/100</span>
+                              </div>
+                           </div>
+                        ) : (
+                           <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-900/50 border border-white/5">
+                              <div className="w-1.5 h-1.5 rounded-full bg-zinc-700"></div>
+                              <span className="text-xs text-zinc-500 font-medium">Draft</span>
+                           </div>
+                        )}
+                        
+                        <div className="w-10 h-10 rounded-full border border-white/5 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all duration-300">
+                           <ArrowRight size={16} className="-rotate-45 group-hover:rotate-0 transition-transform duration-300" />
+                        </div>
+                     </div>
+                     
+                     {/* Card Actions (Hover) */}
+                     <div className="absolute top-[-210px] left-4 z-30 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
+                        <button 
+                           onClick={(e) => { e.stopPropagation(); onDelete(p.id); }}
+                           className="p-2 bg-black/60 backdrop-blur-md hover:bg-red-500/20 text-white hover:text-red-400 rounded-xl border border-white/10 transition-colors"
+                        >
+                           <Trash2 size={16} />
+                        </button>
+                        <button 
+                           onClick={(e) => { 
+                              e.stopPropagation(); 
+                              const newCover = getCoverByIdea(p.name + ' ' + p.description);
+                              onUpdate({ ...p, coverImage: newCover });
+                           }}
+                           className="p-2 bg-black/60 backdrop-blur-md hover:bg-neon/20 text-white hover:text-neon rounded-xl border border-white/10 transition-colors"
+                        >
+                           <RefreshCw size={16} />
+                        </button>
+                     </div>
+                  </div>
+               </motion.div>
+            ))}
+         </motion.div>
+       </div>
+    </div>
+  );
+};
+
+// 2. Project Detail View
+const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, setLang, theme, setTheme, onRequestConfirm }: any) => {
+  const [activeTab, setActiveTab] = useState('dashboard'); // dashboard, interviews, deep_research
+  const [interviews, setInterviews] = useState<Interview[]>(() => {
+     try {
+        const local = localStorage.getItem(`offline_interviews_${project.id}`);
+        return local ? JSON.parse(local) : [];
+     } catch (e) { return []; }
+  });
+  const { user } = useAuth();
+  const [imgError, setImgError] = useState(false);
+  const [selectedInterview, setSelectedInterview] = useState<Interview | null>(null);
+  const [renderKey, setRenderKey] = useState(0);
+  const [showReportGenerator, setShowReportGenerator] = useState(false);
+
+  const t = TRANSLATIONS[lang];
+
+  // SHARED RETRY LOGIC
+  const handleRetryAnalysis = async (interview: Interview) => {
+      try {
+         console.log('🔄 Starting retry analysis for:', interview.id);
+         
+         // Reconstruct regData for AI
+         const regData = {
+            name: interview.respondentName,
+            email: interview.respondentEmail,
+            phone: interview.respondentPhone,
+            role: interview.respondentRole,
+            city: interview.respondentCity,
+            country: interview.respondentCountry,
+            instagram: interview.respondentInstagram,
+            tiktok: interview.respondentTikTok
+         };
+
+         // Run Enhanced Analysis with Chain-of-Thought
+         console.log('🤖 Calling Enhanced Gemini API with surgical analysis...');
+         const analysis = await Gemini.analyzeFullInterviewEnhanced(project, interview.answers, regData);
+         console.log('✅ Enhanced analysis completed:', analysis);
+         
+         // Update Interview Object with TIMESTAMP to force React update
+         const updatedInterview: Interview = {
+            ...interview,
+            totalScore: analysis.scores?.totalScore || 0,
+            summary: analysis.summary,
+            dimensionScores: analysis.scores?.dimensionScores || {
+               problemIntensity: 0,
+               solutionFit: 0,
+               currentBehavior: 0,
+               painPoint: 0,
+               earlyAdopter: 0,
+               willingnessToPay: 0
+            },
+            keyInsights: analysis.keyInsights,
+            lastUpdated: Date.now() as any // Force new reference
+         };
+
+         // Save to Firebase
+         console.log('💾 Saving to Firebase...');
+         try {
+            await FirebaseService.addInterview(updatedInterview);
+            console.log('✅ Firebase save confirmed');
+            
+            // Offline Sync
+            const offlineKey = `offline_interviews_${project.id}`;
+            const offline = JSON.parse(localStorage.getItem(offlineKey) || '[]');
+            const newOffline = offline.filter((i: any) => i.id !== updatedInterview.id);
+            newOffline.push(updatedInterview);
+            localStorage.setItem(offlineKey, JSON.stringify(newOffline));
+
+         } catch (saveError) {
+            console.warn("⚠️ Firebase save failed, saving locally:", saveError);
+            
+            // Offline Fallback
+            const offlineKey = `offline_interviews_${project.id}`;
+            const offline = JSON.parse(localStorage.getItem(offlineKey) || '[]');
+            const newOffline = offline.filter((i: any) => i.id !== updatedInterview.id);
+            newOffline.push(updatedInterview);
+            localStorage.setItem(offlineKey, JSON.stringify(newOffline));
+            
+            alert("⚠️ No se pudo guardar en la nube. Se guardó LOCALMENTE.");
+         }
+
+         // Update Local State
+         setInterviews(prev => prev.map(i => i.id === updatedInterview.id ? updatedInterview : i));
+         
+         // If this interview is currently selected in modal, update it too
+         if (selectedInterview && selectedInterview.id === updatedInterview.id) {
+             setSelectedInterview({...updatedInterview});
+             setRenderKey(prev => prev + 1);
+         }
+         
+         return updatedInterview;
+
+      } catch (e) {
+         console.error("❌ Retry failed:", e);
+         alert(`Error al re-analizar: ${e instanceof Error ? e.message : String(e)}`);
+         throw e;
+      }
+  };
+
+  const handleDeleteInterview = async (id: string) => {
+    if (!window.confirm(t.confirmDelete)) return;
+
+    const originalInterviews = [...interviews];
+    
+    // Use StateManager for optimistic update
+    try {
+      await stateManager.executeOptimistic(
+        // 1. Local Update (Instant)
+        () => {
+          // Temporarily pause subscription to prevent race conditions
+          deletionInProgress.current = true;
+          setInterviews(prev => prev.filter(i => i.id !== id));
+          if (selectedInterview?.id === id) {
+            setSelectedInterview(null);
+          }
+        },
+        // 2. Remote Operation
+        async () => {
+          await FirebaseService.deleteInterview(id);
+          // Small delay to allow Firestore to propagate
+          await new Promise(resolve => setTimeout(resolve, 500));
+          deletionInProgress.current = false;
+        },
+        // 3. Rollback (if failed)
+        () => {
+          deletionInProgress.current = false;
+          setInterviews(originalInterviews);
+          alert("Error deleting interview. Changes reverted.");
+        },
+        `Delete Interview ${id}`
+      );
+    } catch (error) {
+      console.error("Optimistic delete failed", error);
+    }
+  };
+
+  // FIRESTORE SUBSCRIPTION FOR INTERVIEWS
+  const deletionInProgress = useRef(false);
+  
+  useEffect(() => {
+     const unsubscribe = FirebaseService.subscribeToInterviews(project.id, (data) => {
+         // IGNORE updates during deletion to prevent restore
+         if (deletionInProgress.current) {
+            console.log("🔒 Deletion in progress, ignoring Firestore update");
+            return;
+         }
+         
+         // Merge with offline data
+         const offlineKey = `offline_interviews_${project.id}`;
+         const offlineData = JSON.parse(localStorage.getItem(offlineKey) || '[]');
+         
+         // Smart Merge: Prefer newer version (Local vs Online)
+         const merged = [...data];
+         const onlineMap = new Map(data.map(d => [d.id, d]));
+         
+         offlineData.forEach((off: any) => {
+            const online = onlineMap.get(off.id);
+            if (!online) {
+               // Not online, add it
+               merged.push(off);
+            } else {
+               // Conflict: check timestamps
+               const offTime = new Date(off.lastUpdated || off.date).getTime();
+               const onTime = new Date(online.lastUpdated || online.date).getTime();
+               
+               // If local is significantly newer (> 2 seconds to avoid clock skew issues on same save), use local
+               if (offTime > onTime + 2000) {
+                  console.log(`⚠️ Using local version for ${off.id} (Local: ${offTime} > Online: ${onTime})`);
+                  const index = merged.findIndex(m => m.id === off.id);
+                  if (index !== -1) merged[index] = off;
+               }
+            }
+         });
+         
+         // Sort by date desc
+         merged.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+         
+         setInterviews(merged);
+      });
+     return () => unsubscribe();
+  }, [project.id]); // Removed deletionInProgress from deps to prevent re-subscribing
+
+  const handleExport = () => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({project, interviews}, null, 2));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href",     dataStr);
+    downloadAnchorNode.setAttribute("download", `${project.name}_data.json`);
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+  };
+
+  return (
+    <div className="flex h-screen overflow-hidden bg-void transition-colors duration-500 relative">
+       {/* Floating Pill Sidebar */}
+       <div className="fixed bottom-0 md:bottom-auto left-0 md:left-6 right-0 md:right-auto md:top-1/2 md:-translate-y-1/2 w-full md:w-20 md:hover:w-64 glass-panel bg-[#050505]/90 md:bg-black/20 backdrop-blur-xl border-t md:border border-white/10 md:rounded-[40px] flex flex-row md:flex-col justify-around md:justify-between items-center md:hover:items-stretch py-2 md:py-6 z-50 transition-all duration-300 group !overflow-visible md:!overflow-y-auto md:!overflow-x-hidden md:no-scrollbar h-20 md:h-[80vh] shadow-[0_-10px_40px_rgba(0,0,0,0.5)] md:shadow-2xl">
+          <div className="flex flex-row md:flex-col items-center hover:items-stretch gap-1 md:gap-0 w-full md:w-auto px-2 md:px-0 justify-around md:justify-start">
+             <button onClick={onBack} className="p-3 text-slate-400 hover:text-white md:mb-6 hover:bg-white/10 rounded-full transition-all flex items-center gap-4 justify-center group-hover:justify-start md:mx-auto md:group-hover:mx-0 md:group-hover:px-4 md:group-hover:w-full hidden md:flex">
+                <ArrowLeft size={20} className="flex-shrink-0" />
+                <span className="whitespace-nowrap opacity-0 group-hover:opacity-100 w-0 group-hover:w-auto overflow-hidden transition-all duration-300 delay-75 text-sm font-bold">{t.backToHub}</span>
+             </button>
+             
+             <div className="flex flex-row md:flex-col w-full px-0 md:px-2 gap-1 md:gap-2 justify-between md:justify-start">
+                <NavBtn icon={<BarChart3 />} label={t.dashboard} active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
+                <NavBtn icon={<Users />} label={t.interviews} active={activeTab === 'interviews'} onClick={() => setActiveTab('interviews')} />
+                <NavBtn icon={<PieChartIcon />} label="Insights" active={activeTab === 'questions'} onClick={() => setActiveTab('questions')} />
+                <div className="hidden md:block w-full">
+                   <NavBtn icon={<Search />} label="Deep Research" active={activeTab === 'deep_research'} onClick={() => setActiveTab('deep_research')} />
+                </div>
+                <NavBtn icon={<MessageSquare />} label="Smart Chat" active={activeTab === 'smart_chat'} onClick={() => setActiveTab('smart_chat')} />
+                
+                {/* Business Lab - Premium Report Generator */}
+                <button 
+                  onClick={() => setShowReportGenerator(true)}
+                  className="p-3 text-yellow-400 hover:text-yellow-300 hover:bg-yellow-500/10 rounded-xl transition-all flex items-center gap-4 justify-center group-hover:justify-start w-full relative hidden md:flex"
+                >
+                  <FileText size={20} className="flex-shrink-0" />
+                  <span className="whitespace-nowrap opacity-0 group-hover:opacity-100 w-0 group-hover:w-auto overflow-hidden transition-all duration-300 delay-75 text-sm font-bold">Business Lab</span>
+                  <span className="absolute -top-1 -right-1 bg-yellow-500 text-black text-[8px] px-1.5 py-0.5 rounded-full font-bold group-hover:hidden">NEW</span>
+                </button>
+             </div>
+          </div>
+
+          <div className="flex-col gap-2 w-full px-2 hidden md:flex">
+             <button onClick={handleExport} className="p-3 text-slate-400 hover:text-neon hover:bg-neon/10 rounded-xl transition-all flex items-center gap-4 justify-center group-hover:justify-start w-full">
+                <Download size={20} className="flex-shrink-0" />
+                <span className="whitespace-nowrap opacity-0 group-hover:opacity-100 w-0 group-hover:w-auto overflow-hidden transition-all duration-300 delay-75 text-sm font-bold">{t.exportData}</span>
+             </button>
+
+             <div className="w-8 h-1 bg-white/10 rounded-full mx-auto group-hover:w-full transition-all"></div>
+
+             <div className="flex items-center gap-4 p-2 justify-center group-hover:justify-start w-full">
+                {user.photoURL && !imgError ? (
+                   <img 
+                      src={user.photoURL} 
+                      referrerPolicy="no-referrer"
+                      alt="user" 
+                      className="w-8 h-8 rounded-full border border-white/20 flex-shrink-0 object-cover" 
+                      onError={() => setImgError(true)}
+                   />
+                ) : (
+                   <div className="w-8 h-8 rounded-full border border-white/20 flex-shrink-0 bg-neon/20 flex items-center justify-center text-neon font-bold text-xs">
+                      {user.email?.charAt(0).toUpperCase()}
+                   </div>
+                )}
+                <div className="whitespace-nowrap opacity-0 group-hover:opacity-100 w-0 group-hover:w-auto overflow-hidden transition-all duration-300 delay-75 text-xs text-slate-400">
+                   {user.email?.split('@')[0]}
+                </div>
+             </div>
+             
+             <button onClick={() => setTheme(t => t === 'dark' ? 'light' : 'dark')} className="text-slate-400 hover:text-white p-3 rounded-xl hover:bg-white/10 flex items-center gap-4 justify-center group-hover:justify-start w-full">
+                {theme === 'dark' ? <Sun size={18} className="flex-shrink-0" /> : <Moon size={18} className="flex-shrink-0" />}
+                <span className="whitespace-nowrap opacity-0 group-hover:opacity-100 w-0 group-hover:w-auto overflow-hidden transition-all duration-300 delay-75 text-sm font-bold">{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+             </button>
+             
+             <button onClick={() => window.location.reload()} className="text-red-400 hover:bg-red-500/10 p-3 rounded-xl transition-colors flex items-center gap-4 justify-center group-hover:justify-start w-full">
+                <X size={18} className="flex-shrink-0" />
+                <span className="whitespace-nowrap opacity-0 group-hover:opacity-100 w-0 group-hover:w-auto overflow-hidden transition-all duration-300 delay-75 text-sm font-bold">Sign Out</span>
+             </button>
+          </div>
+       </div>
+
+       {/* Main Content */}
+       <div className="flex-1 overflow-y-auto relative ml-0 md:ml-32 h-full flex flex-col pb-24 md:pb-0 font-sans">
+          {/* Compact Header */}
+          <div className="sticky top-0 z-40 bg-void/90 backdrop-blur-xl border-b border-white/5 px-4 md:px-6 py-3 flex justify-between items-center shadow-lg">
+             <div 
+               className="flex items-center gap-4 cursor-pointer hover:bg-white/5 p-2 rounded-lg transition-colors group"
+               onClick={onOpenProfile}
+             >
+                <div className="text-2xl group-hover:scale-110 transition-transform">
+                   {project.emoji}
+                </div>
+                <div>
+                   <h2 className="text-lg font-bold text-white group-hover:text-neon transition-colors flex items-center gap-2">
+                     {project.name} <Settings size={16} className="opacity-0 group-hover:opacity-100 text-slate-400" />
+                   </h2>
+                   <p className="text-xs text-slate-400 line-clamp-1 max-w-md font-light">{project.description}</p>
+                </div>
+             </div>
+             <button onClick={() => setActiveTab('new_interview')} className="bg-white text-black font-bold px-5 py-2 rounded-full hover:scale-105 transition-transform flex items-center gap-2 text-xs shadow-lg shadow-white/10">
+                <Play size={14} fill="black" /> Nueva Entrevista
+             </button>
+          </div>
+
+          <div className="flex-1 relative">
+             {activeTab === 'dashboard' && <div className="p-8"><DashboardView project={project} interviews={interviews} t={t} /></div>}
+             {activeTab === 'interviews' && <div className="p-8">
+                <InterviewsView 
+                   interviews={interviews} 
+                                 setInterviews(prev => prev.filter(i => i.id !== id));
+                                 const offlineKey = `offline_interviews_${project.id}`;
+                                 const offline = JSON.parse(localStorage.getItem(offlineKey) || '[]');
+                                 const newOffline = offline.filter((i: any) => i.id !== id);
+                                 localStorage.setItem(offlineKey, JSON.stringify(newOffline));
+                                 return;
+                              }
+
+                              // LOCK subscription to prevent restore
+                              deletionInProgress.current = true;
+                              
+                              try {
+                                 // Try Firebase delete with 3s timeout
+                                 const deletePromise = FirebaseService.deleteInterview(id);
+                                 const timeoutPromise = new Promise((_, reject) => 
+                                    setTimeout(() => reject(new Error("Timeout: Firebase blocked or offline")), 3000)
+                                 );
+                                 
+                                 await Promise.race([deletePromise, timeoutPromise]);
+                                 
+                                 console.log("✅ Firebase delete successful");
+                              } catch (e: any) {
+                                 console.error("Delete failed", e);
+                                 
+                                 // Show alert for blocked/timeout cases
+                                 if (e.message && e.message.includes("Timeout")) {
+                                    console.warn("⚠️ Firebase timeout, forcing local delete");
+                                    alert("⚠️ Eliminado LOCALMENTE.\n\nTu navegador bloqueó la conexión a Firebase.\nDesactiva el bloqueador de anuncios para sincronizar.");
+                                 } else if (e.code === 'permission-denied') {
+                                    alert("No tienes permiso para eliminar esta entrevista.");
+                                 } else {
+                                    alert("Error al eliminar. Si usas un bloqueador de anuncios, desactívalo para este sitio.");
+                                 }
+                              } finally {
+                                 // Update local state AND unlock after small delay
+                                 setInterviews(prev => prev.filter(i => i.id !== id));
+                                 const offlineKey = `offline_interviews_${project.id}`;
+                                 const offline = JSON.parse(localStorage.getItem(offlineKey) || '[]');
+                                 const newOffline = offline.filter((i: any) => i.id !== id);
+                                 localStorage.setItem(offlineKey, JSON.stringify(newOffline));
+                                 
+                                 // Unlock after 1 second to allow delete to propagate
+                                 setTimeout(() => { deletionInProgress.current = false; }, 1000);
+                              }
+                         }
+                      });
+                   }}
+                   onDeleteAll={async () => {
+                      if (!window.confirm("¿ELIMINAR TODAS LAS ENTREVISTAS? Esta acción no se puede deshacer.")) return;
+                      
+                      // DEMO MODE: Local Only
+                      if (project.id === 'demo_project_001') {
+                         setInterviews([]);
+                         localStorage.removeItem(`offline_interviews_${project.id}`);
+                         return;
+                      }
+
+                      // LOCK subscription to prevent restore
+                      deletionInProgress.current = true;
+
+                      const ids = interviews.map(i => i.id);
+                      try {
+                         // Try batch delete with 5s timeout
+                         const deletePromise = FirebaseService.deleteInterviewsBatch(ids);
+                         const timeoutPromise = new Promise((_, reject) => 
+                            setTimeout(() => reject(new Error("Timeout: Firebase blocked or offline")), 5000)
+                         );
+                         
+                         await Promise.race([deletePromise, timeoutPromise]);
+                         
+                         console.log("✅ Firebase batch delete successful");
+                      } catch (e: any) {
+                         console.error("Batch delete failed", e);
+                         
+                         // Show alert for blocked/timeout cases
+                         if (e.message && e.message.includes("Timeout")) {
+                            console.warn("⚠️ Firebase timeout, forcing local delete all");
+                            alert("⚠️ Eliminado LOCALMENTE.\n\nTu navegador bloqueó Firebase.\nDesactiva el bloqueador de anuncios para sincronizar con la nube.");
+                         } else {
+                            alert("Error al eliminar todo. Verifica tu conexión o desactiva el bloqueador de anuncios.");
+                         }
+                      } finally {
+                         // Update local state AND unlock after small delay
+                         setInterviews([]);
+                         localStorage.removeItem(`offline_interviews_${project.id}`);
+                         
+                         // Unlock after 2 seconds to allow batch delete to propagate
+                         setTimeout(() => { deletionInProgress.current = false; }, 2000);
+                      }
+                   }}
+                   onRetry={async (interview: Interview) => {
+                      await handleRetryAnalysis(interview);
+                   }}
+                />
+             </div>}
+             {activeTab === 'deep_research' && <div className="p-8"><DeepResearchView project={project} interviews={interviews} onUpdate={onUpdateProject} t={t} /></div>}
+             {activeTab === 'questions' && (
+               <div className="p-8">
+                 <React.Suspense fallback={<LoadingSpinner />}>
+                   <QuestionAnalysis project={project} interviews={interviews} lang={lang} />
+                 </React.Suspense>
+               </div>
+             )}
+             
+             {/* Full Size Chat */}
+             {activeTab === 'smart_chat' && (
+                <div className="absolute inset-0 p-4 h-full">
+                   <React.Suspense fallback={<LoadingSpinner />}>
+                     <SmartChat project={project} interviews={interviews} />
+                   </React.Suspense>
+                </div>
+             )}
+             
+             {activeTab === 'new_interview' && <div className="p-8"><InterviewForm lang={lang} project={project} onSave={async (i: any) => {
+                try {
+                   // SAFETY: If Demo Project, do not save to Cloud to prevent data mixing
+                   if (project.id === 'demo_project_001') {
+                      throw new Error("Demo Mode: Local Storage Only");
+                   }
+
+                   // Try Online Save with 5s Timeout
+                   const savePromise = FirebaseService.addInterview(i);
+                   const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Network Timeout")), 5000));
+                   await Promise.race([savePromise, timeoutPromise]);
+                } catch (e) {
+                   console.error("Online save failed/timed out, using offline fallback", e);
+                   
+                   // Offline Fallback
+                   const offlineKey = `offline_interviews_${project.id}`;
+                   const existing = JSON.parse(localStorage.getItem(offlineKey) || '[]');
+                   // Prevent duplicates in offline storage
+                   const uniqueExisting = existing.filter((e: any) => e.id !== i.id);
+                   localStorage.setItem(offlineKey, JSON.stringify([i, ...uniqueExisting]));
+                   
+                   // Manually update local state to show it immediately
+                   setInterviews(prev => [i, ...prev]);
+                   
+                   alert("⚠️ Conexión inestable o bloqueada.\n\n✅ Entrevista guardada LOCALMENTE.\n\nTus datos están seguros.");
+                }
+                setActiveTab('dashboard');
+             }} onCancel={() => setActiveTab('dashboard')} onClose={(interview: any) => {
+                setActiveTab('dashboard');
+                setSelectedInterview(interview);
+             }} t={t} /></div>}
+          </div>
+
+          {selectedInterview && (
+          <InterviewModal 
+            key={`modal-${renderKey}`}
+            interview={selectedInterview} 
+            project={project} 
+            onClose={() => setSelectedInterview(null)} 
+            onRetryAnalysis={() => handleRetryAnalysis(selectedInterview)} 
+          />
+        )}
+
+        {/* Business Report Generator Modal */}
+        {showReportGenerator && user && (
+          <BusinessReportGenerator
+            project={project}
+            interviews={interviews}
+            userId={user.uid}
+            onClose={() => setShowReportGenerator(false)}
+          />
+        )}
+       </div>
+    </div>
+  )
+};
+
+const NavBtn = ({ icon, label, active, onClick }: any) => (
+  <button 
+    onClick={onClick}
+    className={`w-full p-3 rounded-xl transition-all flex items-center gap-4 justify-center group-hover:justify-start ${active ? 'bg-neon text-black shadow-[0_0_15px_rgba(223,255,0,0.4)]' : 'text-slate-400 hover:bg-white/10 hover:text-white'}`}
+  >
+     {React.cloneElement(icon, { size: 20, className: "flex-shrink-0" })}
+     <span className="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-300 delay-75 text-sm font-bold overflow-hidden w-0 group-hover:w-auto">{label}</span>
+  </button>
+);
+
+// 3. Smart Parsing / Create Flow
+const CreateProjectModal = ({ onClose, onSave, lang, user }: any) => {
+  const t = TRANSLATIONS[lang];
+  const [mode, setMode] = useState<'manual' | 'smart' | 'document' | 'idea' | 'template'>('manual');
+  const [context, setContext] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState<Partial<ProjectTemplate>>({
+    name: '',
+    description: '',
+    detailedDescription: '',
+    targetAudience: '',
+    region: '',
+    productTypes: []
+  });
+
+  // Handler for generating questions from AI
+  const handleSmartParse = async () => {
+     setLoading(true);
+     try {
+        // Simple inline AI call since Gemini module doesn't export callGeminiAPI
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${import.meta.env.VITE_GEMINI_API_KEY}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: `Analyze this idea and generate 5-8 research questions:\n\n${context}` }] }]
+            })
+          }
+        );
+        const data = await response.json();
+        const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+        // Generate fields
+        const questions = aiResponse.split('\n').filter((q: string) => q.trim().length > 0).slice(0,8);
+        setFormData({
+           ...formData,
+           questions: questions.map((text: string, i: number) => ({ id: `q${i+1}`, text, type: 'text' as const, order: i+1 }))
+        });
+     } catch (e) {
+        console.error(e);
+        alert("Error parsing document");
+     }
+     setLoading(false);
+  };
+
+  const PRODUCT_TYPES: ProductType[] = ['App', 'Web', 'SaaS', 'E-commerce', 'Marketplace', 'IoT', 'Other'];
+
+  const toggleProductType = (type: ProductType) => {
+    const currentTypes = formData.productTypes || [];
+    const newTypes = currentTypes.includes(type)
+      ? currentTypes.filter(t => t !== type)
+      : [...currentTypes, type];
+    setFormData({ ...formData, productTypes: newTypes });
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target?.result as string;
+      setContext(text);
+    };
+    reader.readAsText(file);
+  };
+
+  // If we are in a full-screen mode (Idea or Document), render those components directly
+  // This prevents them from being constrained by the max-w-2xl wrapper of the selection modal
+  if (mode === 'document') {
+    return (
+      <React.Suspense fallback={<LoadingSpinner />}>
+        <DocumentUploader
+          onQuestionsGenerated={async (questions, metadata) => {
+            console.log('✅ Questions Generated:', questions.length);
+            console.log('📝 Metadata:', metadata);
+
+            // Check if user is logged in
+            if (!user) {
+              alert('❌ Debes iniciar sesión para crear un proyecto.');
+              console.error('User not logged in');
+              return;
+            }
+
+            // Create project directly instead of going to manual mode
+            setLoading(true);
+            try {
+              const cover = getCoverByIdea(metadata.title + ' ' + metadata.description);
+              console.log('✅ [IdeaStudio] Cover assigned without API');
+
+              const project: ProjectTemplate = {
+                id: `p_${Date.now()}`,
+                name: metadata.title,
+                description: metadata.description,
+                detailedDescription: '',
+                emoji: metadata.emoji || '📄',
+                coverImage: cover,
+                targetAudience: 'General',
+                region: 'Global',
+                productTypes: [],
+                questions: questions,
+                createdAt: new Date().toISOString()
+              };
+
+              console.log('🚀 Creating project with', questions.length, 'questions');
+              await onSave(project);
+              console.log('✅ Project saved successfully');
+            } catch (e) {
+              console.error('❌ Error creating project:', e);
+              alert('Error al crear el proyecto. Intenta de nuevo.');
+            }
+            setLoading(false);
+          }}
+          onClose={() => setMode('manual')}
+        />
+      </React.Suspense>
+    );
+  }
+
+  if (mode === 'idea') {
+    return (
+      <React.Suspense fallback={<LoadingSpinner />}>
+        <IdeaStudio
+          onPlanGenerated={async (questions, metadata, plan) => {
+            console.log('✅ Idea Plan Generated:', questions.length, 'questions');
+            
+            // Create project directly instead of going to manual mode
+            setLoading(true);
+            try {
+              const cover = getCoverByIdea(metadata.title + ' ' + metadata.description);
+              console.log('✅ [DocumentUploader] Cover assigned without API');
+              
+              const project: ProjectTemplate = {
+                id: `p_${Date.now()}`,
+                name: metadata.title,
+                description: metadata.description,
+                detailedDescription: plan || '',
+                emoji: '💡',
+                coverImage: cover,
+                targetAudience: 'General',
+                region: 'Global',
+                productTypes: [],
+                questions: questions,
+                createdAt: new Date().toISOString()
+              };
+              
+              console.log('🚀 Creating project from Idea Studio');
+              onSave(project);
+            } catch (e) {
+              console.error('❌ Error creating project:', e);
+              alert('Error al crear el proyecto. Intenta de nuevo.');
+            }
+            setLoading(false);
+          }}
+          onClose={() => setMode('manual')}
+        />
+      </React.Suspense>
+    );
+  }
+
+  if (mode === 'template') {
+    return (
+      <TemplateGallery
+        onSelectTemplate={async (template: any) => {
+          console.log('📋 Template Selected:', template.name);
+          setLoading(true);
+          try {
+            const project = templateToProject(template, 'user_id');
+            console.log('🚀 Creating project from template:', project.name, 'with', project.questions.length, 'questions');
+            onSave(project);
+          } catch (e) {
+            console.error('❌ Error creating project from template:', e);
+            alert('Error al crear el proyecto. Intenta de nuevo.');
+          }
+          setLoading(false);
+        }}
+        onClose={() => setMode('manual')}
+      />
+    );
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={onClose}>
+       <div 
+         className={`${GLASS_PANEL} w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl p-8 animate-fade-in-up`}
+         onClick={(e) => e.stopPropagation()}
+       >
+          <div className="flex justify-between items-center mb-6">
+             <h2 className="text-2xl font-bold text-white">{t.newSession}</h2>
+             <button onClick={onClose}><X className="text-slate-400 hover:text-white" /></button>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 mb-6">
+             <button onClick={() => setMode('manual')} className={`py-3 rounded-xl border flex items-center justify-center gap-2 ${mode === 'manual' ? 'border-neon bg-neon/10 text-white' : 'border-white/10 text-slate-400 hover:border-white/30'}`}>
+                <Plus size={16} /> Manual
+             </button>
+             <button onClick={() => setMode('document')} className={`py-3 rounded-xl border flex items-center justify-center gap-2 ${mode === 'document' ? 'border-neon bg-neon/10 text-white' : 'border-white/10 text-slate-400 hover:border-white/30'}`}>
+                <FileText size={16} /> Subir Documento
+             </button>
+             <button onClick={() => setMode('idea')} className={`py-3 rounded-xl border flex items-center justify-center gap-2 ${mode === 'idea' ? 'border-neon bg-neon/10 text-white' : 'border-white/10 text-slate-400 hover:border-white/30'}`}>
+                <Zap size={16} /> De Idea a Plan
+             </button>
+             <button onClick={() => setMode('template')} className={`py-3 rounded-xl border flex items-center justify-center gap-2 ${mode === 'template' ? 'border-neon bg-neon/10 text-white' : 'border-white/10 text-slate-400 hover:border-white/30'}`}>
+                <Sparkles size={16} /> Plantillas
+             </button>
+          </div>
+
+          {/* Manual Mode Form */}
+          {mode === 'manual' && (
+             <div className="space-y-4 animate-fade-in">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <input 
+                    placeholder={t.projectName} 
+                    className="w-full bg-black/30 border border-white/10 rounded-xl p-4 text-white focus:border-neon outline-none" 
+                    value={formData.name || ''}
+                    onChange={e => setFormData({...formData, name: e.target.value})} 
+                  />
+                  <input 
+                    placeholder="Región (ej. Colombia)" 
+                    className="w-full bg-black/30 border border-white/10 rounded-xl p-4 text-white focus:border-neon outline-none" 
+                    value={formData.region || ''}
+                    onChange={e => setFormData({...formData, region: e.target.value})} 
+                  />
+                </div>
+                
+                <textarea 
+                  placeholder={t.projectDesc} 
+                  className="w-full bg-black/30 border border-white/10 rounded-xl p-4 text-white focus:border-neon outline-none h-24 resize-none" 
+                  value={formData.description || ''}
+                  onChange={e => setFormData({...formData, description: e.target.value})} 
+                />
+                
+                <textarea 
+                  placeholder="Descripción Detallada (Opcional)" 
+                  className="w-full bg-black/30 border border-white/10 rounded-xl p-4 text-white focus:border-neon outline-none h-24 resize-none" 
+                  value={formData.detailedDescription || ''}
+                  onChange={e => setFormData({...formData, detailedDescription: e.target.value})} 
+                />
+
+                <input 
+                  placeholder="Público Objetivo" 
+                  className="w-full bg-black/30 border border-white/10 rounded-xl p-4 text-white focus:border-neon outline-none" 
+                  value={formData.targetAudience || ''}
+                  onChange={e => setFormData({...formData, targetAudience: e.target.value})} 
+                />
+
+                <div className="space-y-2">
+                  <label className="text-xs text-slate-500 uppercase font-bold">Tipo de Producto</label>
+                  <div className="flex flex-wrap gap-2">
+                    {PRODUCT_TYPES.map(type => (
+                      <button
+                        key={type}
+                        onClick={() => toggleProductType(type)}
+                        className={`px-3 py-1 rounded-full text-xs font-medium border transition-all ${
+                          (formData.productTypes || []).includes(type)
+                            ? 'bg-neon/20 border-neon text-neon'
+                            : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'
+                        }`}
+                      >
+                        {type}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <button onClick={async () => {
+                   if(!formData.name || !formData.description) return alert("Nombre y descripción requeridos");
+                   
+                   setLoading(true);
+                   try {
+                     const cover = getCoverByIdea(formData.name + ' ' + formData.description);
+                     console.log('✅ [TemplateGallery] Cover assigned without API');
+                     
+                     const p: ProjectTemplate = {
+                       id: `p_${Date.now()}`,
+                       name: formData.name!,
+                       description: formData.description!,
+                       detailedDescription: formData.detailedDescription,
+                       emoji: '💡',
+                       coverImage: cover,
+                       targetAudience: formData.targetAudience || 'General',
+                       region: formData.region || 'Global',
+                       productTypes: formData.productTypes,
+                       questions: formData.questions || [],
+                       createdAt: new Date().toISOString()
+                     };
+                     onSave(p);
+                   } catch (e) {
+                     console.error(e);
+                     alert("Error creating project");
+                   }
+                   setLoading(false);
+                }} disabled={loading} className="w-full bg-white text-black font-bold py-4 rounded-xl hover:bg-neon transition-colors flex items-center justify-center gap-2">
+                  {loading ? <RefreshCw className="animate-spin"/> : null} {t.create}
+                </button>
+             </div>
+          )}
+       </div>
+    </div>
+  );
+};
+
+// 4. Deep Research View (Advanced v2.1)
+const DeepResearchGraphic = () => (
+  <div className="relative w-32 h-32 mx-auto mb-8 flex items-center justify-center">
+    {/* Outer Ring */}
+    <motion.div 
+      animate={{ rotate: 360 }}
+      transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+      className="absolute inset-0 rounded-full border border-white/10 border-t-neon/50 border-r-neon/50 shadow-[0_0_30px_rgba(223,255,0,0.1)]"
+    />
+    
+    {/* Inner Ring Reverse */}
+    <motion.div 
+      animate={{ rotate: -360 }}
+      transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+      className="absolute inset-4 rounded-full border border-white/5 border-b-blue-400/50 border-l-blue-400/50"
+    />
+
+    {/* Core */}
+    <div className="relative z-10 w-16 h-16 bg-black/80 rounded-2xl flex items-center justify-center border border-white/10 backdrop-blur-md shadow-[0_0_30px_rgba(223,255,0,0.2)]">
+       <Zap size={32} className="text-neon drop-shadow-[0_0_10px_rgba(223,255,0,0.8)] animate-pulse" />
+    </div>
+
+    {/* Orbiting Particles */}
+    <motion.div
+      animate={{ rotate: 360 }}
+      transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+      className="absolute inset-0"
+    >
+       <div className="absolute top-0 left-1/2 w-2 h-2 bg-neon rounded-full shadow-[0_0_10px_rgba(223,255,0,0.8)] -translate-x-1/2 -translate-y-1"></div>
+    </motion.div>
+  </div>
+);
+
+const DeepResearchView = ({ project, interviews, onUpdate, t }: any) => {
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState('');
+  const [progress, setProgress] = useState(0); // Progress State
+  const [showIntro, setShowIntro] = useState(!project.deepAnalysis); 
+
+   const runAnalysis = async () => {
+     // Validation Rules (Heuristic UX/UI)
+     const missingFields = [];
+     if (!project.detailedDescription) missingFields.push("Descripción Detallada");
+     if (!project.region) missingFields.push("Región");
+     if (!project.productTypes || project.productTypes.length === 0) missingFields.push("Tipo de Producto");
+     
+     if (missingFields.length > 0) {
+        alert(`⚠️ Perfil Incompleto\n\nPara un análisis de nivel VC, necesitamos más contexto.\nFalta: ${missingFields.join(', ')}.\n\nHaz clic en el título del proyecto para editar.`);
+        return;
+     }
+
+     if (interviews.length < 5) {
+        alert(`⚠️ Data Insuficiente\n\nEl motor requiere al menos 5 entrevistas para detectar patrones estadísticamente relevantes.\n\nActual: ${interviews.length}/5`);
+        return;
+     }
+
+     setLoading(true);
+     setShowIntro(false);
+     setProgress(0);
+
+     // Simulation of complex processing steps
+     const steps = [
+        { msg: "Inicializando Neural Engine...", time: 800 },
+        { msg: "Escaneando transcripciones de entrevistas...", time: 1500 },
+        { msg: "Detectando patrones de comportamiento...", time: 1200 },
+        { msg: "Cruzando datos con benchmarks de mercado...", time: 2000 },
+        { msg: "Calculando Product-Market Fit Score...", time: 1000 },
+        { msg: "Generando estrategias de crecimiento...", time: 1500 },
+        { msg: "Finalizando reporte ejecutivo...", time: 800 }
+     ];
+
+     let currentProgress = 0;
+     const progressPerStep = 90 / steps.length;
+
+     for (const step of steps) {
+        setStatus(step.msg);
+        await new Promise(r => setTimeout(r, step.time));
+        currentProgress += progressPerStep;
+        setProgress(Math.min(currentProgress, 90));
+     }
+     
+     setStatus("Compilando resultados finales...");
+     
+     try {
+       console.log("🚀 Calling Gemini Deep Research...");
+       const report = await Gemini.performDeepResearch(project, interviews, 'es');
+       console.log("✅ Report received:", report);
+       
+       setProgress(100);
+       await new Promise(r => setTimeout(r, 500)); // Let user see 100%
+       
+       const updated = { ...project, deepAnalysis: report };
+       console.log("💾 Updating project with analysis:", updated);
+       onUpdate(updated);
+     } catch (e) {
+       console.error("❌ Analysis Error:", e);
+       alert("Error en el análisis. Intenta de nuevo. Detalles en consola.");
+     }
+     setLoading(false);
+  };
+
+  const report = project.deepAnalysis;
+
+  // ... (Intro and Empty State remain the same, skipping for brevity in this replace) ...
+
+  // Onboarding / Intro State
+  if (showIntro && !loading && !report) {
+     return (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-void/90 backdrop-blur-xl animate-fade-in">
+           <div className={`${GLASS_PANEL} max-w-3xl w-full p-0 overflow-hidden relative border border-white/10 shadow-2xl`}>
+              <div className="absolute top-0 left-0 w-full h-64 bg-gradient-to-b from-neon/5 to-transparent pointer-events-none"></div>
+              
+              {/* Close Button - Fixed Z-Index */}
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowIntro(false);
+                }} 
+                className="absolute top-6 right-6 p-2 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white z-[100] transition-all border border-white/5 hover:scale-110 cursor-pointer"
+              >
+                <X size={24} />
+              </button>
               
               <div className="p-12 pt-16 text-center relative z-10">
                  <DeepResearchGraphic />
