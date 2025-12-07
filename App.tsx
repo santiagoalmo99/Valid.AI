@@ -2223,8 +2223,16 @@ function AppContent() {
   const { user, logout } = useAuth();
   const [lang, setLang] = useState<Language>('es');
   const [theme, setTheme] = useState<'dark' | 'light'>('dark'); 
-  const [view, setView] = useState('hub');
+  
+  // PERSISTENT STATE: Restore from localStorage on mount
+  const [view, setView] = useState(() => {
+    const saved = localStorage.getItem('validai_view');
+    return saved || 'hub';
+  });
   const [activeProject, setActiveProject] = useState<ProjectTemplate | null>(null);
+  const [pendingProjectId, setPendingProjectId] = useState<string | null>(() => {
+    return localStorage.getItem('validai_active_project_id');
+  });
   
   // FIRESTORE MIGRATION: Projects are now fetched from Cloud
   const [projects, setProjects] = useState<ProjectTemplate[]>([]);
@@ -2234,6 +2242,32 @@ function AppContent() {
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showCertModal, setShowCertModal] = useState(false);
   const [interviews, setInterviews] = useState<Interview[]>([]);
+
+  // PERSIST view to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem('validai_view', view);
+  }, [view]);
+
+  // PERSIST activeProject ID to localStorage when it changes
+  useEffect(() => {
+    if (activeProject) {
+      localStorage.setItem('validai_active_project_id', activeProject.id);
+    } else {
+      localStorage.removeItem('validai_active_project_id');
+    }
+  }, [activeProject]);
+
+  // RESTORE activeProject from pendingProjectId when projects are loaded
+  useEffect(() => {
+    if (pendingProjectId && projects.length > 0 && !activeProject) {
+      const foundProject = projects.find(p => p.id === pendingProjectId);
+      if (foundProject) {
+        console.log('🔄 [Persistence] Restoring active project:', foundProject.name);
+        setActiveProject(foundProject);
+        setPendingProjectId(null);
+      }
+    }
+  }, [pendingProjectId, projects, activeProject]);
 
   // Load interviews for active project
   useEffect(() => {
