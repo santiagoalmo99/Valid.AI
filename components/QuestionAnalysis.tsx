@@ -1,9 +1,10 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { 
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell,
-  PieChart, Pie, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
+  PieChart, Pie, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, AreaChart, Area
 } from 'recharts';
-import { MessageSquare, Hash, PieChart as PieIcon, BarChart3, Activity, Cloud } from 'lucide-react';
+import { MessageSquare, Hash, PieChart as PieIcon, BarChart3, Activity, Cloud, Filter, Search, ChevronRight, TrendingUp, Users, Brain, Sparkles, Quote } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ProjectTemplate, Interview, Question } from '../types';
 
 interface QuestionAnalysisProps {
@@ -11,311 +12,304 @@ interface QuestionAnalysisProps {
   interviews: Interview[];
 }
 
-const GLASS_PANEL = "bg-black/40 backdrop-blur-xl border border-white/10 shadow-2xl";
+const GLASS_PANEL = "bg-[#09090b] border border-[#1f1f23] rounded-[24px] overflow-hidden shadow-2xl relative group";
+const NEON_GLOW = "hover:border-neon/30 hover:shadow-[0_0_40px_-10px_rgba(0,255,148,0.15)] transition-all duration-500";
 
 export const QuestionAnalysis = ({ project, interviews }: QuestionAnalysisProps) => {
+  const [filterMode, setFilterMode] = useState<'all' | 'high_score' | 'low_score'>('all');
   
+  // Filter Data
+  const filteredInterviews = useMemo(() => {
+    switch(filterMode) {
+      case 'high_score': return interviews.filter(i => i.totalScore >= 70);
+      case 'low_score': return interviews.filter(i => i.totalScore < 50);
+      default: return interviews;
+    }
+  }, [interviews, filterMode]);
+
+  // Global Stats
+  const globalStats = useMemo(() => {
+    if (!filteredInterviews.length) return null;
+    const avgScore = Math.round(filteredInterviews.reduce((acc, i) => acc + i.totalScore, 0) / filteredInterviews.length);
+    const totalWords = filteredInterviews.reduce((acc, i) => acc + Object.values(i.answers || {}).reduce((w: number, a: any) => w + String(a?.rawValue || '').length, 0), 0);
+    const sentiment = avgScore > 75 ? 'Positive' : avgScore > 50 ? 'Neutral' : 'Critical';
+    return { avgScore, totalWords, sentiment };
+  }, [filteredInterviews]);
+
   if (!interviews || !Array.isArray(interviews) || interviews.length === 0) {
     return (
-      <div className="text-center py-20 text-slate-500">
-        <BarChart3 size={48} className="mx-auto mb-4 opacity-50" />
-        <p>No hay datos suficientes para visualizar.</p>
+      <div className="flex flex-col items-center justify-center h-[60vh] text-center text-slate-500">
+        <div className="w-24 h-24 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center mb-6 animate-pulse">
+           <BarChart3 size={48} className="opacity-20" />
+        </div>
+        <h2 className="text-xl font-bold text-white mb-2">No Data Available</h2>
+        <p className="max-w-md mx-auto">Start interviewing to see real-time insights and analytics appear here.</p>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {(project?.questions || []).map((q, index) => (
-        <QuestionCard key={q.id} question={q} interviews={interviews} index={index} />
-      ))}
+    <div className="min-h-screen bg-[#050505] p-2 md:p-8 animate-fade-in pb-32">
+       {/* Background Ambience */}
+       <div className="fixed top-20 left-1/4 w-[500px] h-[500px] bg-neon/5 rounded-full blur-[120px] pointer-events-none" />
+       
+       {/* Header & Controls */}
+       <div className="flex flex-col md:flex-row items-end md:items-center justify-between mb-10 gap-6 relative z-10 sticky top-0 bg-[#050505]/80 backdrop-blur-xl py-4 border-b border-white/5 -mx-8 px-8 z-50">
+          <div>
+            <div className="flex items-center gap-3 mb-1">
+               <div className="p-2 bg-neon/10 rounded-lg text-neon">
+                  <Brain size={20} />
+               </div>
+               <h1 className="text-3xl font-bold text-white tracking-tight">Deep Insights</h1>
+            </div>
+            <p className="text-slate-500 text-sm hidden md:block">
+              Analyzing <span className="text-white font-bold">{filteredInterviews.length}</span> interviews based on {filterMode === 'all' ? 'all responses' : filterMode === 'high_score' ? 'high intent users' : 'skeptical users'}.
+            </p>
+          </div>
+          
+          <div className="flex bg-black/40 border border-white/10 rounded-full p-1 gap-1">
+             <button onClick={() => setFilterMode('all')} className={`px-4 py-2 rounded-full text-xs font-bold transition-all ${filterMode === 'all' ? 'bg-white text-black shadow-lg' : 'text-slate-400 hover:text-white'}`}>
+                All
+             </button>
+             <button onClick={() => setFilterMode('high_score')} className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-2 ${filterMode === 'high_score' ? 'bg-neon text-black shadow-lg shadow-neon/20' : 'text-slate-400 hover:text-white'}`}>
+                <TrendingUp size={12} /> Promoters
+             </button>
+             <button onClick={() => setFilterMode('low_score')} className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-2 ${filterMode === 'low_score' ? 'bg-red-500 text-white shadow-lg shadow-red-500/20' : 'text-slate-400 hover:text-white'}`}>
+                <Activity size={12} /> Detractors
+             </button>
+          </div>
+       </div>
+
+       {/* Global Metrics Row */}
+       {globalStats && (
+         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 relative z-10">
+            <MetricCard 
+              label="Avg. Validation Score" 
+              value={`${globalStats.avgScore}%`} 
+              sub="Market Viability"
+              icon={<TrendingUp size={20} className="text-neon" />}
+              chart={<div className="w-full h-1 my-2 bg-slate-800 rounded-full overflow-hidden"><div className="h-full bg-neon" style={{width: `${globalStats.avgScore}%`}}></div></div>}
+            />
+            <MetricCard 
+              label="Data Volume" 
+              value={(globalStats.totalWords / 1000).toFixed(1) + 'k'} 
+              sub="Words Analyzed"
+              icon={<MessageSquare size={20} className="text-blue-400" />}
+              chart={<Sparkline color="#60a5fa" />}
+            />
+            <MetricCard 
+              label="Sentiment" 
+              value={globalStats.sentiment} 
+              sub="Overall Tone"
+              icon={<Sparkles size={20} className={globalStats.sentiment === 'Positive' ? 'text-green-400' : 'text-yellow-400'} />}
+              chart={<Sparkline color={globalStats.sentiment === 'Positive' ? '#4ade80' : '#facc15'} />}
+            />
+         </div>
+       )}
+
+       {/* Masonry Grid (CSS Columns) */}
+       <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6 relative z-10">
+          {(project?.questions || []).map((q, index) => (
+            <div key={q.id} className="break-inside-avoid">
+               <QuestionCard question={q} interviews={filteredInterviews} index={index} />
+            </div>
+          ))}
+       </div>
     </div>
   );
 };
+
+// --- SUB COMPONENTS ---
+
+const MetricCard = ({ label, value, sub, icon, chart }: any) => (
+  <div className={`${GLASS_PANEL} p-6 flex flex-col justify-between h-32 hover:bg-white/[0.02]`}>
+     <div className="flex justify-between items-start">
+        <div>
+           <p className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">{label}</p>
+           <h3 className="text-3xl font-bold text-white">{value}</h3>
+        </div>
+        <div className="p-2 bg-white/5 rounded-xl border border-white/5">
+           {icon}
+        </div>
+     </div>
+     <div className="flex items-end justify-between mt-auto">
+        <p className="text-slate-600 text-[10px]">{sub}</p>
+        <div className="w-24 opacity-50">{chart}</div>
+     </div>
+  </div>
+);
+
+const Sparkline = ({ color }: { color: string }) => (
+   <div className="flex items-end gap-[2px] h-8">
+      {[40, 70, 50, 90, 60, 80, 40, 60].map((h, i) => (
+         <div key={i} className="w-full rounded-t-sm opacity-60" style={{ height: `${h}%`, backgroundColor: color }}></div>
+      ))}
+   </div>
+);
+
+// --- QUESTION CARD LOGIC ---
 
 const QuestionCard = ({ question, interviews, index }: { question: Question, interviews: Interview[], index: number }) => {
   const data = useMemo(() => processData(question, interviews), [question, interviews]);
-  const colors = ['#3AFF97', '#818cf8', '#c084fc', '#f472b6', '#fbbf24', '#34d399'];
-  const [selectedKeyword, setSelectedKeyword] = React.useState<string | null>(null);
-
-  // Safety check for empty data
+  const colors = ['#00FF94', '#00FFFF', '#3b82f6', '#8b5cf6', '#ec4899', '#ef4444'];
+  const [activeTab, setActiveTab] = useState<'chart' | 'quotes'>('chart');
+  
   if (!data) return null;
 
   return (
-    <div className={`${GLASS_PANEL} rounded-2xl p-6 flex flex-col h-[400px] hover:border-neon/30 transition-colors group`}>
-      <div className="flex items-start justify-between mb-4 shrink-0">
-        <div className="flex gap-3">
-          <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-neon font-bold text-xs border border-white/10">
-            Q{index + 1}
-          </div>
-          <div>
-            <h3 className="text-sm font-bold text-white line-clamp-2 min-h-[40px]">{question.text}</h3>
-            <div className="flex items-center gap-2 mt-2">
-               <span className="text-[10px] uppercase tracking-wider text-slate-500 bg-white/5 px-2 py-0.5 rounded-full border border-white/5">
-                 {question.dimension || 'General'}
-               </span>
-               <span className="text-[10px] uppercase tracking-wider text-slate-500 bg-white/5 px-2 py-0.5 rounded-full border border-white/5">
-                 {question.widgetType || 'Text'}
-               </span>
-            </div>
-          </div>
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      className={`${GLASS_PANEL} ${NEON_GLOW} p-0 flex flex-col`}
+    >
+      <div className="p-6 border-b border-white/5 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+        <div className="flex items-start justify-between gap-4 relative z-10">
+           <div className="flex gap-3">
+             <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-white/10 flex items-center justify-center text-zinc-500 font-mono text-xs shadow-inner">
+               {index + 1}
+             </div>
+             <div>
+               <h3 className="text-base font-bold text-white leading-tight mb-2">{question.text}</h3>
+               <div className="flex flex-wrap gap-2">
+                  <Badge icon={<Hash size={10}/>} text={question.widgetType} />
+                  <Badge icon={<Activity size={10}/>} text={question.dimension} color="text-neon" />
+               </div>
+             </div>
+           </div>
         </div>
       </div>
 
-      <div className="w-full flex-1 min-h-0 relative">
-        {renderWidget(question, data, colors, selectedKeyword, setSelectedKeyword)}
+      <div className="p-6 bg-black/20 min-h-[250px] relative">
+         {/* Toggle Active View */}
+         <div className="absolute top-4 right-4 z-20 flex bg-black/40 border border-white/10 rounded-lg p-0.5">
+            <button onClick={() => setActiveTab('chart')} className={`p-1.5 rounded-md transition-all ${activeTab === 'chart' ? 'bg-white/10 text-white' : 'text-slate-500'}`}><BarChart3 size={14}/></button>
+            <button onClick={() => setActiveTab('quotes')} className={`p-1.5 rounded-md transition-all ${activeTab === 'quotes' ? 'bg-white/10 text-white' : 'text-slate-500'}`}><Quote size={14}/></button>
+         </div>
+
+         {activeTab === 'chart' ? (
+             <div className="h-[200px] w-full">
+                {renderWidget(question, data, colors, null, () => {})}
+             </div>
+         ) : (
+             <div className="h-[200px] overflow-y-auto pr-2 custom-scrollbar space-y-3">
+                {(data.rawAnswers || []).slice(0, 5).map((ans: string, i: number) => (
+                   <div key={i} className="p-3 bg-white/5 rounded-lg border border-white/5 text-xs text-slate-300 italic">
+                      "{ans}"
+                   </div>
+                ))}
+             </div>
+         )}
+         
+         {/* Footer Stats */}
+         <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between text-[10px] text-slate-500 uppercase tracking-widest font-bold">
+            <span>{data.total} Responses</span>
+            <span className="flex items-center gap-1 text-emerald-500"><Sparkles size={10}/> AI Analyzed</span>
+         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
-// --- Logic & Helpers ---
+const Badge = ({ icon, text, color = "text-slate-400" }: any) => (
+  <span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-white/5 border border-white/5 text-[10px] font-bold uppercase tracking-wider ${color}`}>
+     {icon} {text}
+  </span>
+);
 
-const STOP_WORDS = new Set([
-  'el', 'la', 'los', 'las', 'un', 'una', 'unos', 'unas', 'y', 'o', 'pero', 'si', 'no', 'en', 'de', 'del', 'a', 'al', 'con', 'sin', 'por', 'para', 'es', 'son', 'fue', 'era', 'está', 'están', 'que', 'se', 'su', 'sus', 'mi', 'mis', 'tu', 'tus', 'yo', 'tú', 'él', 'ella', 'nosotros', 'ellos', 'me', 'te', 'le', 'nos', 'les', 'lo', 'la', 'los', 'las', 'mi', 'ti', 'si', 'no', 'muy', 'más', 'menos', 'tan', 'como', 'cuando', 'donde', 'porque', 'aunque', 'mientras', 'durante', 'antes', 'después', 'sobre', 'entre', 'tras', 'hacia', 'hasta', 'desde', 'según', 'contra', 'ante', 'bajo', 'cabe', 'so', 'the', 'and', 'or', 'but', 'if', 'not', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'without', 'by', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'can', 'could', 'will', 'would', 'shall', 'should', 'may', 'might', 'must', 'i', 'you', 'he', 'she', 'it', 'we', 'they', 'me', 'him', 'her', 'us', 'them', 'my', 'your', 'his', 'its', 'our', 'their', 'this', 'that', 'these', 'those', 'which', 'who', 'whom', 'whose', 'what', 'where', 'when', 'why', 'how'
-]);
+// --- RENDERERS ---
 
-const extractKeywords = (texts: string[]): { name: string, value: number }[] => {
+const renderWidget = (question: Question, data: any, colors: string[], selectedKeyword: string | null = null, setSelectedKeyword: (k: string | null) => void) => {
+   if (!data) return null;
+
+   // 1. Bar Chart (Scale / Select)
+   if (['scale', 'select', 'multiselect', 'frequency'].includes(question.widgetType)) {
+      return (
+         <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={data.chartData} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+               <XAxis type="number" hide />
+               <YAxis dataKey="name" type="category" width={100} tick={{fill: '#64748b', fontSize: 10}} tickLine={false} axisLine={false} />
+               <Tooltip 
+                  cursor={{fill: 'rgba(255,255,255,0.05)'}}
+                  contentStyle={{ backgroundColor: '#09090b', border: '1px solid #333', borderRadius: '12px' }}
+               />
+               <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={20}>
+                  {data.chartData.map((entry: any, index: number) => (
+                     <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                  ))}
+               </Bar>
+            </BarChart>
+         </ResponsiveContainer>
+      );
+   }
+   
+   // 2. Word Cloud / Keywords (Text)
+   if (data.keywords && data.keywords.length > 0) {
+      return (
+         <div className="flex flex-wrap gap-2 content-start h-full">
+            {data.keywords.map((k: any, i: number) => (
+               <div 
+                  key={i} 
+                  className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-slate-300 hover:bg-neon/10 hover:text-neon hover:border-neon/30 transition-all cursor-crosshair flex items-center gap-2"
+                  style={{ fontSize: Math.max(10, Math.min(16, 10 + k.value * 2)) }}
+               >
+                  {k.name}
+                  <span className="opacity-40 text-[9px] bg-black/50 px-1 rounded-full">{k.value}</span>
+               </div>
+            ))}
+         </div>
+      );
+   }
+
+   // Fallback for empty text
+   return (
+      <div className="flex items-center justify-center h-full text-slate-600 text-xs italic">
+         No sufficient text data for visualization.
+      </div>
+   );
+};
+
+// --- DATA PROCESSING (Fixed for Crash) ---
+// Extracted from original file and enhanced
+
+const STOP_WORDS = new Set(['el', 'la', 'los', 'las', 'un', 'una', 'y', 'o', 'pero', 'si', 'no', 'en', 'de', 'del', 'a', 'al', 'con', 'sin', 'por', 'para', 'es', 'son', 'que', 'se', 'su', 'sus', 'mi', 'mis', 'tu', 'tus', 'yo', 'tú', 'and', 'or', 'the', 'is', 'are', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'it', 'that', 'this']);
+
+const extractKeywords = (texts: string[]) => {
   if (!texts || !Array.isArray(texts)) return [];
   const frequency: Record<string, number> = {};
   
   texts.forEach(text => {
     if (!text || typeof text !== 'string') return;
-    // Normalize: lowercase, remove punctuation, split by spaces
-    const words = text.toLowerCase()
-      .replace(/[.,/#!$%^&*;:{}=\-_`~()?"']/g, "")
-      .split(/\s+/);
-      
+    const words = text.toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()?"']/g, "").split(/\s+/);
     words.forEach(word => {
-      if (word && word.length > 3 && !STOP_WORDS.has(word)) {
-        frequency[word] = (frequency[word] || 0) + 1;
-      }
+      if (word && word.length > 3 && !STOP_WORDS.has(word)) frequency[word] = (frequency[word] || 0) + 1;
     });
   });
 
-  return Object.entries(frequency)
-    .map(([name, value]) => ({ name, value }))
-    .sort((a, b) => b.value - a.value)
-    .slice(0, 15); // Top 15 keywords
+  return Object.entries(frequency).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 15);
 };
 
 const processData = (question: Question, interviews: Interview[]) => {
-  if (!interviews || !question) return null;
-  // Robust mapping: handle undefined answers, force String conversion
-  const answers = (interviews || [])
-    .map(i => i?.answers?.[question.id]?.rawValue)
-    .filter(val => val !== null && val !== undefined)
-    .map(String);
-  
-  if (question.widgetType === 'boolean_donut') {
-    const yes = answers.filter(a => a.toLowerCase().includes('sí') || a.toLowerCase().includes('yes') || a === 'true').length;
-    const no = answers.length - yes;
-    return [
-      { name: 'Sí', value: yes },
-      { name: 'No', value: no }
-    ];
-  }
+   if (!interviews || !question) return null;
 
-  if (question.widgetType === 'currency_bucket' || question.type === 'select' || question.type === 'multiple_choice') {
-    const counts: Record<string, number> = {};
-    answers.forEach(a => {
-      counts[a] = (counts[a] || 0) + 1;
-    });
-    return Object.entries(counts).map(([name, value]) => ({ name, value }));
-  }
+   const answers = interviews.map(i => i?.answers?.[question.id]);
+   const validAnswers = answers.filter(a => a !== undefined && a !== null);
+   const rawValues = validAnswers.map(a => a.rawValue);
 
-  if (question.widgetType === 'gauge_1_5' || question.widgetType === 'gauge_1_10' || question.type === 'scale') {
-    const counts: Record<string, number> = {};
-    answers.forEach(a => {
-      counts[a] = (counts[a] || 0) + 1;
-    });
-    // Fill missing keys for scale
-    const max = question.widgetType === 'gauge_1_10' ? 10 : 5;
-    for (let i = 1; i <= max; i++) {
-        const key = i.toString();
-        if (!counts[key]) counts[key] = 0;
-    }
-    return Object.entries(counts)
-        .map(([name, value]) => ({ name, value }))
-        .sort((a, b) => parseInt(a.name) - parseInt(b.name));
-  }
+   // 1. Numeric/Select Aggregation
+   if (['scale', 'select', 'frequency'].includes(question.widgetType)) {
+      const counts: Record<string, number> = {};
+      rawValues.forEach(v => {
+         const key = String(v);
+         counts[key] = (counts[key] || 0) + 1;
+      });
+      const chartData = Object.entries(counts).map(([name, value]) => ({ name, value }));
+      return { type: 'chart', chartData, total: validAnswers.length, rawAnswers: rawValues };
+   }
 
-  // Text / Keyword Cloud Logic
-  const keywords = extractKeywords(answers);
-  // Return object with keywords AND raw answers for context
-  return {
-    keywords,
-    rawAnswers: answers
-  };
-};
-
-const renderWidget = (
-  question: Question, 
-  data: any, 
-  colors: string[], 
-  selectedKeyword?: string | null, 
-  setSelectedKeyword?: (k: string | null) => void
-) => {
-  if (!data) return <div className="text-slate-500">Sin datos</div>;
-  if (Array.isArray(data) && data.length === 0) return <div className="text-slate-500">Sin datos</div>;
-  
-  // Check for keyword cloud empty state
-  if (data.keywords && Array.isArray(data.keywords) && data.keywords.length === 0 && data.rawAnswers && data.rawAnswers.length === 0) {
-     return <div className="flex items-center justify-center h-full text-slate-600">Sin datos</div>;
-  }
-
-  switch (question.widgetType) {
-    case 'boolean_donut':
-      return (
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={data}
-              cx="50%"
-              cy="50%"
-              innerRadius={60}
-              outerRadius={80}
-              paddingAngle={5}
-              dataKey="value"
-            >
-              {data.map((entry: any, index: number) => (
-                <Cell key={`cell-${index}`} fill={entry.name === 'Sí' ? '#3AFF97' : '#f87171'} />
-              ))}
-            </Pie>
-            <Tooltip contentStyle={{backgroundColor: '#020617', border: '1px solid #334155', borderRadius: '12px'}} />
-            <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className="fill-white text-2xl font-bold">
-              {Math.round((data.find((d: any) => d.name === 'Sí')?.value || 0) / (data.reduce((a: any,b: any) => a + b.value, 0) || 1) * 100)}%
-            </text>
-          </PieChart>
-        </ResponsiveContainer>
-      );
-
-    case 'currency_bucket':
-    case 'default': // Bar chart for selects
-      if (question.type === 'select' || question.type === 'multiple_choice') {
-          return <HorizontalBarChart data={data} colors={colors} />;
-      }
-      // Fallthrough for text logic
-    
-    case 'keyword_cloud':
-
-      // Data is now { keywords: [], rawAnswers: [] }
-      const { keywords, rawAnswers } = data as { keywords: {name: string, value: number}[], rawAnswers: string[] };
-      
-      // Filter answers based on selected keyword
-      const filteredAnswers = selectedKeyword 
-        ? rawAnswers.filter(a => a.toLowerCase().includes(selectedKeyword.toLowerCase()))
-        : rawAnswers;
-
-      return (
-        <div className="h-full flex flex-col gap-4">
-           {/* 1. Tag Cloud Section (Interactive) */}
-           {keywords && keywords.length > 0 && (
-             <div className="flex flex-wrap gap-2 max-h-[35%] overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 pr-1 shrink-0">
-                {keywords.map((k, i) => (
-                  <button 
-                    key={i} 
-                    onClick={() => setSelectedKeyword?.(selectedKeyword === k.name ? null : k.name)}
-                    className={`px-2 py-1 rounded-md border text-xs font-medium flex items-center gap-1 transition-all
-                      ${selectedKeyword === k.name 
-                        ? 'bg-neon text-black border-neon' 
-                        : 'bg-neon/10 border-neon/20 text-neon hover:bg-neon/20'
-                      }`}
-                  >
-                    {k.name} <span className={`text-[9px] px-1 rounded-sm ${selectedKeyword === k.name ? 'bg-black/20' : 'bg-black/40 opacity-60'}`}>{k.value}</span>
-                  </button>
-                ))}
-             </div>
-           )}
-
-           {/* 2. Recent Answers Section (Filtered) */}
-           <div className="flex-1 overflow-y-auto pr-2 space-y-2 scrollbar-thin scrollbar-thumb-white/10 min-h-0">
-              <div className="flex items-center justify-between sticky top-0 bg-[#0a0a0a] py-2 z-10 border-b border-white/5 mb-2">
-                 <h4 className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">
-                   {selectedKeyword ? `Respuestas con "${selectedKeyword}"` : 'Respuestas Recientes'}
-                 </h4>
-                 {selectedKeyword && (
-                   <button onClick={() => setSelectedKeyword?.(null)} className="text-[10px] text-neon hover:underline">
-                     Ver todas
-                   </button>
-                 )}
-              </div>
-              
-              {filteredAnswers && filteredAnswers.length > 0 ? (
-                filteredAnswers.slice(0, 20).map((ans, i) => (
-                  <div key={i} className="bg-white/5 p-3 rounded-xl border border-white/5 text-xs text-slate-300 italic">
-                    "{ans}"
-                  </div>
-                ))
-              ) : (
-                <div className="text-center py-4 text-xs text-slate-600">No hay respuestas con esta palabra clave.</div>
-              )}
-           </div>
-        </div>
-      );
-
-    case 'gauge_1_5':
-    case 'gauge_1_10':
-      return <VerticalBarChart data={data} />;
-
-    default:
-      return <div className="text-slate-500">Widget no soportado</div>;
-  }
-};
-
-// --- CSS Chart Components (Robust & Premium) ---
-
-const HorizontalBarChart = ({ data, colors }: { data: any[], colors: string[] }) => {
-  const max = Math.max(...(data || []).map(d => d.value)) || 1;
-  return (
-    <div className="w-full h-full overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-white/10 space-y-4 py-2">
-      {(data || []).map((item, i) => (
-        <div key={i} className="w-full group">
-          <div className="flex justify-between text-xs text-slate-400 mb-1.5">
-            <span className="font-medium text-slate-300">{item.name}</span>
-            <span className="font-mono text-neon">{item.value}</span>
-          </div>
-          <div className="w-full h-2.5 bg-white/5 rounded-full overflow-hidden border border-white/5">
-            <div 
-              className="h-full rounded-full transition-all duration-1000 ease-out group-hover:brightness-125 relative overflow-hidden"
-              style={{ 
-                width: `${(item.value / max) * 100}%`,
-                backgroundColor: (colors || [])[i % (colors || []).length || 0] || '#ccc'
-              }}
-            >
-               <div className="absolute inset-0 bg-gradient-to-r from-transparent to-white/20"></div>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-};
-
-const VerticalBarChart = ({ data }: { data: any[] }) => {
-  const max = Math.max(...(data || []).map(d => d.value)) || 1;
-  return (
-    <div className="w-full h-full flex items-end justify-between gap-1 pt-8 pb-2 px-2">
-      {(data || []).map((item, i) => {
-        const height = (item.value / max) * 100;
-        return (
-          <div key={i} className="h-full flex flex-col justify-end items-center flex-1 group relative">
-             {/* Tooltip-like value on hover */}
-             <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] bg-black/80 text-neon px-2 py-0.5 rounded border border-neon/20 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 font-bold">
-                {item.value} respuestas
-             </div>
-             
-             <div 
-               className="w-full max-w-[24px] bg-neon/20 group-hover:bg-neon transition-all duration-500 rounded-t-sm relative border-t border-x border-neon/30 group-hover:shadow-[0_0_15px_rgba(58,255,151,0.3)]"
-               style={{ height: `${height}%`, minHeight: '4px' }}
-             >
-             </div>
-             <div className="text-[9px] text-slate-500 mt-2 text-center w-full truncate font-mono border-t border-white/5 pt-1">
-                {item.name}
-             </div>
-          </div>
-        )
-      })}
-    </div>
-  );
+   // 2. Text Aggregation
+   const textValues = rawValues.map(String);
+   const keywords = extractKeywords(textValues);
+   return { type: 'text', keywords, total: validAnswers.length, rawAnswers: textValues };
 };

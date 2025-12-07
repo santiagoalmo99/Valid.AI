@@ -2477,6 +2477,24 @@ function AppContent() {
     setShowOnboarding(false);
   };
 
+  const handleSaveNewProject = async (newProject: ProjectTemplate) => {
+    if (!user) return alert("Inicia sesión primero");
+    
+    // Ensure ID and UserID are set (CreateProjectModal sets them but we double check or just pass through)
+    // CreateProjectModal generates IDs starting with p_
+    
+    try {
+       await FirebaseService.createProject(user.uid, newProject);
+       setProjects(prev => [...prev, newProject]);
+       setActiveProject(newProject);
+       setView('project');
+       setShowCreate(false);
+    } catch (e) {
+       console.error("Failed to create project:", e);
+       alert("Error creando proyecto.");
+    }
+  };
+
   const handleCreateProject = async (templateId: string) => {
     const template = templateToProject(templateId);
     if (!user) return alert("Inicia sesión primero");
@@ -2602,7 +2620,7 @@ function AppContent() {
 
       </div>
 
-      {showCreate && <CreateProjectModal onClose={() => setShowCreate(false)} onSave={handleCreate} lang={lang} user={user} />}
+      {showCreate && <CreateProjectModal onClose={() => setShowCreate(false)} onSave={handleSaveNewProject} lang={lang} user={user} />}
       {showOnboarding && <Onboarding onClose={handleCloseOnboarding} />}
       
       {/* Project Profile Modal */}
