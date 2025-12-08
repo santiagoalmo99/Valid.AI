@@ -2427,32 +2427,35 @@ function AppContent() {
   }, [user]);
 
   const handleCloseOnboarding = () => {
+    localStorage.setItem('onboarding_completed', 'true');
     setShowOnboarding(false);
   };
 
   const handleSaveNewProject = async (newProject: ProjectTemplate) => {
     if (!user) return alert("Inicia sesión primero");
     
-    // Ensure ID and UserID are set (CreateProjectModal sets them but we double check or just pass through)
-    // CreateProjectModal generates IDs starting with p_
+    // 1. OPTIMISTIC LOCAL SAVE (Always save locally first)
+    try {
+        const local = JSON.parse(localStorage.getItem('validai_projects') || '[]');
+        if (!local.find((p: any) => p.id === newProject.id)) {
+            local.push(newProject);
+            localStorage.setItem('validai_projects', JSON.stringify(local));
+            console.log("✅ Project saved locally (Optimistic)");
+        }
+    } catch (e) { console.error("LS Pre-save failed", e); }
     
+    // 2. UPDATE UI IMMEDIATELY
+    setProjects(prev => [...prev, newProject]);
+    setActiveProject(newProject);
+    setView('project');
+    setShowCreate(false);
+
+    // 3. ATLAS CLOUD SYNC (Async but awaited for error handling report)
     try {
        await FirebaseService.createProject(user.uid, newProject);
-       
-       // LOCAL STORAGE SYNC (Reliability Fix)
-       try {
-         const local = JSON.parse(localStorage.getItem('validai_projects') || '[]');
-         local.push(newProject);
-         localStorage.setItem('validai_projects', JSON.stringify(local));
-       } catch (err) { console.error("Local storage save failed", err); }
-
-       setProjects(prev => [...prev, newProject]);
-       setActiveProject(newProject);
-       setView('project');
-       setShowCreate(false);
     } catch (e) {
-       console.error("Failed to create project:", e);
-       alert("Error creando proyecto.");
+       console.error("Firebase save failed", e);
+       // User already has the project locally, so we just warn mildly if needed, or silent fail (Queue logic handles retry usually)
     }
   };
 
@@ -2517,29 +2520,29 @@ function AppContent() {
   };
 
   const handleUpdateProject = async (updated: ProjectTemplate) => {
-     // Special handling for Demo Project (Local Only)
+     // 1. OPTIMISTIC LOCAL SAVE
      if (updated.id === 'demo_project_001') {
         localStorage.setItem('demo_project_001', JSON.stringify(updated));
-        setActiveProject(updated);
-        setProjects(prev => prev.map(p => p.id === updated.id ? updated : p));
-        return;
-     }
-
-     try {
-        await FirebaseService.updateProject(updated);
-        
-        // CRITICAL FIX: Update LocalStorage immediately
+     } else {
         try {
-           const current = JSON.parse(localStorage.getItem('validai_projects') || '[]');
-           const next = current.map((p: any) => p.id === updated.id ? updated : p);
-           // If somehow not in LS, add it
-           if (!current.find((p: any) => p.id === updated.id)) next.push(updated);
+           const local = JSON.parse(localStorage.getItem('validai_projects') || '[]');
+           const next = local.map((p: any) => p.id === updated.id ? updated : p);
+           if (!local.find((p: any) => p.id === updated.id)) next.push(updated);
            localStorage.setItem('validai_projects', JSON.stringify(next));
         } catch (e) { console.error("LS Update Error", e); }
+     }
 
-        setActiveProject(updated);
-     } catch (e) {
-        console.error("Failed to update project:", e);
+     // 2. UPDATE UI
+     setActiveProject(updated);
+     setProjects(prev => prev.map(p => p.id === updated.id ? updated : p));
+
+     // 3. CLOUD SYNC
+     if (updated.id !== 'demo_project_001') {
+        try {
+           await FirebaseService.updateProject(updated);
+        } catch (e) {
+           console.error("Failed to update project in cloud:", e);
+        }
      }
   };
 
