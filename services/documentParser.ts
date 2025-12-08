@@ -16,6 +16,12 @@ export interface ParsedDocument {
   suggestedQuestions: Question[];
   keyEntities: Entity[];
   metadata: DocumentMetadata;
+  profile?: {
+    summary: string;
+    targetAudience: string;
+    problem: string;
+    solution: string;
+  };
 }
 
 export interface DocumentSection {
@@ -365,35 +371,35 @@ You are a document analysis expert. Analyze this document and extract key inform
 DOCUMENT:
 ${rawText.substring(0, 5000)} ${rawText.length > 5000 ? '...(truncated)' : ''}
 
-TASK: Extract structured information from this document.
+
+TASK: Analyze this document as if you were a Senior Venture Capitalist. EXTRACT a detailed strategic profile.
 
 OUTPUT (JSON):
 {
-  "title": "Document title or main topic",
+  "title": "Document title",
+  "profile": {
+     "summary": "A powerful, 2-3 sentence strategic description of the project (What it is, Who it's for, Why it matters). Max 60 words.",
+     "targetAudience": "Specific ICP (Ideal Customer Profile)",
+     "problem": "The core problem or pain point addressed",
+     "solution": "The proposed solution or product"
+  },
   "sections": [
     {
       "heading": "Section heading",
-      "content": "Brief summary (max 100 words)",
+      "content": "Summary of this section (max 50 words)",
       "order": 1
     }
   ],
-  "entities": [
-    {
-      "type": "person" | "organization" | "product" | "technology" | "market",
-      "name": "Entity name",
-      "mentions": number
-    }
-  ],
-  "industry": "Primary industry (e.g., SaaS, Healthcare, E-commerce)",
-  "audience": "Target audience (e.g., B2B executives, Consumers 18-34)",
-  "topics": ["Topic 1", "Topic 2", "Topic 3"]
+  "entities": [ ... same as before ... ],
+  "industry": "Industry",
+  "audience": "Broad Audience",
+  "topics": ["Topic 1"]
 }
 
 RULES:
-1. Extract max 5 sections
-2. Extract max 10 entities
-3. Be concise
-4. Output ONLY valid JSON
+1. The 'summary' MUST be high-quality, persuasive, and descriptive (not generic).
+2. Extract max 5 sections.
+3. Output ONLY valid JSON.
 `;
 
     const response = await callGeminiAPI(prompt, true);
@@ -406,6 +412,12 @@ RULES:
       industry: parsed.industry || 'General',
       audience: parsed.audience || 'General Public',
       topics: parsed.topics || [],
+      profile: {
+        summary: parsed.profile?.summary || "Perfil no generado",
+        targetAudience: parsed.profile?.targetAudience || parsed.audience || "General",
+        problem: parsed.profile?.problem || "",
+        solution: parsed.profile?.solution || ""
+      }
     };
   }
 

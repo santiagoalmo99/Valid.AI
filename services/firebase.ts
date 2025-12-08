@@ -63,12 +63,38 @@ export const subscribeToProjects = (userId: string, callback: (projects: Project
   );
 };
 
-// Helper function to add timeout to promises
 const withTimeout = <T>(promise: Promise<T>, ms: number, errorMessage: string): Promise<T> => {
   const timeout = new Promise<never>((_, reject) => {
     setTimeout(() => reject(new Error(errorMessage)), ms);
   });
   return Promise.race([promise, timeout]);
+};
+
+// Retry with exponential backoff for Firebase operations
+const withRetry = async <T>(
+  fn: () => Promise<T>,
+  maxRetries: number = 3,
+  baseDelayMs: number = 1000
+): Promise<T> => {
+  let lastError: Error | null = null;
+  
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (error: any) {
+      lastError = error;
+      
+      if (attempt === maxRetries) {
+        throw error;
+      }
+      
+      const delay = baseDelayMs * Math.pow(2, attempt);
+      console.log(`⏳ [Firebase] Retry ${attempt + 1}/${maxRetries} in ${delay}ms...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+  
+  throw lastError || new Error('Max retries exceeded');
 };
 
 export const createProject = async (userId: string, project: ProjectTemplate) => {
@@ -123,7 +149,26 @@ export const createProject = async (userId: string, project: ProjectTemplate) =>
 export const updateProject = async (project: ProjectTemplate) => {
   const { id, ...data } = project;
   const projectRef = doc(db, 'projects', id);
-  await updateDoc(projectRef, data);
+  
+  try {
+    await withRetry(() => 
+      withTimeout(updateDoc(projectRef, data), 10000, 'Firebase update timeout')
+    );
+    console.log('🟢 [Firebase] updateProject SUCCESS');
+  } catch (error) {
+    console.error('🔴 [Firebase] updateProject ERROR:', error);
+    
+    // Fallback to localStorage
+    try {
+      const localProjects = JSON.parse(localStorage.getItem('validai_projects') || '[]');
+      const newLocal = localProjects.map((p: any) => p.id === id ? project : p);
+      localStorage.setItem('validai_projects', JSON.stringify(newLocal));
+      console.log('🟢 [LocalStorage] Project updated locally as fallback');
+    } catch (localError) {
+      console.error('🔴 [LocalStorage] Fallback failed:', localError);
+      throw error;
+    }
+  }
 };
 
 export const deleteProject = async (projectId: string) => {
@@ -154,7 +199,32 @@ export const subscribeToInterviews = (projectId: string, callback: (interviews: 
 
 export const addInterview = async (interview: Interview) => {
   const { id, ...data } = interview;
-  await setDoc(doc(db, 'interviews', id), data);
+  
+  try {
+    await withRetry(() => 
+      withTimeout(setDoc(doc(db, 'interviews', id), data), 10000, 'Firebase interview save timeout')
+    );
+    console.log('🟢 [Firebase] addInterview SUCCESS');
+  } catch (error) {
+    console.error('🔴 [Firebase] addInterview ERROR:', error);
+    
+    // Fallback to localStorage
+    try {
+      const key = `offline_interviews_${interview.projectId}`;
+      const localInterviews = JSON.parse(localStorage.getItem(key) || '[]');
+      const existing = localInterviews.findIndex((i: any) => i.id === id);
+      if (existing >= 0) {
+        localInterviews[existing] = interview;
+      } else {
+        localInterviews.push(interview);
+      }
+      localStorage.setItem(key, JSON.stringify(localInterviews));
+      console.log('🟢 [LocalStorage] Interview saved locally as fallback');
+    } catch (localError) {
+      console.error('🔴 [LocalStorage] Fallback failed:', localError);
+      throw error;
+    }
+  }
 };
 
 export const deleteInterview = async (interviewId: string) => {

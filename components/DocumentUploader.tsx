@@ -11,6 +11,7 @@ interface DocumentUploaderProps {
   onQuestionsGenerated: (questions: Question[], metadata: {
     title: string;
     description: string;
+    targetAudience?: string;
     emoji: string;
   }) => void;
   onClose: () => void;
@@ -74,7 +75,8 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
     // Extract metadata from AI analysis
     const metadata = {
       title: parsedDoc.title,
-      description: parsedDoc.sections[0]?.content || parsedDoc.title,
+      description: parsedDoc.profile?.summary || parsedDoc.sections[0]?.content || parsedDoc.title,
+      targetAudience: parsedDoc.profile?.targetAudience || 'General',
       emoji: '📄', // Default, can be customized
     };
 
@@ -148,9 +150,10 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
           {loading && (
             <div className="text-center py-16">
               <Loader size={48} className="mx-auto text-neon animate-spin mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">Procesando documento...</h3>
+              <h3 className="text-xl font-bold text-white mb-2">Procesando documento con IA...</h3>
               <p className="text-slate-400">
-                Analizando contenido y generando preguntas
+                Analizando patrones y generando perfil estratégico. <br/>
+                <span className="text-xs opacity-70">(Esto puede tardar unos momentos)</span>
               </p>
             </div>
           )}

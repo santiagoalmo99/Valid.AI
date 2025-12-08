@@ -179,26 +179,26 @@ export const BusinessReportGenerator: React.FC<Props> = ({
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
-          className="bg-[#0a0a0a] border border-white/10 rounded-2xl w-full max-w-6xl max-h-[95vh] overflow-hidden shadow-2xl flex flex-col"
+          className="bg-[#0a0a0a] border border-white/10 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl flex flex-col"
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-8 border-b border-white/10 bg-gradient-to-r from-black to-[#111]">
-            <div className="flex items-center gap-5">
-              <div className="w-14 h-14 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-900/20">
-                <FileText className="w-7 h-7 text-emerald-500" />
+          <div className="flex items-center justify-between p-5 border-b border-white/10 bg-gradient-to-r from-black to-[#111]">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-900/20">
+                <FileText className="w-5 h-5 text-emerald-500" />
               </div>
               <div>
-                <h2 className="text-3xl font-bold text-white tracking-tight">Business Lab</h2>
-                <p className="text-base text-slate-400 mt-1">Generador de Reportes Estratégicos con IA</p>
+                <h2 className="text-xl font-bold text-white tracking-tight">Business Lab</h2>
+                <p className="text-xs text-slate-400 mt-0.5">Generador Estratégico AI</p>
               </div>
             </div>
-            <button onClick={onClose} className="p-3 hover:bg-white/10 rounded-xl transition text-slate-400 hover:text-white">
-              <X className="w-7 h-7" />
+            <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-lg transition text-slate-400 hover:text-white">
+              <X className="w-5 h-5" />
             </button>
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-y-auto p-10 custom-scrollbar">
+          <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
             {/* Interview Warning */}
             {interviews.length < 3 && step === 'config' && (
               <div className="mb-10 p-5 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-start gap-4">
@@ -409,39 +409,39 @@ const ConfigStep: React.FC<{
         </div>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {sections.map(section => {
           const isSelected = selectedSections.includes(section.id);
           return (
             <motion.button
               key={section.id}
               onClick={() => onToggle(section.id)}
-              whileHover={{ scale: 1.01, y: -2 }}
+              whileHover={{ scale: 1.01, y: -1 }}
               whileTap={{ scale: 0.99 }}
               className={`
-                group relative flex items-start gap-6 p-6 rounded-3xl text-left transition-all duration-300 border h-full
+                group relative flex items-center gap-4 p-4 rounded-2xl text-left transition-all duration-300 border h-full
                 ${isSelected 
-                  ? 'bg-[#121212] border-emerald-500/40 shadow-[0_0_25px_rgba(16,185,129,0.08)]' 
+                  ? 'bg-[#121212] border-emerald-500/40 shadow-[0_0_15px_rgba(16,185,129,0.05)]' 
                   : 'bg-black border-white/5 hover:border-white/10 hover:bg-[#0a0a0a]'
                 }
               `}
             >
               <div className={`
-                w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all duration-300 border relative z-10
+                w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-300 border relative z-10
                 ${isSelected 
-                   ? 'bg-emerald-500 text-black border-emerald-400 shadow-xl shadow-emerald-500/20' 
+                   ? 'bg-emerald-500 text-black border-emerald-400 shadow-lg shadow-emerald-500/20' 
                    : 'bg-white/5 text-slate-500 border-white/5 group-hover:border-white/20 group-hover:text-slate-300 group-hover:bg-white/10'
                 }
               `}>
-                {isSelected ? <Check size={28} strokeWidth={3} /> : getSectionIcon(section.id, "w-7 h-7")}
+                {isSelected ? <Check size={18} strokeWidth={3} /> : getSectionIcon(section.id, "w-5 h-5")}
               </div>
               
-              <div className="relative z-10 flex-1">
-                <div className="flex justify-between items-start mb-2">
-                  <p className={`text-lg font-bold transition-colors ${isSelected ? 'text-white' : 'text-slate-400 group-hover:text-white'}`}>
+              <div className="relative z-10 flex-1 min-w-0">
+                <div className="flex justify-between items-center mb-1">
+                  <p className={`text-sm font-bold transition-colors truncate ${isSelected ? 'text-white' : 'text-slate-400 group-hover:text-white'}`}>
                     {section.title}
                   </p>
-                  <span className={`text-[10px] font-bold px-2.5 py-1 rounded-md border transition-colors uppercase tracking-wider ${
+                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-md border transition-colors uppercase tracking-wider ml-2 ${
                       isSelected 
                          ? 'text-emerald-400 border-emerald-500/30 bg-emerald-950/30' 
                          : 'text-slate-600 border-white/5 bg-white/5'
@@ -450,7 +450,7 @@ const ConfigStep: React.FC<{
                    </span>
                 </div>
                 
-                <p className="text-sm text-slate-500 leading-relaxed group-hover:text-slate-400 transition-colors">
+                <p className="text-xs text-slate-500 leading-snug group-hover:text-slate-400 transition-colors line-clamp-1">
                    {section.description}
                 </p>
               </div>

@@ -2433,6 +2433,14 @@ function AppContent() {
     
     try {
        await FirebaseService.createProject(user.uid, newProject);
+       
+       // LOCAL STORAGE SYNC (Reliability Fix)
+       try {
+         const local = JSON.parse(localStorage.getItem('validai_projects') || '[]');
+         local.push(newProject);
+         localStorage.setItem('validai_projects', JSON.stringify(local));
+       } catch (err) { console.error("Local storage save failed", err); }
+
        setProjects(prev => [...prev, newProject]);
        setActiveProject(newProject);
        setView('project');

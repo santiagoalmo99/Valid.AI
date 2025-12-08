@@ -18,14 +18,19 @@ service cloud.firestore {
       allow read, update, delete: if isAuthenticated() && isOwner(resource.data.userId);
     }
 
-    // INTERVIEWS: Users can read/write interviews if they have access to the parent project
-    // Note: Since we don't store userId on interviews, we rely on the fact that
-    // only the project owner knows the projectId and can query it via the UI.
-    // For a stricter rule, we would need to store userId on the interview or do a get() on the project.
-    // Given the "no code changes" constraint, we allow authenticated users to create/read
-    // if they know the projectId. In the UI, this is secure.
+    // INTERVIEWS: Secured with userId validation
+    // Interviews should include userId field for proper ownership
     match /interviews/{interviewId} {
-      allow read, write: if isAuthenticated();
+      // Allow create if authenticated and interview has matching userId
+      allow create: if isAuthenticated() 
+        && request.resource.data.userId == request.auth.uid;
+      
+      // Allow read if authenticated (for now, to support legacy data)
+      allow read: if isAuthenticated();
+      
+      // Allow update/delete only if user owns the interview
+      allow update, delete: if isAuthenticated() 
+        && resource.data.userId == request.auth.uid;
     }
   }
 }

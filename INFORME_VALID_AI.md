@@ -20,40 +20,27 @@ La mayoría de las apps gritan. La nuestra susurra. Hemos creado una arquitectur
 
 ### 🚀 React + Vite: Velocidad Sin Límites
 
-Construido sobre la stack tecnológico más rápido del planeta. React para reactividad instantánea. Vite para builds atómicos. Cada clic se siente inmediato. Cada transición es fluida. No hay espera.
+Construido sobre el stack tecnológico más rápido del planeta. React para reactividad instantánea. Vite para builds atómicos. Cada clic se siente inmediato. Cada transición es fluida. No hay espera.
 
-### 🧠 Cascade Intelligence: Doble Cerebro
+### 🧠 Neural Intelligence Engine
 
-No usamos un solo modelo. Usamos **dos de los cerebros más potentes del planeta** trabajando en cascada.
+Potenciado por **Google Gemini 2.5 (Experimental)**, uno de los modelos de IA más avanzados disponibles hoy. Nuestro motor ofrece:
 
-#### Claude Sonnet 4.5 + Gemini 2.5 (Experimental)
+- **Búsqueda web en tiempo real** (Google Search Grounding) para validación con datos actuales.
+- **Procesamiento multimodal** de texto, voz y documentos.
+- **Ventana de contexto masiva** para análisis de patrones complejos.
+- **Velocidad de respuesta sub-segundo** para interacciones fluidas.
 
-Hemos implementado una arquitectura híbrida revolucionaria que llamamos **"Cascade Intelligence"**:
+#### Razonamiento en Cadena (Chain-of-Thought)
 
-1.  **Primera Capa — Claude Sonnet 4.5:**
+No hacemos simples resúmenes. Ejecutamos un protocolo de análisis estructurado:
 
-    - Análisis profundo de contexto y estructura del problema.
-    - Detección de sesgos cognitivos y contradicciones lógicas.
-    - Pensamiento crítico de nivel estratégico.
-    - Razonamiento verbal sofisticado para entrevistas.
+1.  **Contexto**: Evaluamos quién es el entrevistado (experto, novato, B2B, B2C).
+2.  **Contradicciones**: Detectamos inconsistencias ("Dice que pagaría $100/mes pero nunca ha pagado por software").
+3.  **Emociones**: Identificamos intensidad en el texto ("Es urgente, pierdo dinero" = ALTA INTENSIDAD).
+4.  **Probabilidad**: Calculamos viabilidad basada en patrones de startups exitosas.
 
-2.  **Segunda Capa — Gemini 2.5 (Experimental):**
-    - Búsqueda web en tiempo real (Google Search Grounding).
-    - Procesamiento multimodal (texto, voz, documentos).
-    - Ventana de contexto infinita para análisis de patrones.
-    - Velocidad de respuesta sub-segundo.
-
-#### ¿Por Qué Dos Modelos?
-
-Porque cada uno es brillante en áreas diferentes. **Claude** razona como un consultor de Harvard. **Gemini** busca como un detective de Silicon Valley. Juntos, son **imparables**.
-
-La arquitectura funciona así:
-
-- Claude **piensa** y estructura el análisis.
-- Gemini **valida** con datos del mundo real.
-- El resultado es una **síntesis perfecta** entre razonamiento abstracto y evidencia concreta.
-
-Es como tener a un equipo de psicólogos conductuales, analistas de Y Combinator, y detectives de datos trabajando en paralelo para ti, en **milisegundos**.
+**Próximamente:** Integración multi-modelo con Claude para detección avanzada de sesgos cognitivos y análisis de contradicciones a nivel forense.
 
 ### 💾 Resiliencia Nuclear
 
@@ -69,15 +56,15 @@ Olvida las hojas de cálculo. Olvida los formularios aburridos. Hemos creado una
 
 ### 🌑 Inmersión Total ("Void Mode")
 
-Fondos oscuros profundos que eliminan las distracciones y ponen el foco en lo único que importa: **tus datos**. No hay ruido. Solo verdad.
+Fondos oscuros profundos (#050505) que eliminan las distracciones y ponen el foco en lo único que importa: **tus datos**. No hay ruido. Solo verdad.
 
 ### 🪟 Glassmorphism Dinámico
 
-Paneles de vidrio esmerilado que flotan sobre el contenido, creando una jerarquía visual que se siente natural, casi **táctil**. Cada interacción es cinematográfica.
+Paneles de vidrio esmerilado (`backdrop-blur-xl`) que flotan sobre el contenido, creando una jerarquía visual que se siente natural, casi **táctil**. Cada interacción es cinematográfica.
 
 ### ✨ Luz de Neón
 
-Acentos sutiles de **color neón (#00ff94)** que guían tu atención y te indican el estado del sistema sin decir una palabra. Cuando el sistema piensa, lo sabes. Cuando detecta señales, brillan.
+Acentos sutiles de **color neón (#3AFF97)** que guían tu atención y te indican el estado del sistema sin decir una palabra. Cuando el sistema piensa, lo sabes. Cuando detecta señales, brillan.
 
 Es software que no parece software. Es una **experiencia**.
 
@@ -87,16 +74,15 @@ Es software que no parece software. Es una **experiencia**.
 
 ### _No Escribas. Solo Habla._
 
-**🎙️ NUEVO.** El teclado es un cuello de botella para la genialidad. La inspiración no espera. Hemos integrado un motor de **Reconocimiento de Voz de Ultra-Baja Latencia**.
+**🎙️ INTEGRADO.** El teclado es un cuello de botella para la genialidad. La inspiración no espera. Hemos integrado un motor de **Reconocimiento de Voz** nativo del navegador.
 
 ### Entrevistas Híbridas
 
-Tus usuarios no quieren llenar encuestas. Quieren **hablar**. La IA actúa como un entrevistador empático que:
+Tus usuarios no quieren llenar encuestas. Quieren **hablar**. La IA procesa respuestas de voz en tiempo real:
 
-- Escucha la voz del usuario en tiempo real.
-- Detecta la **duda**, el **miedo**, la **emoción** en su tono.
-- Hace la "pregunta difícil" en el momento exacto.
-- Captura matices que el texto nunca podría transmitir. ("¿Pagarías por esto?" — Silencio de 3 segundos = SEÑAL DE ALARMA).
+- **Transcripción instantánea** usando Web Speech API.
+- **Captura del texto completo** para análisis semántico profundo.
+- **Detección de dudas** mediante análisis de palabras clave ("no sé", "tal vez", "depende").
 
 ### Dictado de Ideas
 
@@ -108,20 +94,13 @@ Camina y habla. Cuéntale tu visión a la IA como se la contarías a un socio to
 
 ### _El Ojo Que Todo Lo Ve._
 
-**🌐 NUEVO.** Tu competencia toma decisiones con datos del año pasado. Tú tomarás decisiones con datos de **HOY**.
+**🌐 ACTIVO.** Tu competencia toma decisiones con datos del año pasado. Tú tomarás decisiones con datos de **HOY**.
 
 Hemos conectado el cerebro de Gemini 2.5 al flujo de datos en tiempo real de **Google Search Grounding**.
 
 ### Caza-Tendencias Mensual
 
-Cada mes, VALID.AI genera un **Reporte Global de Tendencias** usando búsqueda web en vivo. Mientras duermes, la IA escanea:
-
-- Silicon Valley (California)
-- Shenzhen (China)
-- Londres (Reino Unido)
-- Bangalore (India)
-
-Buscando patrones emergentes en:
+Cada mes, VALID.AI genera un **Reporte Global de Tendencias** usando búsqueda web en vivo. El sistema escanea patrones emergentes en:
 
 - Inteligencia Artificial
 - SaaS & B2B
@@ -130,17 +109,17 @@ Buscando patrones emergentes en:
 
 El reporte incluye:
 
-- **Top 5+ Tendencias** del mes con impacto clasificado (High/Medium/Low).
-- **Sentimiento de Mercado** (Bullish/Bearish/Neutral).
+- **Top 5+ Tendencias** del mes con impacto clasificado (Alto/Medio/Bajo).
+- **Sentimiento de Mercado** (Alcista/Bajista/Neutral).
 - **Sectores Emergentes** que están explotando.
 
-Este reporte se genera **automáticamente el primer día de cada mes** y se almacena localmente. Cuando abres la app, una notificación te alerta si hay un nuevo reporte disponible.
+Este reporte se ofrece **automáticamente a inicios de cada mes**. Cuando abres la app, una notificación te alerta si hay un nuevo reporte disponible.
 
-### Fact-Checking Brutal
+### Validación con Datos Reales
 
-Si dices que tu mercado vale "10 billones de dólares", la IA busca el reporte financiero más reciente (McKinsey, Gartner, Statista) para **confirmarlo o corregirte**.
+Si dices que tu mercado vale "10 billones de dólares", la IA busca reportes financieros recientes (McKinsey, Gartner, Statista) para contextualizarlo.
 
-Si afirmas que "no hay competencia", la IA encuentra a tus rivales que nacieron **ayer**.
+Si afirmas que "no hay competencia", la IA puede identificar competidores relevantes.
 
 ---
 
@@ -150,7 +129,7 @@ Si afirmas que "no hay competencia", la IA encuentra a tus rivales que nacieron 
 
 No empieces desde cero. Empieza desde la **cima**.
 
-Nuestra **Galería de Plantillas** no es una lista. Es una colección curada de las mejores prácticas de Y Combinator y Lean Startup. Hemos destilado la sabiduría de **miles de startups exitosas** en plantillas listas para usar.
+Nuestra **Galería de Plantillas** es una colección curada de las mejores prácticas de metodologías Lean Startup y Mom Test. Hemos destilado la sabiduría de **metodologías probadas** en plantillas listas para usar.
 
 ### 📦 Plantillas Disponibles:
 
@@ -167,7 +146,7 @@ Antes de elegir, exploras. Mira cada pregunta, cada métrica, cada detalle en un
 
 ### Adaptación Instantánea
 
-Elige una plantilla y el sistema la muta para adaptarse a tu idea específica en **milisegundos**. Si tu SaaS es para doctores, las preguntas cambian para reflejar ese contexto.
+Elige una plantilla y el sistema la adapta para tu idea específica en **milisegundos**. Si tu SaaS es para doctores, las preguntas cambian para reflejar ese contexto.
 
 ---
 
@@ -175,26 +154,29 @@ Elige una plantilla y el sistema la muta para adaptarse a tu idea específica en
 
 ### _Tus Archivos, Ahora Tienen Cerebro._
 
-¿Tienes un PDF con tu idea? ¿Un Word con notas desordenadas? ¿Un TXT con un sueño?
+¿Tienes un archivo con tu idea? ¿Notas desordenadas? ¿Un TXT con un sueño?
 **Arrástralo a VALID.AI y observa la magia.**
 
 ### Drag & Drop Intuitivo
 
 Simplemente suelta tu archivo en el **vórtice de neón**. El sistema acepta:
 
-- PDF
-- DOCX (Word)
-- TXT
+- TXT (Texto plano)
+- MD (Markdown)
+- PDF (Próximamente)
+- DOCX (Próximamente)
 
-### Análisis Semántico Profundo
+### Análisis Semántico Profundo con IA
 
-No solo leemos texto. **Extraemos**:
+El motor de IA (Gemini 2.5) analiza tu documento y extrae:
 
-- **Entidades** (nombres de productos, mercados, tecnologías).
-- **Intenciones** (¿Es B2B o B2C? ¿Busca funding o validación?).
-- **Conceptos clave** (problema, solución, audiencia).
+- **Resumen Estratégico**: Descripción de 60 palabras estilo VC.
+- **Perfil de Cliente Ideal (ICP)**: Audiencia objetivo específica.
+- **Problema Central**: El dolor que resuelve tu producto.
+- **Solución Propuesta**: Lo que tu producto ofrece.
+- **Entidades Clave**: Nombres de productos, mercados, tecnologías mencionadas.
 
-### Generación Automática
+### Generación Automática de Preguntas
 
 En segundos, el sistema lee tu documento, lo entiende y genera un **set completo de preguntas de validación** basadas en TU contenido.
 
@@ -209,7 +191,7 @@ De un archivo estático a un proyecto de investigación vivo. **Sin escribir una
 Todos tenemos ideas. Pero una idea sin plan es solo un sueño.
 **Idea Studio** cambia eso para siempre.
 
-Imagina tener a un consultor de estrategia de clase mundial disponible 24/7. Eso es Idea Studio.
+Imagina tener a un consultor de estrategia disponible 24/7. Eso es Idea Studio.
 
 ### 1. Cuéntale tu Visión
 
@@ -218,10 +200,10 @@ _Ejemplo: "Quiero una app que mida el estrés con el reloj..."_
 
 ### 2. Diálogo Inteligente
 
-El sistema no solo "procesa". **Entiende**. Si tu idea es vaga, te hará las preguntas exactas que te harían en Silicon Valley para refinarla:
+El sistema no solo "procesa". **Entiende**. Si tu idea es vaga, te hará las preguntas exactas para refinarla:
 
 - "¿B2B o B2C?"
-- "¿Qué hardware usarían?"
+- "¿Qué dispositivo usarían?"
 - "¿Por qué ahora y no hace 5 años?"
 
 ### 3. El Plan Maestro
@@ -244,37 +226,37 @@ En instantes, generamos un **Plan de Investigación completo**:
 
 Hemos codificado las metodologías más rigurosas (_The Mom Test_, _Lean Startup_) en un algoritmo implacable. Cada respuesta que recibes pasa por nuestro **motor de análisis de 6 dimensiones**:
 
-### 🔥 1. Intensidad del Problema
+### 🔥 1. Intensidad del Problema (0-100)
 
 ¿Es un dolor real o imaginario? Lo medimos. ¿Es una "Vitamina" (agradable de tener) o una "Aspirina" (urgente)?
 
-### 💰 2. Disposición a Pagar
+### 💰 2. Disposición a Pagar (0-100)
 
 La única métrica que realmente importa. No escuchamos lo que dicen, analizamos si **sacarían la tarjeta**.
 
-### 🧩 3. Ajuste de Solución (Solution Fit)
+### 🧩 3. Ajuste de Solución (0-100)
 
 ¿Tu producto realmente resuelve el problema? ¿O es una solución buscando un problema?
 
-### ⚡ 4. Perfil Early Adopter
+### ⚡ 4. Perfil Early Adopter (0-100)
 
 ¿El entrevistado es un innovador o un rezagado? Los innovadores pagan, los rezagados esperan.
 
-### 📈 5. Tamaño de Mercado
+### 📊 5. Comportamiento Actual (0-100)
 
-¿Cuántas personas tienen este problema? ¿El mercado está creciendo o muriendo?
+¿Cómo resuelve el usuario este problema hoy? ¿Hay workarounds? ¿Cuánto gasta actualmente?
 
-### 🎯 6. Consistencia de Datos
+### 🎯 6. Puntos de Dolor (0-100)
 
-¿Las respuestas son coherentes o contradictorias? Detectamos mentiras piadosas.
+¿Cuáles son las frustraciones específicas? ¿Qué palabras usa para describir su problema?
 
 ### El Veredicto
 
 El resultado no es una opinión. Es un **Score de Viabilidad (0-100)**.
 
-- **\u003e 70 = GO** (Construir. Alta probabilidad de éxito).
+- **> 70 = GO** (Construir. Alta probabilidad de éxito).
 - **40-69 = PIVOT** (Problema real, solución incorrecta. Ajusta).
-- **\u003c 40 = NO GO** (No hay mercado. Descarta o cambia radicalmente).
+- **< 40 = NO GO** (No hay mercado. Descarta o cambia radicalmente).
 
 Un número. Toda la verdad.
 Si es verde, construyes. Si es rojo, pivotas. **Así de simple.**
@@ -283,22 +265,28 @@ Ahorra meses de vida y miles de dólares.
 
 ---
 
-## 09. CHAIN-OF-THOUGHT REASONING
+## 09. DEEP RESEARCH (ANÁLISIS PROFUNDO)
 
-### _No Solo Piensa. Razona._
+### _Due Diligence de Nivel Institucional._
 
-Bajo el capó, VALID.AI corre con **Gemini 2.5**, el modelo más avanzado de Google. Pero no lo usamos como un chatbot cualquiera.
+No te conformes con un Score. Ejecuta un análisis completo de tu proyecto.
 
-Hemos implementado una arquitectura de **"Cadena de Pensamiento" (Chain-of-Thought)**.
+### Requisitos:
 
-Cuando analizamos una entrevista, la IA no "resume". Sigue un protocolo estricto:
+- Mínimo 5 entrevistas completadas
+- Perfil de proyecto completo (Descripción detallada, Región, Tipo de producto)
 
-1.  **Analiza** el contexto del entrevistado (¿Es experto o novato? ¿B2B o B2C?).
-2.  **Busca** contradicciones ("Dice que pagaría $100/mes pero nunca ha pagado por software").
-3.  **Detecta** emociones ocultas en el texto ("Es urgente, pierdo dinero cada día" = ALTA INTENSIDAD).
-4.  **Calcula** la probabilidad de éxito basándose en patrones de miles de startups.
+### El Reporte Incluye:
 
-Es como tener a un equipo de psicólogos y analistas de datos trabajando en paralelo para ti, en **milisegundos**.
+| Sección                   | Descripción                                       |
+| ------------------------- | ------------------------------------------------- |
+| **Viability Score**       | Puntuación 0-100 con veredicto GO/PIVOT/NO-GO     |
+| **Market Verdict**        | Análisis ejecutivo del mercado                    |
+| **Early Adopter Profile** | Descripción detallada del cliente ideal           |
+| **SWOT Analysis**         | Fortalezas, Debilidades, Oportunidades, Amenazas  |
+| **Benchmark Competitivo** | Tabla comparativa de competidores                 |
+| **Risk Assessment**       | Evaluación de riesgos con niveles ALTO/MEDIO/BAJO |
+| **Strategic Advice**      | Recomendaciones accionables                       |
 
 ---
 
@@ -327,129 +315,88 @@ El sistema analiza tus respuestas en tiempo real y te muestra el diagnóstico:
 - 🟡 **SEÑAL MIXTA** — Hay interés, pero la disposición a pagar es baja.
 - 🔴 **SIN TRACCIÓN** — No hay señales de compra.
 
-Interacciones fluidas. Datos precisos.
+### Widgets Disponibles:
+
+- `intensity_slider` — Escala visual de dolor
+- `money_range` — Selector de rangos financieros
+- `frequency` — Selector de frecuencia temporal
+- `nps` — Net Promoter Score (0-10)
+- `boolean` — Sí/No con animación
 
 ---
 
-## 11. HOLO-VERIFY PROTOCOL™ **[BETA]**
+## 11. INVESTOR READINESS SCORE [BETA]
 
 ### _La Diferencia Entre "Creer" y "Saber"._
 
-**NUEVO.** Cualquiera puede hacer un PowerPoint. Solo VALID.AI te da una **credencial forense**.
+Un algoritmo que te audita con el rigor de un inversor de Serie A. Tres pilares innegociables:
 
-### YC Readiness Score™
+1. **Volumen** — ¿Tienes suficiente data? (Mínimo 10 entrevistas).
+2. **Consistencia** — ¿El mercado está de acuerdo? (Sin contradicciones masivas).
+3. **Performance** — ¿Hay señales de compra reales? (Disposición a pagar > 0).
 
-Un algoritmo que te audita con la severidad de un Partner de Y Combinator. Tres pilares innegociables:
-
-1.  **Volumen** — ¿Tienes suficiente data? (Mínimo 10 entrevistas).
-2.  **Consistencia** — ¿El mercado está de acuerdo? (No contradicciones masivas).
-3.  **Performance** — ¿Hay señales de compra reales? (Disposición a pagar \u003e 0).
-
-Si tu Score es **\u003e 70**, no solo tienes una buena idea. **Tienes un negocio.**
-
-### Certificado Vivo
-
-Si pasas la auditoría, desbloqueas el **Validation Certificate**. No es un PDF estático. Es un **enlace vivo, encriptado y cinemático** (`valid.ai/verify/...`).
-
-- Envíalo a inversores.
-- Demuestra tracción real.
-- Es la diferencia entre decir _"créeme"_ y decir **_"mira los datos"_**.
-
-El enlace abre una página pública con:
-
-- **Animación de seguridad** (Scanner holográfico).
-- **Métricas en vivo** (Score, nombre del proyecto, fecha).
-- **Firma criptográfica** (Verificación de autenticidad).
+Si tu Score es **> 70**, no solo tienes una buena idea. **Tienes un negocio validado.**
 
 ---
 
-## 12. SMART BUDGETS
+## 12. BUSINESS LAB
 
-### _Inteligencia de Fortune 500. Precio de Bootstrap._
+### _Tu Laboratorio de Reportes Estratégicos._
 
-**NUEVO.** Sabemos que cada dólar cuenta en la fase pre-seed. Hemos diseñado un sistema de **Gestión de Recursos Líquida**.
+Genera reportes profesionales listos para inversores con un solo clic.
 
-### Modo Eco
+### Módulos Disponibles:
 
-Análisis estructurales y de lógica **sin consumo de créditos pesados**. Validaciones rápidas usando reglas predefinidas y patrones.
+- Executive Summary
+- Problem & Solution
+- Market Analysis
+- Competition
+- Validation Results
+- Customer Insights
+- Business Model
+- Go-to-Market Strategy
+- Financial Projections
+- Risk Assessment
+- Roadmap
+- Appendix
 
-### Deep Research on Demand
+### Formato de Salida:
 
-Activa la **potencia nuclear** de búsqueda web y análisis profundo solo cuando tú lo ordenas. Tú controlas cuándo gastar.
-
-### Eficiencia de Tokens
-
-Nuestro orquestador optimiza cada prompt para darte el **máximo insight con el mínimo consumo**. Usamos técnicas de:
-
-- **Caché inteligente** — Si ya preguntaste algo, la respuesta es instantánea y gratis.
-- **Prompts comprimidos** — Reducimos tokens sin perder precisión.
-
-Tú controlas cada peso. Nosotros maximizamos cada insight.
-
----
-
-## 13. THE SHADOW BOARD (VALIDADORES CONFIDENCIALES)
-
-### _Probado por Maestros. Revelación Inminente._
-
-**MUY PRONTO.** Estamos llevando VALID.AI a la **prueba de fuego definitiva**.
-
-Dos mentes brillantes del más alto nivel están auditando cada línea de nuestro algoritmo. Su misión: **validar que el sistema cumple lo que promete en materia profesional**.
-
-No podemos revelar quiénes son (aún). Pero cuando lo hagamos, entenderás por qué VALID.AI no es solo otra herramienta de IA.
-
-### 🕵️‍♂️ El Arquitecto de Unicornios
-
-**(Identidad Clasificada — Revelación Muy Pronto)**
-
-- Perfil de validación en proceso.
-- Misión: Someter el sistema a estándares de inversión de clase mundial.
-- **Estado:** En evaluación activa.
-
-### 👩‍💻 La Profeta de Datos
-
-**(Identidad Clasificada — Revelación Muy Pronto)**
-
-- Perfil de validación en proceso.
-- Misión: Auditar la precisión científica de nuestros algoritmos de predicción.
-- **Estado:** En evaluación activa.
-
-> **La revelación de sus identidades y veredictos será un evento histórico para VALID.AI.** > _Mantente atento._
+- HTML Premium (Listo para imprimir o compartir)
+- Vista de Impresión optimizada
 
 ---
 
-## 14. INVERSIÓN (PRICING)
+## 13. SMART CHAT
 
-### _Democratizando el Acceso a la Élite._
+### _Tu Co-Piloto de Validación._
 
-¿Cuánto vale saber si vas a perder 6 meses de tu vida o si vas a construir el próximo unicornio?
+Un asistente de IA contextual que conoce TODO sobre tu proyecto.
 
-Las consultoras cobran **millones**. McKinsey te cobraría **$50,000 USD** por un reporte de validación de mercado y tardaría **6 semanas**.
+### Capacidades:
 
-Nosotros te lo damos en **segundos**.
+- **Respuestas Contextuales**: Conoce tus entrevistas, métricas y análisis.
+- **Análisis Cuantitativo**: Genera tablas Markdown con métricas avanzadas.
+- **Sugerencias Estratégicas**: Recomienda próximos pasos basados en datos.
+- **Memoria de Conversación**: Recuerda el contexto de tu sesión.
 
-### PLAN PRO (Early Access)
+---
 
-Ideal para Fundadores, Product Managers y Visionarios.
+## 14. EXPORT & SHARING
 
-✅ **Auditorías Ilimitadas**
-✅ **Deep Research (Web Access)**
-✅ **Voice Command & Hybrid Interviews**
-✅ **Certificación Holo-Verify™**
-✅ **Exportación Whitepaper**
-✅ **Reportes Mensuales de Tendencias Globales**
+### _Tus Datos, Tu Control._
 
-# $19 USD / mes
+Exporta tu trabajo en múltiples formatos:
 
-_(Aprox. $75,000 COP)_
-
-> **Menos de lo que cuesta una cena.** > **Más ROI que un MBA.**
+- **JSON** — Datos estructurados para integración.
+- **HTML** — Reportes visuales premium.
+- **Print-Ready** — Optimizado para PDF.
 
 ---
 
 ## CONCLUSIÓN
 
-**VALID.AI** es más que software. Es la **ventaja injusta** que estabas esperando.
+**VALID.AI** es más que software. Es la **ventaja competitiva** que estabas esperando.
 
 Es la diferencia entre:
 
@@ -465,4 +412,7 @@ Es la diferencia entre:
 **VALID.AI**
 _Intelligence. Verified._
 
-[Comenzar Validación](#) | [Ver Reporte de Tendencias](#) | [Solicitar Demo](#)
+---
+
+> **Nota:** Este producto está en fase Beta. Algunas funcionalidades están en desarrollo activo.
+> Todas las capacidades de IA son potenciadas por Google Gemini 2.5 (Experimental).
