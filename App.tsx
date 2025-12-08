@@ -17,7 +17,7 @@ import { TemplateGallery } from './components/TemplateGallery';
 import { templateToProject } from './constants/templates';
 import { SmartQuestionWidget } from './components/SmartQuestionWidget';
 import { LandingPage } from './components/LandingPage';
-import { BusinessReportGenerator } from './components/BusinessReportGenerator';
+// BusinessReportGenerator is now lazy loaded below
 import { ExportButton } from './components/ExportButton';
 import { DynamicNotification, NotificationPayload } from './components/DynamicNotification';
 import { VoiceInput } from './components/VoiceInput';
@@ -43,6 +43,7 @@ const QuestionAnalysis = React.lazy(() => import('./components/QuestionAnalysis'
 const SmartChat = React.lazy(() => import('./components/SmartChat').then(module => ({ default: module.SmartChat })));
 const DocumentUploader = React.lazy(() => import('./components/DocumentUploader').then(module => ({ default: module.DocumentUploader })));
 const IdeaStudio = React.lazy(() => import('./components/IdeaStudio').then(module => ({ default: module.IdeaStudio })));
+const BusinessReportGenerator = React.lazy(() => import('./components/BusinessReportGenerator').then(module => ({ default: module.BusinessReportGenerator })));
 
 // --- LOADING COMPONENT ---
 const LoadingSpinner = () => (
