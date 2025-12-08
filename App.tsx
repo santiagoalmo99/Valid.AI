@@ -26,6 +26,7 @@ import { TrendService, TrendReport } from './services/trendService';
 import { CertificateModal } from './components/CertificateModal';
 import { ConfirmationModal } from './components/ConfirmationModal';
 import { PublicVerificationPage } from './components/PublicVerificationPage';
+import { GlobalIntelligenceBanner, GlobalIntelligenceModal } from './components/GlobalIntelligenceModal';
 import { calculateYCReadiness } from './services/scoringService';
 import { EnhancedAnalysisResult } from './services/aiService';
 
@@ -2242,6 +2243,8 @@ function AppContent() {
   const [showCertModal, setShowCertModal] = useState(false); 
   const [interviews, setInterviews] = useState<Interview[]>([]);
   
+
+  
   // GLOBAL CONFIRMATION STATE
   const [confirmState, setConfirmState] = useState<ConfirmationState>({
     isOpen: false,
@@ -2312,6 +2315,7 @@ function AppContent() {
   const [showTrendNotification, setShowTrendNotification] = useState(false);
   const [activeTrendReport, setActiveTrendReport] = useState<TrendReport | null>(null);
   const [isGeneratingTrends, setIsGeneratingTrends] = useState(false);
+  const [showGlobalIntelModal, setShowGlobalIntelModal] = useState(false);
 
   // Trend handler
   const handleGenerateTrends = async () => {
@@ -2468,6 +2472,17 @@ function AppContent() {
 
     try {
        await FirebaseService.createProject(user.uid, newProject);
+       
+       // CRITICAL FIX: Force Save to LocalStorage immediately (Dual Write)
+       // This ensures persistence even if Firebase is slow/flaky or offline
+       try {
+         const current = JSON.parse(localStorage.getItem('validai_projects') || '[]');
+         // Avoid duplicates if logic elsewhere added it
+         if (!current.find((p: any) => p.id === newProject.id)) {
+            localStorage.setItem('validai_projects', JSON.stringify([...current, newProject]));
+         }
+       } catch (storageErr) { console.error("LS Save Error", storageErr); }
+
        setProjects(prev => [...prev, newProject]);
        setActiveProject(newProject);
        setView('project');
@@ -2512,6 +2527,16 @@ function AppContent() {
 
      try {
         await FirebaseService.updateProject(updated);
+        
+        // CRITICAL FIX: Update LocalStorage immediately
+        try {
+           const current = JSON.parse(localStorage.getItem('validai_projects') || '[]');
+           const next = current.map((p: any) => p.id === updated.id ? updated : p);
+           // If somehow not in LS, add it
+           if (!current.find((p: any) => p.id === updated.id)) next.push(updated);
+           localStorage.setItem('validai_projects', JSON.stringify(next));
+        } catch (e) { console.error("LS Update Error", e); }
+
         setActiveProject(updated);
      } catch (e) {
         console.error("Failed to update project:", e);
@@ -2544,6 +2569,23 @@ function AppContent() {
 
       <div className="relative z-10">
          {view === 'hub' && (
+            <SessionHub 
+               projects={projects.length > 0 ? projects : [DEMO_PROJECT]} 
+               onSelect={(p: ProjectTemplate) => { setActiveProject(p); setView('project'); }} 
+               onCreate={() => setShowCreate(true)}
+                onDelete={handleDeleteProject}
+               onUpdate={handleUpdateProject}
+               lang={lang}
+               user={user}
+               logout={logout}
+               toggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+               theme={theme}
+               isDemo={projects.length === 0}
+            />
+         )}
+         
+         {/* FIX: If view is 'project' but no activeProject, show hub instead (prevents ghost screen) */}
+         {view === 'project' && !activeProject && (
             <SessionHub 
                projects={projects.length > 0 ? projects : [DEMO_PROJECT]} 
                onSelect={(p: ProjectTemplate) => { setActiveProject(p); setView('project'); }} 
@@ -2594,116 +2636,29 @@ function AppContent() {
         v2.2 (NUCLEAR FIX)
       </div>
 
-      {/* TREND NOTIFICATION */}
+      {/* GLOBAL INTELLIGENCE BANNER */}
       <AnimatePresence>
-      {showTrendNotification && (
-          <motion.div 
-            initial={{ y: 50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 50, opacity: 0 }}
-            className="fixed bottom-6 left-6 z-50 max-w-sm w-full"
-          >
-            <div className="bg-slate-900/90 backdrop-blur-xl border border-neon/50 p-6 rounded-2xl shadow-[0_0_30px_rgba(0,255,148,0.2)] relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-neon/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
-                
-                <div className="flex items-start gap-4 relative z-10">
-                    <div className="w-12 h-12 rounded-xl bg-neon/20 flex items-center justify-center text-neon border border-neon/30 shrink-0">
-                        <Globe size={24} className="animate-pulse-slow" />
-                    </div>
-                    <div>
-                        <h3 className="text-white font-bold text-lg leading-tight mb-1">Nueva Inteligencia Global</h3>
-                        <p className="text-slate-400 text-xs mb-3">Reporte de Tendencias de Mercado disponible para este mes.</p>
-                        
-                        <button 
-                            onClick={handleGenerateTrends}
-                            disabled={isGeneratingTrends}
-                            className="bg-neon text-black text-xs font-bold px-4 py-2 rounded-lg hover:brightness-110 transition-all flex items-center gap-2 w-full justify-center shadow-lg"
-                        >
-                            {isGeneratingTrends ? (
-                                <><RefreshCw size={12} className="animate-spin"/> Generando...</>
-                            ) : (
-                                <><Sparkles size={12}/> Generar Reporte</>
-                            )}
-                        </button>
-                        <button onClick={() => setShowTrendNotification(false)} className="absolute top-0 right-0 p-1 text-slate-500 hover:text-white">
-                            <X size={14}/>
-                        </button>
-                    </div>
-                </div>
-            </div>
-          </motion.div>
-      )}
+        {showTrendNotification && (
+          <GlobalIntelligenceBanner
+            onOpen={() => { setShowTrendNotification(false); setShowGlobalIntelModal(true); }}
+            hasReport={TrendService.hasReportForCurrentMonth()}
+          />
+        )}
       </AnimatePresence>
-    
-      {/* TREND REPORT MODAL */}
-      {activeTrendReport && (
-          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-              <div className="bg-slate-900 border border-white/10 w-full max-w-4xl max-h-[90vh] rounded-3xl overflow-hidden flex flex-col shadow-2xl relative">
-                   {/* Background FX */}
-                   <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 pointer-events-none"></div>
 
-                  <div className="p-6 border-b border-white/10 flex justify-between items-center bg-black/40 relative z-10">
-                      <div>
-                          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                              <Globe className="text-neon" /> {activeTrendReport.title}
-                          </h2>
-                          <p className="text-slate-400 text-xs mt-1">Generado vía Google Search Grounding • {new Date(activeTrendReport.generatedAt).toLocaleDateString()}</p>
-                      </div>
-                      <button onClick={() => setActiveTrendReport(null)} className="p-2 hover:bg-white/10 rounded-full text-white transition-colors">
-                          <X size={24} />
-                      </button>
-                  </div>
-                  
-                  <div className="p-8 overflow-y-auto space-y-8 custom-scrollbar bg-black/20 relative z-10">
-                      {/* Header Stats */}
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          <div className="bg-white/5 p-4 rounded-xl border border-white/5 hover:border-white/10 transition-colors">
-                              <div className="text-slate-400 text-xs uppercase tracking-widest mb-1">Sentimiento de Mercado</div>
-                              <div className={`text-2xl font-bold ${
-                                  activeTrendReport.marketSentiment === 'Bullish' ? 'text-emerald-400' : 
-                                  activeTrendReport.marketSentiment === 'Bearish' ? 'text-red-400' : 'text-yellow-400'
-                              }`}>
-                                  {activeTrendReport.marketSentiment}
-                              </div>
-                          </div>
-                          <div className="bg-white/5 p-4 rounded-xl border border-white/5 col-span-2 hover:border-white/10 transition-colors">
-                              <div className="text-slate-400 text-xs uppercase tracking-widest mb-1">Sectores Emergentes</div>
-                              <div className="flex gap-2 flex-wrap">
-                                  {activeTrendReport.emergingSectors.map((s, i) => (
-                                      <span key={i} className="bg-neon/10 text-neon px-3 py-1 rounded-lg text-xs font-bold border border-neon/20">
-                                          {s}
-                                      </span>
-                                  ))}
-                              </div>
-                          </div>
-                      </div>
+      {/* GLOBAL INTELLIGENCE MODAL */}
+      <GlobalIntelligenceModal
+        isOpen={showGlobalIntelModal}
+        onClose={() => setShowGlobalIntelModal(false)}
+        onGenerate={async () => {
+          await handleGenerateTrends();
+        }}
+        isGenerating={isGeneratingTrends}
+        report={activeTrendReport}
+        hasReportThisMonth={TrendService.hasReportForCurrentMonth()}
+      />
     
-                      {/* Trends List */}
-                      <div className="space-y-4">
-                          <h3 className="text-white font-bold text-lg flex items-center gap-2 border-b border-white/10 pb-4">
-                              <TrendingUp className="text-purple-400"/> Top Tendencias Identificadas
-                          </h3>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              {activeTrendReport.trends.map((t, i) => (
-                                  <div key={i} className="bg-white/5 hover:bg-white/10 transition-colors p-6 rounded-2xl border-l-4 border-l-neon border-white/5 group relative overflow-hidden">
-                                      <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity"><Zap size={64}/></div>
-                                      <div className="flex justify-between items-start mb-3 relative z-10">
-                                          <span className="text-xs font-bold bg-white/10 px-2 py-1 rounded-md text-slate-300">{t.category}</span>
-                                          <span className={`text-[10px] uppercase font-bold px-2 py-1 rounded-md ${
-                                              t.impact === 'High' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 
-                                              t.impact === 'Medium' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-slate-500/20 text-slate-400'
-                                          }`}>{t.impact} Impact</span>
-                                      </div>
-                                      <h4 className="text-white font-bold mb-2 text-lg group-hover:text-neon transition-colors relative z-10">{t.trend}</h4>
-                                      <p className="text-slate-400 text-sm leading-relaxed relative z-10">{t.description}</p>
-                                  </div>
-                              ))}
-                          </div>
-                      </div>
-                  </div>
-              </div>
-          </div>
-      )}
+      {/* OLD MODAL REMOVED - REPLACED BY GlobalIntelligenceModal */}
 
       {/* CERTIFICATE MODAL */}
       {activeProject && (
