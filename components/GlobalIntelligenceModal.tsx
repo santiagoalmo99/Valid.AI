@@ -19,55 +19,53 @@ export const GlobalIntelligenceBanner: React.FC<{
   onOpen: () => void;
   hasReport: boolean;
 }> = ({ onOpen, hasReport }) => {
+  const [visible, setVisible] = useState(true);
   const currentMonth = new Date().toLocaleString('es-ES', { month: 'long', year: 'numeric' });
 
+  // Auto-dismiss after 10 seconds
+  React.useEffect(() => {
+    const timer = setTimeout(() => setVisible(false), 10000);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
-    <motion.div
-      initial={{ y: 100, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      exit={{ y: 100, opacity: 0 }}
-      transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50"
-    >
-      <button
-        onClick={onOpen}
-        className="group relative bg-slate-900/95 backdrop-blur-2xl border border-neon/30 
-          px-6 py-4 rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.5),0_0_80px_rgba(0,255,148,0.15)]
-          hover:shadow-[0_20px_80px_rgba(0,0,0,0.6),0_0_100px_rgba(0,255,148,0.25)]
-          hover:border-neon/50 transition-all duration-500 flex items-center gap-4
-          hover:scale-[1.02] active:scale-[0.98]"
-      >
-        {/* Animated Globe Icon */}
-        <div className="relative">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-neon/20 to-emerald-500/10 
-            flex items-center justify-center border border-neon/30 group-hover:border-neon/50 transition-all">
-            <Globe size={28} className="text-neon group-hover:animate-pulse" />
-          </div>
-          {/* Pulse indicator */}
-          <div className="absolute -top-1 -right-1 w-4 h-4 bg-neon rounded-full animate-ping opacity-75" />
-          <div className="absolute -top-1 -right-1 w-4 h-4 bg-neon rounded-full" />
-        </div>
+    <AnimatePresence>
+      {visible && (
+        <motion.div
+          initial={{ y: 100, opacity: 0, scale: 0.9 }}
+          animate={{ y: 0, opacity: 1, scale: 1 }}
+          exit={{ y: 100, opacity: 0, scale: 0.9 }}
+          transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+          className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[90] flex items-center justify-center pointer-events-none"
+        >
+          <button
+            onClick={onOpen}
+            className="pointer-events-auto bg-black/80 backdrop-blur-xl border border-neon/30 
+              px-6 py-3 rounded-full shadow-[0_10px_40px_rgba(0,0,0,0.5),0_0_30px_rgba(0,255,148,0.2)]
+              hover:shadow-[0_20px_60px_rgba(0,0,0,0.6),0_0_50px_rgba(0,255,148,0.3)]
+              hover:border-neon/60 transition-all duration-300 flex items-center gap-4 group"
+          >
+            <div className="relative">
+               <Globe className="text-neon animate-pulse-slow" size={20} />
+               <div className="absolute top-0 right-0 w-2 h-2 bg-neon rounded-full animate-ping" />
+            </div>
+            
+            <div className="flex flex-col items-start">
+               <span className="text-[10px] text-neon font-bold uppercase tracking-widest leading-none mb-0.5">
+                 INTELIGENCIA GLOBAL
+               </span>
+               <span className="text-sm font-bold text-white leading-none group-hover:text-neon transition-colors">
+                 Reporte de {currentMonth} Disponible
+               </span>
+            </div>
 
-        <div className="text-left">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-neon text-[10px] font-bold uppercase tracking-widest">
-              Análisis Mensual
-            </span>
-            <span className="bg-neon/20 text-neon text-[9px] px-2 py-0.5 rounded-full font-bold">
-              {currentMonth.toUpperCase()}
-            </span>
-          </div>
-          <h3 className="text-white font-bold text-lg leading-tight">
-            Global Intelligence Report
-          </h3>
-          <p className="text-slate-400 text-xs mt-0.5">
-            {hasReport ? 'Tu reporte está listo. Click para ver.' : 'Tendencias globales con datos en tiempo real'}
-          </p>
-        </div>
-
-        <ChevronRight size={20} className="text-slate-500 group-hover:text-neon group-hover:translate-x-1 transition-all ml-2" />
-      </button>
-    </motion.div>
+            <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-neon group-hover:text-black transition-colors ml-2">
+               <ChevronRight size={16} />
+            </div>
+          </button>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 

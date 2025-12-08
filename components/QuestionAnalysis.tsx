@@ -157,6 +157,7 @@ export const QuestionAnalysis = ({ project, interviews, lang = 'es' }: QuestionA
               label={t.avgScore} 
               value={`${globalStats.avgScore}%`} 
               sub={t.marketViability}
+              description="Puntaje compuesto (0-100) basado en análisis de sentimiento, urgencia y frecuencia de problemas detectados."
               icon={<TrendingUp size={20} className="text-neon" />}
               chart={<div className="w-full h-1 my-2 bg-slate-800 rounded-full overflow-hidden"><div className="h-full bg-neon" style={{width: `${globalStats.avgScore}%`}}></div></div>}
             />
@@ -164,6 +165,7 @@ export const QuestionAnalysis = ({ project, interviews, lang = 'es' }: QuestionA
               label={t.dataVolume} 
               value={(globalStats.totalWords / 1000).toFixed(1) + 'k'} 
               sub={t.wordsAnalyzed}
+              description="Cantidad total de palabras transcritas y procesadas por nuestros modelos de IA."
               icon={<MessageSquare size={20} className="text-blue-400" />}
               chart={<Sparkline color="#60a5fa" />}
             />
@@ -171,6 +173,7 @@ export const QuestionAnalysis = ({ project, interviews, lang = 'es' }: QuestionA
               label={t.sentiment} 
               value={globalStats.sentiment} 
               sub={t.overallTone}
+              description="Tono emocional predominante (Crítico, Neutral, Positivo) extraído del lenguaje natural."
               icon={<Sparkles size={20} className={globalStats.sentiment === t.positive ? 'text-green-400' : 'text-yellow-400'} />}
               chart={<Sparkline color={globalStats.sentiment === t.positive ? '#4ade80' : '#facc15'} />}
             />
@@ -191,8 +194,14 @@ export const QuestionAnalysis = ({ project, interviews, lang = 'es' }: QuestionA
 
 // --- SUB COMPONENTS ---
 
-const MetricCard = ({ label, value, sub, icon, chart }: any) => (
-  <div className={`${GLASS_PANEL} p-6 flex flex-col justify-between h-32 hover:bg-white/[0.02]`}>
+const MetricCard = ({ label, value, sub, icon, chart, description }: any) => (
+  <div className={`${GLASS_PANEL} p-6 flex flex-col justify-between h-32 hover:bg-white/[0.02] relative group overflow-visible`}>
+     {description && (
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 bg-black/95 backdrop-blur-xl text-slate-200 text-[10px] p-3 rounded-xl border border-white/20 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-[50] shadow-xl text-center leading-relaxed">
+           {description}
+           <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-black/95"></div>
+        </div>
+     )}
      <div className="flex justify-between items-start">
         <div>
            <p className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">{label}</p>

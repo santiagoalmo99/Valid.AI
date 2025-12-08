@@ -2082,16 +2082,16 @@ const DashboardView = ({ project, interviews, t }: any) => {
 
          {/* Quick Insights / AI Placeholder */}
          <div className={`${GLASS_PANEL} p-8 rounded-3xl col-span-1 flex flex-col`}>
-             <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2"><Sparkles className="text-neon" /> AI Quick Insights</h3>
+             <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2"><Sparkles className="text-neon" /> Insights Rápidos IA</h3>
              {totalInterviews > 0 ? (
                 <div className="space-y-4 overflow-y-auto pr-2 custom-scrollbar">
                    <div className="bg-white/5 p-4 rounded-xl border border-white/5">
-                      <p className="text-xs text-slate-400 mb-1 uppercase font-bold">Trend</p>
-                      <p className="text-sm text-slate-200">Users show high interest in the solution but price sensitivity is a major blocker.</p>
+                      <p className="text-xs text-slate-400 mb-1 uppercase font-bold">Tendencia</p>
+                      <p className="text-sm text-slate-200">Alto interés en la solución, aunque la sensibilidad al precio es una barrera clave.</p>
                    </div>
                    <div className="bg-white/5 p-4 rounded-xl border border-white/5">
-                      <p className="text-xs text-slate-400 mb-1 uppercase font-bold">Opportunity</p>
-                      <p className="text-sm text-slate-200">Consider a "Freemium" model to capture the early adopters identified.</p>
+                      <p className="text-xs text-slate-400 mb-1 uppercase font-bold">Oportunidad</p>
+                      <p className="text-sm text-slate-200">Considera un modelo "Freemium" para capturar a los early adopters identificados.</p>
                    </div>
                 </div>
              ) : (
@@ -2124,13 +2124,14 @@ const InterviewsView = ({ interviews, onDelete, onDeleteAll, onSelect, onRetry }
             onClick={() => {
                // Always get the freshest version from state
                const freshInterview = interviews.find(interview => interview.id === i.id);
-               if (freshInterview) {
+               if (freshInterview && onSelect) {
                   onSelect(freshInterview);
                }
             }}
             className={`${GLASS_PANEL} p-6 rounded-2xl flex flex-col gap-4 hover:border-neon/30 transition-all group relative cursor-pointer hover:bg-white/5`}
          >
-            <div className="absolute top-6 right-6 flex gap-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+            {/* ACTION BUTTONS: Absolute Top Right, ensure higher Z-index and no overlap */}
+            <div className="absolute top-4 right-4 flex gap-2 z-30 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                <button 
                   onClick={async (e) => { 
                      e.stopPropagation(); 
@@ -2138,7 +2139,7 @@ const InterviewsView = ({ interviews, onDelete, onDeleteAll, onSelect, onRetry }
                         const btn = e.currentTarget;
                         btn.classList.add('animate-spin');
                         try {
-                           await onRetry(i);
+                           if(onRetry) await onRetry(i);
                            alert("✅ Análisis actualizado correctamente");
                         } catch(err) {
                            // Error handled in parent
@@ -2147,21 +2148,22 @@ const InterviewsView = ({ interviews, onDelete, onDeleteAll, onSelect, onRetry }
                         }
                      }
                   }}
-                  className="text-slate-600 hover:text-neon transition-colors"
+                  className="p-2 bg-black/60 hover:bg-neon hover:text-black text-slate-400 rounded-lg backdrop-blur-md border border-white/10 transition-all shadow-lg"
                   title="Re-analizar con IA"
                >
-                  <RefreshCw size={18} />
+                  <RefreshCw size={16} />
                </button>
                <button 
                   onClick={(e) => { e.stopPropagation(); onDelete(i.id); }}
-                  className="text-slate-600 hover:text-red-500 transition-colors"
+                  className="p-2 bg-black/60 hover:bg-red-500 hover:text-white text-slate-400 rounded-lg backdrop-blur-md border border-white/10 transition-all shadow-lg"
                   title="Eliminar entrevista"
                >
-                  <Trash2 size={18} />
+                  <Trash2 size={16} />
                </button>
             </div>
-            <div className="flex justify-between items-start pr-8">
-               <div>
+
+            <div className="flex justify-between items-start pt-2">
+               <div className="pr-4">
                   <h4 className="font-bold text-white text-lg flex items-center gap-2">
                      {i.respondentName}
                      {i.respondentRole && <span className="text-[10px] bg-white/10 px-2 py-0.5 rounded-full text-neon uppercase tracking-wider font-bold">{i.respondentRole}</span>}
@@ -2180,7 +2182,9 @@ const InterviewsView = ({ interviews, onDelete, onDeleteAll, onSelect, onRetry }
                      {i.respondentInstagram && <p className="flex items-center gap-2 hover:text-white transition-colors"><span className="text-neon text-[10px] font-bold">IG</span> {i.respondentInstagram}</p>}
                   </div>
                </div>
-               <div className="text-right flex flex-col items-end">
+
+               {/* VIABILITY SCORE: Moved down to avoid button overlap */}
+               <div className="text-right flex flex-col items-end mt-8">
                   <div className="text-3xl font-bold text-neon drop-shadow-[0_0_10px_rgba(58,255,151,0.5)]">{i.totalScore}</div>
                   <p className="text-[10px] text-slate-500 uppercase font-bold">Viability Score</p>
                </div>
@@ -2363,7 +2367,9 @@ function AppContent() {
     const onboardingDone = localStorage.getItem('onboarding_completed') === 'true';
     if (!savedDemo && !onboardingDone) {
        setShowOnboarding(true);
-    } 
+    } else {
+       setShowOnboarding(false); // Explicitly ensure false if done
+    }
   }, []);
 
   // FIRESTORE SUBSCRIPTION with localStorage fallback
