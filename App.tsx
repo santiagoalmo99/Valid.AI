@@ -2251,6 +2251,11 @@ function AppContent() {
   });
   const [activeProject, setActiveProject] = useState<ProjectTemplate | null>(null);
   
+  // RESTORE PROJECT STATE (Fix ReferenceError)
+  const [pendingProjectId, setPendingProjectId] = useState<string | null>(
+    () => localStorage.getItem('validai_active_project_id')
+  );
+  
   // Interviews Hook (Dependent on activeProject)
   const { interviews, loading: loadingInterviews } = useInterviews(activeProject?.id);
 
