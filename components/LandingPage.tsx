@@ -1,4 +1,4 @@
-// VALID.AI Landing Page - Enhanced with Cascade Intelligence
+// VALID.AI Landing Page - Enhanced with Cascade Intelligence & Smart Widgets
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform, useSpring, AnimatePresence } from 'framer-motion';
 import { 
@@ -206,10 +206,11 @@ const ValidationSimulator = () => {
         <p className="text-white/50 text-sm">Mueve los deslizadores para simular el análisis.</p>
       </div>
 
-      <div className="space-y-5">
+        <IntensityGauge value={intensity} onChange={setIntensity} />
+        <FinancialSelector value={wtp} onChange={setWtp} />
+        
+        {/* Remaining Standard Sliders */}
         {[
-          { label: "Intensidad del Dolor", val: intensity, set: setIntensity, icon: Activity },
-          { label: "Disposición a Pagar", val: wtp, set: setWtp, icon: DollarSign },
           { label: "Ajuste de Solución", val: fit, set: setFit, icon: Target },
           { label: "Perfil Early Adopter", val: earlyAdopter, set: setEarlyAdopter, icon: Zap }
         ].map((item, i) => (
@@ -239,6 +240,69 @@ const ValidationSimulator = () => {
         </div>
       </div>
     </GlassCard>
+  );
+};
+
+// --- CUSTOM WIDGETS ---
+
+const IntensityGauge = ({ value, onChange }: { value: number, onChange: (val: number) => void }) => {
+  return (
+    <div className="space-y-2 mb-6">
+       <div className="flex justify-between text-sm font-medium">
+          <span className="text-white/80 flex items-center gap-2"><Activity size={14} className="text-neon"/> Intensidad del Dolor</span>
+          <span className={`font-mono font-bold ${value > 7 ? 'text-red-500' : value > 4 ? 'text-yellow-400' : 'text-emerald-400'}`}>
+             {value > 7 ? 'CRÍTICO' : value > 4 ? 'MODERADO' : 'LEVE'} ({value}/10)
+          </span>
+       </div>
+       <div className="relative h-6 bg-white/5 rounded-full p-1 cursor-pointer group">
+          <input 
+             type="range" min="0" max="10" step="1"
+             value={value} onChange={(e) => onChange(Number(e.target.value))}
+             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+          />
+          <div className="w-full h-full rounded-full bg-gradient-to-r from-emerald-500 via-yellow-400 to-red-600 opacity-30"></div>
+          <motion.div 
+             className="absolute top-0 bottom-0 w-1 bg-white shadow-[0_0_10px_rgba(255,255,255,0.8)] z-0 rounded-full"
+             animate={{ left: `${value * 10}%` }}
+             transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          />
+       </div>
+    </div>
+  );
+};
+
+const FinancialSelector = ({ value, onChange }: { value: number, onChange: (val: number) => void }) => {
+  // Mapping simplistic 0-10 range to money values for visual logic only, 
+  // keeping the internal state consistent with the simulator logic standard (0-10)
+  const options = [
+    { label: "$0", score: 0 },
+    { label: "$10", score: 3 },
+    { label: "$50", score: 5 },
+    { label: "$100", score: 7 },
+    { label: "$500+", score: 10 }
+  ];
+
+  return (
+    <div className="space-y-2 mb-6">
+       <div className="flex justify-between text-sm font-medium">
+          <span className="text-white/80 flex items-center gap-2"><DollarSign size={14} className="text-neon"/> Disposición a Pagar</span>
+       </div>
+       <div className="flex gap-2 p-1 bg-white/5 rounded-xl border border-white/10">
+          {options.map((opt) => (
+             <button
+                key={opt.label}
+                onClick={() => onChange(opt.score)}
+                className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${
+                   value >= opt.score - 1 && value <= opt.score + 1 // Approximate matching for the simplified 5-step UI vs 10-step logic
+                   ? 'bg-neon text-black shadow-[0_0_15px_rgba(58,255,151,0.4)]' 
+                   : 'text-white/40 hover:bg-white/10'
+                }`}
+             >
+                {opt.label}
+             </button>
+          ))}
+       </div>
+    </div>
   );
 };
 
@@ -1155,6 +1219,147 @@ export const LandingPage = () => {
                   </div>
                </Reveal>
             ))}
+         </div>
+      </section>
+
+      {/* --- BUSINESS LAB --- */}
+      <section className="py-20 px-6 bg-white/[0.02] border-y border-white/5 relative z-10">
+         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+            <Reveal>
+               <div>
+                  <div className="mb-4 text-blue-400 font-mono text-xs uppercase tracking-widest">Documentación</div>
+                  <h2 className="text-4xl md:text-6xl font-semibold text-white mb-8 tracking-tight">
+                     Business Lab. <br/>
+                     <span className="text-white/50">Tu laboratorio estratégico.</span>
+                  </h2>
+                  <p className="text-lg text-white/60 leading-relaxed mb-8">
+                     Genera reportes profesionales listos para inversores con un solo clic. Desde Executive Summaries hasta Modelos Financieros.
+                  </p>
+                  <div className="grid grid-cols-2 gap-4">
+                     {[
+                        "Executive Summary", "Problem & Solution", "Market Analysis", "Competition",
+                        "Business Model", "Go-to-Market", "Financial Projections", "Risk Assessment"
+                     ].map((item, i) => (
+                        <div key={i} className="flex items-center gap-2 text-white/70 text-sm">
+                           <div className="w-1.5 h-1.5 bg-blue-400 rounded-full"></div>
+                           {item}
+                        </div>
+                     ))}
+                  </div>
+               </div>
+            </Reveal>
+            
+            <Reveal delay={0.2}>
+               <GlassCard className="h-[400px] relative overflow-hidden flex items-center justify-center p-8 text-center group" glow>
+                   <div className="absolute inset-0 bg-blue-600/5 group-hover:bg-blue-600/10 transition-colors"></div>
+                   <FileText size={64} className="text-blue-400 mb-6 group-hover:scale-110 transition-transform duration-500" />
+                   <h3 className="text-2xl font-bold text-white mb-2">Reporte Inversor Serie A</h3>
+                   <p className="text-white/40 text-sm mb-8 max-w-xs mx-auto">
+                      Formato institucional. HTML Premium o PDF optimizado para impresión.
+                   </p>
+                   <button className="px-6 py-3 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30 hover:bg-blue-500 hover:text-black transition-all font-bold text-sm flex items-center gap-2 mx-auto">
+                      <FileUp size={16} /> Generar Reporte Demo
+                   </button>
+               </GlassCard>
+            </Reveal>
+         </div>
+      </section>
+
+      {/* --- SMART CHAT --- */}
+      <section className="py-20 px-6 relative z-10">
+         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+             <Reveal delay={0.2}>
+               <GlassCard className="h-[450px] relative overflow-hidden" glow>
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/90 z-0"></div>
+                  {/* Chat Interface Mockup */}
+                  <div className="relative z-10 flex flex-col h-full">
+                     <div className="p-4 border-b border-white/10 flex items-center gap-3 bg-white/5">
+                        <div className="w-8 h-8 rounded-full bg-neon/20 flex items-center justify-center">
+                           <Sparkles size={14} className="text-neon" />
+                        </div>
+                        <span className="text-sm font-bold text-white">Valid.AI Copilot</span>
+                     </div>
+                     <div className="flex-1 p-6 space-y-4 overflow-hidden">
+                        <div className="bg-white/5 rounded-2xl rounded-tl-none p-4 max-w-[85%]">
+                           <p className="text-white/80 text-sm">He analizado tus últimas 5 entrevistas. Hay una contradicción importante en el tema del precio.</p>
+                        </div>
+                        <div className="bg-neon/10 border border-neon/20 rounded-2xl rounded-tr-none p-4 max-w-[85%] ml-auto">
+                           <p className="text-white text-sm">¿Cuál es la contradicción?</p>
+                        </div>
+                        <div className="bg-white/5 rounded-2xl rounded-tl-none p-4 max-w-[85%]">
+                           <p className="text-white/80 text-sm">
+                              Los usuarios dicen que es "caro" ($50), pero actualmente gastan $200 en soluciones manuales ineficientes. <br/><br/>
+                              <span className="text-neon font-bold">Sugerencia:</span> Reframea tu propuesta de valor como "Ahorro de costos" en lugar de "Nuevo gasto".
+                           </p>
+                        </div>
+                     </div>
+                     <div className="p-4 border-t border-white/10">
+                        <div className="w-full h-10 bg-white/5 rounded-full border border-white/10 flex items-center px-4 text-white/30 text-sm">
+                           Escribe un mensaje...
+                        </div>
+                     </div>
+                  </div>
+               </GlassCard>
+            </Reveal>
+
+            <Reveal>
+               <div>
+                  <div className="mb-4 text-neon font-mono text-xs uppercase tracking-widest">Asistente</div>
+                  <h2 className="text-4xl md:text-6xl font-semibold text-white mb-8 tracking-tight">
+                     Smart Chat. <br/>
+                     <span className="text-white/50">Tu Co-Piloto.</span>
+                  </h2>
+                  <p className="text-lg text-white/60 leading-relaxed mb-8">
+                     No chateas con un bot genérico. Chateas con un asistente que conoce <strong className="text-white">TODO</strong> sobre tu proyecto: tus métricas, tus entrevistas y tus documentos.
+                  </p>
+                  <ul className="space-y-6">
+                    <li className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-neon/10 border border-neon/30 flex items-center justify-center flex-shrink-0">
+                        <Database size={20} className="text-neon" />
+                      </div>
+                      <div>
+                        <h4 className="text-white font-bold mb-1">Contexto Total</h4>
+                        <p className="text-sm text-white/50">Recuerda cada detalle de tu sesión de validación.</p>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center flex-shrink-0">
+                        <LayoutTemplate size={20} className="text-purple-400" />
+                      </div>
+                      <div>
+                        <h4 className="text-white font-bold mb-1">Tablas & Datos</h4>
+                        <p className="text-sm text-white/50">Pídele que genere una tabla comparativa de competidores y la renderizará en Markdown.</p>
+                      </div>
+                    </li>
+                  </ul>
+               </div>
+            </Reveal>
+         </div>
+      </section>
+
+      {/* --- EXPORT & SHARING --- */}
+      <section className="py-20 px-6 bg-white/[0.02] border-y border-white/5 relative z-10">
+         <div className="max-w-4xl mx-auto text-center">
+            <Reveal>
+               <h2 className="text-4xl md:text-5xl font-semibold text-white mb-8">Tus Datos, Tu Control.</h2>
+               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-neon/30 transition-all group">
+                     <FileText size={32} className="text-white/40 group-hover:text-neon mb-4 mx-auto" />
+                     <h3 className="text-white font-bold mb-2">JSON</h3>
+                     <p className="text-white/40 text-sm">Datos estructurados para desarrolladores.</p>
+                  </div>
+                  <div className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-blue-400/30 transition-all group">
+                     <LayoutTemplate size={32} className="text-white/40 group-hover:text-blue-400 mb-4 mx-auto" />
+                     <h3 className="text-white font-bold mb-2">HTML</h3>
+                     <p className="text-white/40 text-sm">Reportes visuales interactivos.</p>
+                  </div>
+                  <div className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-purple-400/30 transition-all group">
+                     <FileUp size={32} className="text-white/40 group-hover:text-purple-400 mb-4 mx-auto" />
+                     <h3 className="text-white font-bold mb-2">PDF Ready</h3>
+                     <p className="text-white/40 text-sm">Optimizado para impresión y lectura.</p>
+                  </div>
+               </div>
+            </Reveal>
          </div>
       </section>
 

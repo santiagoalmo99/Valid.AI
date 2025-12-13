@@ -216,8 +216,12 @@ export async function callGeminiAPI(prompt: string, json: boolean = false, useWe
               continue; // Try next model in loop
           }
           
-          // If it's a client error (400), don't try other models, it will fail anyway
+          // If it's a client error (400), check if we can retry with another model (e.g. tools not supported)
           if (error.status >= 400 && error.status < 500 && error.status !== 429) {
+              if (useWeb && error.status === 400) {
+                 console.warn(`⚠️ Model ${modelName} rejected tools (400). Switching to next fallback...`);
+                 continue;
+              }
               break; 
           }
       }

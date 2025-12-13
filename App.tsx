@@ -29,6 +29,9 @@ import { PublicVerificationPage } from './components/PublicVerificationPage';
 import { GlobalIntelligenceBanner, GlobalIntelligenceModal } from './components/GlobalIntelligenceModal';
 import { calculateYCReadiness } from './services/scoringService';
 import { EnhancedAnalysisResult } from './services/aiService';
+import { useCredits } from './hooks/useCredits';
+import { useProjects } from './hooks/useProjects';
+import { useInterviews } from './hooks/useInterviews';
 
 // --- TYPES ---
 interface ConfirmationState {
@@ -673,6 +676,7 @@ const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, 
                    onDelete={handleDeleteInterview}
                    onDeleteAll={handleDeleteAllInterviews}
                    onRetry={handleRetryAnalysis}
+                   onSelect={(interview: any) => setSelectedInterview(interview)}
                 />
                </div>
              )}
@@ -2229,23 +2233,32 @@ function AppContent() {
       setNotification({ title, type, message, duration });
   }; 
   
+  // --- CUSTOM HOOKS (Architecture Refactor) ---
+  const { 
+     projects, 
+     loading: loadingProjects, 
+     createProject: handleCreateProject, 
+     updateProject: handleUpdateProject, 
+     deleteProject: handleDeleteProject 
+  } = useProjects(user);
+  
+  const { credits, refreshCredits } = useCredits(user?.uid);
+
   // PERSISTENT STATE: Restore from localStorage on mount
   const [view, setView] = useState(() => {
     const saved = localStorage.getItem('validai_view');
     return saved || 'hub';
   });
   const [activeProject, setActiveProject] = useState<ProjectTemplate | null>(null);
-  const [pendingProjectId, setPendingProjectId] = useState<string | null>(() => {
-    return localStorage.getItem('validai_active_project_id');
-  });
   
-  // FIRESTORE MIGRATION: Projects are now fetched from Cloud
-  const [projects, setProjects] = useState<ProjectTemplate[]>([]);
+  // Interviews Hook (Dependent on activeProject)
+  const { interviews, loading: loadingInterviews } = useInterviews(activeProject?.id);
+
   const [showCreate, setShowCreate] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
-  const [showCertModal, setShowCertModal] = useState(false); 
-  const [interviews, setInterviews] = useState<Interview[]>([]);
+  const [showCertModal, setShowCertModal] = useState(false);
+  const [showReportGenerator, setShowReportGenerator] = useState(false);
   
 
   
@@ -2303,17 +2316,7 @@ function AppContent() {
      if (activeProject) localStorage.setItem('validai_active_project_id', activeProject.id);
   }, [view, activeProject]);
 
-  // Load interviews for active project
-  useEffect(() => {
-    if (activeProject) {
-      const unsubscribe = subscribeToInterviews(activeProject.id, (data) => {
-        setInterviews(data);
-      });
-      return () => unsubscribe();
-    } else {
-      setInterviews([]);
-    }
-  }, [activeProject]);
+
   
   // Trend Notification State
   const [showTrendNotification, setShowTrendNotification] = useState(false);
@@ -2372,65 +2375,7 @@ function AppContent() {
     }
   }, []);
 
-  // FIRESTORE SUBSCRIPTION with localStorage fallback
-  useEffect(() => {
-    if (user) {
-      // First, load any projects saved locally (fallback when Firebase fails)
-      const loadLocalProjects = (): ProjectTemplate[] => {
-        try {
-          const localProjects = JSON.parse(localStorage.getItem('validai_projects') || '[]');
-          const userProjects = localProjects.filter((p: any) => p.userId === user.uid);
-          if (userProjects.length > 0) {
-            return userProjects;
-          }
-        } catch (e) {
-          console.error('Error loading local projects:', e);
-        }
-        return [];
-      };
-      
-      const localProjects = loadLocalProjects();
-      if (localProjects.length > 0) {
-        setProjects(localProjects);
-      }
-      
-      let unsubscribe = () => {};
-      try {
-        unsubscribe = FirebaseService.subscribeToProjects(user.uid, (data) => {
-          // Merge Firebase + localStorage (remove duplicates)
-          const allProjectIds = new Set<string>();
-          const mergedProjects: ProjectTemplate[] = [];
-          
-          const defaultProject = INITIAL_PROJECTS[0];
-          if (defaultProject) {
-             mergedProjects.push(defaultProject);
-             allProjectIds.add(defaultProject.id);
-          }
-          
-          data.forEach(p => {
-             if (p.id !== defaultProject.id && p.name !== defaultProject.name && !allProjectIds.has(p.id)) {
-                mergedProjects.push(p);
-                allProjectIds.add(p.id);
-             }
-          });
-          
-          if (localProjects.length > 0) {
-             localProjects.forEach(p => {
-                if (p.id !== defaultProject.id && p.name !== defaultProject.name && !allProjectIds.has(p.id)) {
-                   mergedProjects.push(p);
-                   allProjectIds.add(p.id);
-                }
-             });
-          }
-          
-          setProjects(mergedProjects);
-        });
-      } catch (e) {
-         console.warn("⚠️ Firestore subscription failed, using local data only.");
-      }
-      return () => unsubscribe();
-    }
-  }, [user]);
+
 
   const handleCloseOnboarding = () => {
     localStorage.setItem('onboarding_completed', 'true');
@@ -2666,8 +2611,16 @@ function AppContent() {
         report={activeTrendReport}
         hasReportThisMonth={TrendService.hasReportForCurrentMonth()}
       />
-    
-      {/* OLD MODAL REMOVED - REPLACED BY GlobalIntelligenceModal */}
+
+      {/* BUSINESS REPORT GENERATOR (PREMIUM) */}
+      {showReportGenerator && activeProject && user && (
+         <BusinessReportGenerator 
+            project={activeProject}
+            interviews={interviews}
+            userId={user.uid}
+            onClose={() => setShowReportGenerator(false)}
+         />
+      )}
 
       {/* CERTIFICATE MODAL */}
       {activeProject && (

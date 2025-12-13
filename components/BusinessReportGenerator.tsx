@@ -58,6 +58,8 @@ export const BusinessReportGenerator: React.FC<Props> = ({
     REPORT_SECTIONS.filter(s => s.enabled).map(s => s.id)
   );
   const [credits, setCredits] = useState<UserCredits | null>(null);
+  const [loadingCredits, setLoadingCredits] = useState(true);
+  const [creditsError, setCreditsError] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [currentStage, setCurrentStage] = useState('');
@@ -69,9 +71,24 @@ export const BusinessReportGenerator: React.FC<Props> = ({
   const hasEnoughCredits = credits ? credits.available >= totalCost : false;
 
   // Load user credits
-  useEffect(() => {
-    getUserCredits(userId).then(setCredits);
+  // Load user credits with retry logic
+  const loadCredits = useCallback(async () => {
+    setLoadingCredits(true);
+    setCreditsError(null);
+    try {
+      const data = await getUserCredits(userId);
+      setCredits(data);
+    } catch (e) {
+      console.error("Failed to load credits:", e);
+      setCreditsError("Error de conexión");
+    } finally {
+      setLoadingCredits(false);
+    }
   }, [userId]);
+
+  useEffect(() => {
+    loadCredits();
+  }, [loadCredits]);
 
   // Toggle section selection
   const toggleSection = (sectionId: string) => {
@@ -176,11 +193,15 @@ export const BusinessReportGenerator: React.FC<Props> = ({
         {showConfetti && <ConfettiEffect />}
         
         <motion.div
-          initial={{ scale: 0.95, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.95, opacity: 0 }}
-          className="bg-[#0a0a0a] border border-white/10 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl flex flex-col"
+          initial={{ scale: 0.95, opacity: 0, y: 20 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          exit={{ scale: 0.95, opacity: 0, y: 20 }}
+          transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+          className="relative w-full max-w-5xl max-h-[90vh] bg-slate-900 rounded-3xl overflow-hidden border border-white/10 shadow-[0_40px_100px_rgba(0,0,0,0.5)] flex flex-col"
         >
+          {/* Decorative elements */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-neon/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none" />
           {/* Header */}
           <div className="flex items-center justify-between p-5 border-b border-white/10 bg-gradient-to-r from-black to-[#111]">
             <div className="flex items-center gap-4">
@@ -248,7 +269,17 @@ export const BusinessReportGenerator: React.FC<Props> = ({
               </div>
               <div className="flex flex-col">
                 <span className="text-xs text-slate-500 uppercase font-bold tracking-wider mb-0.5">Saldo Disponible</span>
-                <span className="text-white font-bold text-xl">{credits?.available ?? '...'} <span className="text-slate-500 text-sm font-normal">créditos</span></span>
+                <div className="flex items-center gap-2">
+                   {loadingCredits ? (
+                      <Loader2 className="w-4 h-4 animate-spin text-slate-500" />
+                   ) : creditsError ? (
+                      <button onClick={loadCredits} className="text-red-400 text-xs hover:underline flex items-center gap-1">
+                         <AlertCircle size={12} /> Reintentar
+                      </button>
+                   ) : (
+                      <span className="text-white font-bold text-xl">{credits?.available ?? 0} <span className="text-slate-500 text-sm font-normal">créditos</span></span>
+                   )}
+                </div>
               </div>
             </div>
             
@@ -257,7 +288,7 @@ export const BusinessReportGenerator: React.FC<Props> = ({
                 whileHover={hasEnoughCredits && selectedSections.length > 0 ? { scale: 1.02 } : {}}
                 whileTap={hasEnoughCredits && selectedSections.length > 0 ? { scale: 0.98 } : {}}
                 onClick={handleGenerate}
-                disabled={!hasEnoughCredits || selectedSections.length === 0 || generating}
+                disabled={!hasEnoughCredits || selectedSections.length === 0 || generating || loadingCredits || !!creditsError}
                 className={`
                   flex items-center gap-3 px-10 py-5 rounded-2xl font-bold text-base uppercase tracking-wide transition-all
                   ${hasEnoughCredits && selectedSections.length > 0

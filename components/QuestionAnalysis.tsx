@@ -195,27 +195,39 @@ export const QuestionAnalysis = ({ project, interviews, lang = 'es' }: QuestionA
 // --- SUB COMPONENTS ---
 
 const MetricCard = ({ label, value, sub, icon, chart, description }: any) => (
-  <div className={`${GLASS_PANEL} p-6 flex flex-col justify-between h-32 hover:bg-white/[0.02] relative group overflow-visible`}>
+  <motion.div 
+    whileHover={{ scale: 1.02, y: -2 }}
+    initial={{ opacity: 0, y: 10 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+    className={`${GLASS_PANEL} p-6 flex flex-col justify-between h-36 hover:bg-white/[0.04] relative group overflow-visible border border-white/5 hover:border-white/20`}
+  >
+     {/* Ambient Glow */}
+     <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-[24px]" />
+     <div className="absolute -top-10 -right-10 w-24 h-24 bg-white/5 blur-2xl rounded-full group-hover:bg-neon/10 transition-colors duration-500 pointer-events-none" />
+
      {description && (
-        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 bg-black/95 backdrop-blur-xl text-slate-200 text-[10px] p-3 rounded-xl border border-white/20 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-[50] shadow-xl text-center leading-relaxed">
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 bg-black/90 backdrop-blur-xl text-slate-200 text-xs p-3 rounded-xl border border-white/10 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none z-[50] shadow-2xl text-center leading-relaxed translate-y-2 group-hover:translate-y-0">
            {description}
-           <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-black/95"></div>
+           <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-black/90"></div>
         </div>
      )}
-     <div className="flex justify-between items-start">
+
+     <div className="flex justify-between items-start relative z-10">
         <div>
-           <p className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">{label}</p>
-           <h3 className="text-3xl font-bold text-white">{value}</h3>
+           <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mb-2 group-hover:text-white/70 transition-colors">{label}</p>
+           <h3 className="text-4xl font-bold text-white tracking-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-slate-300 transition-all">{value}</h3>
         </div>
-        <div className="p-2 bg-white/5 rounded-xl border border-white/5">
-           {icon}
+        <div className="p-2.5 bg-white/5 rounded-xl border border-white/5 group-hover:bg-neon/10 group-hover:border-neon/20 transition-all duration-300 shadow-inner">
+           {React.cloneElement(icon, { size: 22, className: "text-white/70 group-hover:text-neon transition-colors" })}
         </div>
      </div>
-     <div className="flex items-end justify-between mt-auto">
-        <p className="text-slate-600 text-[10px]">{sub}</p>
-        <div className="w-24 opacity-50">{chart}</div>
+     
+     <div className="flex items-end justify-between mt-auto relative z-10">
+        <p className="text-slate-600 text-[10px] font-medium group-hover:text-slate-400 transition-colors">{sub}</p>
+        <div className="w-28 opacity-60 group-hover:opacity-100 transition-opacity grayscale group-hover:grayscale-0">{chart}</div>
      </div>
-  </div>
+  </motion.div>
 );
 
 const Sparkline = ({ color }: { color: string }) => (
