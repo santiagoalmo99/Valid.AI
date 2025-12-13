@@ -2508,14 +2508,17 @@ function AppContent() {
       />
 
       {/* BUSINESS REPORT GENERATOR (PREMIUM) */}
-      {showReportGenerator && activeProject && user && (
-         <BusinessReportGenerator 
-            project={activeProject}
-            interviews={interviews}
-            userId={user.uid}
-            onClose={() => setShowReportGenerator(false)}
-         />
-      )}
+      <React.Suspense fallback={<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"><LoadingSpinner /></div>}>
+        {showReportGenerator && activeProject && user && (
+           <BusinessReportGenerator 
+              project={activeProject}
+              interviews={interviews}
+              userId={user.uid}
+              onClose={() => setShowReportGenerator(false)}
+              credits={credits}
+           />
+        )}
+      </React.Suspense>
 
       {/* CERTIFICATE MODAL */}
       {activeProject && (

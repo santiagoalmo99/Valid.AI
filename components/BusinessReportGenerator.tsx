@@ -24,6 +24,7 @@ interface Props {
   interviews: Interview[];
   userId: string;
   onClose: () => void;
+  credits?: UserCredits | null; // Optional prop to avoid double-fetching
 }
 
 type Step = 'config' | 'generating' | 'complete';
@@ -51,14 +52,15 @@ export const BusinessReportGenerator: React.FC<Props> = ({
   project, 
   interviews, 
   userId, 
-  onClose 
+  onClose,
+  credits: initialCredits 
 }) => {
   const [step, setStep] = useState<Step>('config');
   const [selectedSections, setSelectedSections] = useState<string[]>(
     REPORT_SECTIONS.filter(s => s.enabled).map(s => s.id)
   );
-  const [credits, setCredits] = useState<UserCredits | null>(null);
-  const [loadingCredits, setLoadingCredits] = useState(true);
+  const [credits, setCredits] = useState<UserCredits | null>(initialCredits || null);
+  const [loadingCredits, setLoadingCredits] = useState(!initialCredits);
   const [creditsError, setCreditsError] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -67,12 +69,21 @@ export const BusinessReportGenerator: React.FC<Props> = ({
   const [error, setError] = useState<string | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
 
+  // Sync with prop if it updates
+  useEffect(() => {
+     if (initialCredits) {
+        setCredits(initialCredits);
+        setLoadingCredits(false);
+     }
+  }, [initialCredits]);
+
   const totalCost = calculateReportCost(selectedSections);
   const hasEnoughCredits = credits ? credits.available >= totalCost : false;
 
-  // Load user credits
-  // Load user credits with retry logic
+  // Load user credits (Only if not provided via prop)
   const loadCredits = useCallback(async () => {
+    if (initialCredits) return; // Skip if provided
+    
     setLoadingCredits(true);
     setCreditsError(null);
     try {
@@ -84,7 +95,7 @@ export const BusinessReportGenerator: React.FC<Props> = ({
     } finally {
       setLoadingCredits(false);
     }
-  }, [userId]);
+  }, [userId, initialCredits]);
 
   useEffect(() => {
     loadCredits();
