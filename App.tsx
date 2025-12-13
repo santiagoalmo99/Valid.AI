@@ -2239,7 +2239,8 @@ function AppContent() {
      loading: loadingProjects, 
      createProject: handleCreateProject, 
      updateProject: handleUpdateProject, 
-     deleteProject: handleDeleteProject 
+     deleteProject: handleDeleteProject,
+     addProject
   } = useProjects(user);
   
   const { credits, refreshCredits } = useCredits(user?.uid);
@@ -2356,27 +2357,17 @@ function AppContent() {
     document.body.setAttribute('data-theme', theme);
   }, [theme]);
 
-  // Onboarding Check & Initial Project Load
+  // Onboarding Check Only (Project Loading moved to hook)
   useEffect(() => {
-    // Initialize projects with local storage check for Demo Project persistence
+    // Check for saved demo in hook handles data loading.
+    // Here we just check onboarding status.
     const savedDemo = localStorage.getItem('demo_project_001');
-    if (savedDemo) {
-       try {
-          const parsedDemo = JSON.parse(savedDemo);
-          setProjects([parsedDemo]); 
-       } catch (e) {
-          console.error("Failed to load saved demo project", e);
-          setProjects(INITIAL_PROJECTS);
-       }
-    } else {
-       setProjects(INITIAL_PROJECTS);
-    }
-    // Only show onboarding if NO projects and NOT completed before
     const onboardingDone = localStorage.getItem('onboarding_completed') === 'true';
+    
     if (!savedDemo && !onboardingDone) {
        setShowOnboarding(true);
     } else {
-       setShowOnboarding(false); // Explicitly ensure false if done
+       setShowOnboarding(false);
     }
   }, []);
 
@@ -2390,29 +2381,13 @@ function AppContent() {
   const handleSaveNewProject = async (newProject: ProjectTemplate) => {
     if (!user) return alert("Inicia sesión primero");
     
-    // 1. OPTIMISTIC LOCAL SAVE (Always save locally first)
-    try {
-        const local = JSON.parse(localStorage.getItem('validai_projects') || '[]');
-        if (!local.find((p: any) => p.id === newProject.id)) {
-            local.push(newProject);
-            localStorage.setItem('validai_projects', JSON.stringify(local));
-            console.log("✅ Project saved locally (Optimistic)");
-        }
-    } catch (e) { console.error("LS Pre-save failed", e); }
+    // Use Hook to add project (Handles Local + Cloud + State)
+    await addProject(newProject);
     
-    // 2. UPDATE UI IMMEDIATELY
-    setProjects(prev => [...prev, newProject]);
+    // UI Transitions
     setActiveProject(newProject);
     setView('project');
     setShowCreate(false);
-
-    // 3. ATLAS CLOUD SYNC (Async but awaited for error handling report)
-    try {
-       await FirebaseService.createProject(user.uid, newProject);
-    } catch (e) {
-       console.error("Firebase save failed", e);
-       // User already has the project locally, so we just warn mildly if needed, or silent fail (Queue logic handles retry usually)
-    }
   };
 
 
