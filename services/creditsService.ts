@@ -44,7 +44,20 @@ export async function getUserCredits(userId: string): Promise<UserCredits> {
     console.log('🎁 [Credits] New user initialized with', INITIAL_CREDITS, 'credits');
     return newCredits;
     
-  } catch (error) {
+  } catch (error: any) {
+    // Handle Permission denied specifically
+    if (error.code === 'permission-denied') {
+        console.warn('⚠️ [Credits] Permission denied (Firebase Rules). Returning 0 credits.');
+        return {
+            userId,
+            available: 0,
+            lifetime: 0,
+            used: 0,
+            createdAt: new Date().toISOString(),
+            lastUpdated: new Date().toISOString(),
+        };
+    }
+
     console.error('❌ [Credits] Error fetching credits:', error);
     
     // Fallback to localStorage
@@ -56,7 +69,7 @@ export async function getUserCredits(userId: string): Promise<UserCredits> {
     // Return default for offline/error scenarios
     return {
       userId,
-      available: INITIAL_CREDITS,
+      available: INITIAL_CREDITS, // Assume default for connectivity errors? Or 0? Let's assume INITIAL if error is unknown.
       lifetime: INITIAL_CREDITS,
       used: 0,
       createdAt: new Date().toISOString(),
