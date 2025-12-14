@@ -2034,28 +2034,12 @@ const DashboardView = ({ project, interviews, t }: any) => {
 
    return (
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in pb-20">
-         {/* KPI Cards */}
-         <div className={`${GLASS_PANEL} p-6 rounded-3xl flex flex-col justify-between relative overflow-hidden group hover:border-neon/50 hover:bg-white/5 hover:shadow-[0_0_30px_rgba(223,255,0,0.15)] transition-all duration-500`}>
-             <div className="absolute right-[-20px] top-[-20px] w-32 h-32 bg-neon/10 rounded-full blur-3xl group-hover:bg-neon/40 group-hover:blur-[60px] transition-all duration-500"></div>
-             <h3 className="text-slate-400 text-sm font-bold uppercase tracking-wider relative z-10">{t.totalInterviews}</h3>
-             <div className="text-5xl font-bold text-white mt-2 relative z-10">{totalInterviews}</div>
-             <div className="mt-4 text-xs text-slate-500 flex items-center gap-1 relative z-10"><Users size={12}/> Candidates processed</div>
-         </div>
-
-         <div className={`${GLASS_PANEL} p-6 rounded-3xl flex flex-col justify-between relative overflow-hidden group hover:border-blue-500/50 hover:bg-white/5 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)] transition-all duration-500`}>
-             <div className="absolute right-[-20px] top-[-20px] w-32 h-32 bg-blue-500/10 rounded-full blur-3xl group-hover:bg-blue-500/40 group-hover:blur-[60px] transition-all duration-500"></div>
-             <h3 className="text-slate-400 text-sm font-bold uppercase tracking-wider relative z-10">{t.avgScore}</h3>
-             <div className="text-5xl font-bold text-white mt-2 relative z-10">{avgScore}</div>
-             <div className="mt-4 text-xs text-slate-500 flex items-center gap-1 relative z-10"><Zap size={12}/> Validation Index</div>
-         </div>
-
-         <div className={`${GLASS_PANEL} p-6 rounded-3xl flex flex-col justify-between relative overflow-hidden group hover:border-purple-500/50 hover:bg-white/5 hover:shadow-[0_0_30px_rgba(168,85,247,0.15)] transition-all duration-500`}>
-             <div className="absolute right-[-20px] top-[-20px] w-32 h-32 bg-purple-500/10 rounded-full blur-3xl group-hover:bg-purple-500/40 group-hover:blur-[60px] transition-all duration-500"></div>
-             <h3 className="text-slate-400 text-sm font-bold uppercase tracking-wider relative z-10">Status</h3>
-             <div className="text-2xl font-bold text-white mt-auto relative z-10">
-                {Number(avgScore) > 7 ? <span className="text-neon">High Potential</span> : Number(avgScore) > 4 ? <span className="text-yellow-400">Needs Pivot</span> : <span className="text-slate-500">Insufficient Data</span>}
-             </div>
-         </div>
+         {/* NEW: Quantum Metrics */}
+         <DashboardMetrics 
+            totalInterviews={stats.totalCount} 
+            avgScore={stats.avgScore} 
+            status={Number(stats.avgScore) > 7 ? 'High Potential' : 'Needs Validation'} 
+         />
 
          {/* Main Chart */}
          <div className={`${GLASS_PANEL} p-8 rounded-3xl col-span-1 md:col-span-2 h-[400px]`}>

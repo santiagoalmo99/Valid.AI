@@ -615,7 +615,7 @@ export const analyzeFullInterview = async (project: ProjectTemplate, answers: an
     FORMATO DE SALIDA (JSON PURO):
     {
       "totalScore": number, // Promedio ponderado (0.0 - 10.0) con 1 decimal.
-      "summary": "string", // Resumen ejecutivo profesional en 3ra persona. Enfócate en la psicología del usuario y su potencial como cliente. Máximo 60 palabras.
+      "summary": "string", // Resumen ejecutivo detallado (100-150 palabras) en 3ra persona. Analiza profundamente la psicología del usuario, sus motivaciones ocultas, barreras de adopción y su perfil conductual. No seas genérico.
       "dimensionScores": {
         "problemIntensity": number,
         "solutionFit": number,

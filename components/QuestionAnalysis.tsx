@@ -282,15 +282,17 @@ const QuestionCard = ({ question, interviews, index, t }: { question: Question, 
                </div>
              </div>
            </div>
+
+           {/* Toggle Active View - Moved here to avoid overlap */}
+           <div className="flex bg-black/40 border border-white/10 rounded-lg p-0.5 flex-shrink-0">
+             <button onClick={() => setActiveTab('chart')} className={`p-1.5 rounded-md transition-all ${activeTab === 'chart' ? 'bg-white/10 text-white' : 'text-slate-500 hover:text-white'}`} title={t.chart}><BarChart3 size={14}/></button>
+             <button onClick={() => setActiveTab('quotes')} className={`p-1.5 rounded-md transition-all ${activeTab === 'quotes' ? 'bg-white/10 text-white' : 'text-slate-500 hover:text-white'}`} title={t.quotes}><Quote size={14}/></button>
+           </div>
         </div>
       </div>
 
       <div className="p-6 bg-black/20 min-h-[250px] relative">
-         {/* Toggle Active View */}
-         <div className="absolute top-4 right-4 z-20 flex bg-black/40 border border-white/10 rounded-lg p-0.5">
-            <button onClick={() => setActiveTab('chart')} className={`p-1.5 rounded-md transition-all ${activeTab === 'chart' ? 'bg-white/10 text-white' : 'text-slate-500'}`} title={t.chart}><BarChart3 size={14}/></button>
-            <button onClick={() => setActiveTab('quotes')} className={`p-1.5 rounded-md transition-all ${activeTab === 'quotes' ? 'bg-white/10 text-white' : 'text-slate-500'}`} title={t.quotes}><Quote size={14}/></button>
-         </div>
+
 
          {activeTab === 'chart' ? (
              <div className="h-[200px] w-full">
