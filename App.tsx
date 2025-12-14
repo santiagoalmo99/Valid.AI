@@ -2084,24 +2084,7 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
 
 // Placeholder components for brevity in this single file update
 
-const DashboardMetrics = ({ totalInterviews, avgScore, status }: any) => (
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 col-span-1 md:col-span-3 mb-6">
-     <div className={`${GLASS_PANEL} p-6 rounded-2xl flex flex-col items-center justify-center border border-white/5 bg-white/5`}>
-        <div className="text-4xl font-bold text-white mb-1">{totalInterviews}</div>
-        <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Entrevistas</div>
-     </div>
-     <div className={`${GLASS_PANEL} p-6 rounded-2xl flex flex-col items-center justify-center border border-white/5 bg-white/5`}>
-        <div className="text-4xl font-bold text-neon mb-1 drop-shadow-[0_0_10px_rgba(58,255,151,0.5)]">{avgScore}</div>
-        <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Viabilidad</div>
-     </div>
-     <div className={`${GLASS_PANEL} p-6 rounded-2xl flex flex-col items-center justify-center border border-white/5 bg-white/5`}>
-        <div className={`text-2xl font-bold mb-1 ${status === 'High Potential' ? 'text-emerald-400' : 'text-amber-400'}`}>
-           {status === 'High Potential' ? 'ALTA' : 'VALIDAR'}
-        </div>
-        <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Potencial</div>
-     </div>
-  </div>
-);
+import { DashboardMetrics } from './components/DashboardMetrics';
 
 const DashboardView = ({ project, interviews, t }: any) => {
    // Calculate real stats
@@ -2127,7 +2110,7 @@ const DashboardView = ({ project, interviews, t }: any) => {
          />
 
          {/* Main Chart */}
-         <div className={`${GLASS_PANEL} p-8 rounded-3xl col-span-1 md:col-span-2 h-[400px]`}>
+         <div className={`${GLASS_PANEL} p-8 rounded-3xl col-span-1 md:col-span-2 h-[400px] relative z-20 overflow-visible`}>
              <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2"><BarChart3 className="text-neon" /> Score Distribution</h3>
              
              <div className="w-full h-[85%] flex items-end justify-around gap-4 px-4 pb-8 relative">
@@ -2146,9 +2129,9 @@ const DashboardView = ({ project, interviews, t }: any) => {
                    const color = index === 2 ? 'bg-neon shadow-[0_0_20px_rgba(58,255,151,0.4)]' : index === 1 ? 'bg-yellow-400 shadow-[0_0_20px_rgba(250,204,21,0.4)]' : 'bg-red-400 shadow-[0_0_20px_rgba(248,113,113,0.4)]';
                    
                    return (
-                      <div key={index} className="flex flex-col items-center justify-end h-full w-full group relative z-10">
+                      <div key={index} className="flex flex-col items-center justify-end h-full w-full group relative z-30">
                          {/* Tooltip on hover */}
-                         <div className="absolute -top-12 opacity-0 group-hover:opacity-100 transition-opacity bg-black/90 border border-white/20 px-3 py-1 rounded-lg text-xs text-white whitespace-nowrap pointer-events-none z-20">
+                         <div className="absolute -top-12 opacity-0 group-hover:opacity-100 transition-opacity bg-black/90 border border-white/20 px-3 py-1 rounded-lg text-xs text-white whitespace-nowrap pointer-events-none z-50 shadow-xl">
                             {item.value} Interviews
                          </div>
                          
@@ -2159,11 +2142,7 @@ const DashboardView = ({ project, interviews, t }: any) => {
                             transition={{ duration: 1, type: "spring" }}
                             className={`w-full max-w-[60px] rounded-t-xl ${color} relative group-hover:brightness-110 transition-all`}
                          >
-                            {item.value > 0 && (
-                               <div className="absolute top-2 left-1/2 -translate-x-1/2 text-[10px] font-bold text-black/60">
-                                  {item.value}
-                               </div>
-                            )}
+                            {/* Value label inside bar if tall enough, else outside? kept simple for now */}
                          </motion.div>
                          
                          {/* Label */}
@@ -2175,7 +2154,7 @@ const DashboardView = ({ project, interviews, t }: any) => {
          </div>
 
          {/* Quick Insights / AI Placeholder */}
-         <div className={`${GLASS_PANEL} p-8 rounded-3xl col-span-1 flex flex-col`}>
+         <div className={`${GLASS_PANEL} p-8 rounded-3xl col-span-1 flex flex-col relative z-20`}>
              <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2"><Sparkles className="text-neon" /> Insights Rápidos IA</h3>
              {totalInterviews > 0 ? (
                 <div className="space-y-4 overflow-y-auto pr-2 custom-scrollbar">
@@ -2256,30 +2235,60 @@ const InterviewsView = ({ interviews, onDelete, onDeleteAll, onSelect, onRetry }
                </button>
             </div>
 
-            <div className="flex justify-between items-start pt-2">
-               <div className="pr-4">
+            <div className="flex flex-col md:flex-row justify-between items-center pt-2 gap-6">
+               {/* 1. LEFT: Profile Info */}
+               <div className="flex-1 min-w-[200px]">
                   <h4 className="font-bold text-white text-lg flex items-center gap-2">
                      {i.respondentName}
                      {i.respondentRole && <span className="text-[10px] bg-white/10 px-2 py-0.5 rounded-full text-neon uppercase tracking-wider font-bold">{i.respondentRole}</span>}
                   </h4>
                   <p className="text-xs text-slate-500 mb-3">{new Date(i.date).toLocaleDateString()} • {new Date(i.date).toLocaleTimeString()}</p>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1 text-sm text-slate-400">
+                  <div className="grid grid-cols-1 gap-1 text-sm text-slate-400">
                      {i.respondentEmail && <p className="flex items-center gap-2 hover:text-white transition-colors"><Mail size={12} className="text-neon"/> {i.respondentEmail}</p>}
-                     {i.respondentPhone && <p className="flex items-center gap-2 hover:text-white transition-colors"><Phone size={12} className="text-neon"/> {i.respondentPhone}</p>}
                      {(i.respondentCity || i.respondentCountry) && (
                         <p className="flex items-center gap-2 hover:text-white transition-colors">
                            <MapPin size={12} className="text-neon"/> 
                            {[i.respondentCity, i.respondentCountry].filter(Boolean).join(', ')}
                         </p>
                      )}
-                     {i.respondentInstagram && <p className="flex items-center gap-2 hover:text-white transition-colors"><span className="text-neon text-[10px] font-bold">IG</span> {i.respondentInstagram}</p>}
                   </div>
                </div>
 
-               {/* VIABILITY SCORE: Moved down to avoid button overlap */}
-               <div className="text-right flex flex-col items-end mt-8">
-                  <div className="text-3xl font-bold text-neon drop-shadow-[0_0_10px_rgba(58,255,151,0.5)]">{i.totalScore}</div>
+               {/* 2. CENTER: Dimension Metrics (THE FIX) */}
+               <div className="flex-[2] w-full md:w-auto grid grid-cols-3 gap-4 border-l border-r border-white/5 px-6 py-2">
+                  {/* Problem */}
+                  <div className="flex flex-col gap-2">
+                     <span className="text-[10px] uppercase text-slate-500 font-bold flex justify-between">
+                        Problem <span className="text-blue-400">{i.dimensionScores?.problemIntensity || 0}</span>
+                     </span>
+                     <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                        <div className="h-full bg-blue-500 rounded-full" style={{width: `${(i.dimensionScores?.problemIntensity || 0)*10}%`}}></div>
+                     </div>
+                  </div>
+                  {/* Solution */}
+                  <div className="flex flex-col gap-2">
+                     <span className="text-[10px] uppercase text-slate-500 font-bold flex justify-between">
+                        Solution <span className="text-emerald-400">{i.dimensionScores?.solutionFit || 0}</span>
+                     </span>
+                     <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                        <div className="h-full bg-emerald-500 rounded-full" style={{width: `${(i.dimensionScores?.solutionFit || 0)*10}%`}}></div>
+                     </div>
+                  </div>
+                  {/* WTP */}
+                  <div className="flex flex-col gap-2">
+                     <span className="text-[10px] uppercase text-slate-500 font-bold flex justify-between">
+                        WTPPayment <span className="text-neon">{i.dimensionScores?.willingnessToPay || 0}</span>
+                     </span>
+                     <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                        <div className="h-full bg-neon rounded-full" style={{width: `${(i.dimensionScores?.willingnessToPay || 0)*10}%`}}></div>
+                     </div>
+                  </div>
+               </div>
+
+               {/* 3. RIGHT: Overall Score */}
+               <div className="flex-shrink-0 text-right flex flex-col items-end min-w-[100px]">
+                  <div className="text-4xl font-bold text-neon drop-shadow-[0_0_10px_rgba(58,255,151,0.5)]">{i.totalScore}</div>
                   <p className="text-[10px] text-slate-500 uppercase font-bold">Viability Score</p>
                </div>
             </div>
