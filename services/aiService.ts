@@ -671,6 +671,80 @@ export const analyzeFullInterview = async (project: ProjectTemplate, answers: an
     }
 };
 
+export const analyzeContinuousInterview = async (project: ProjectTemplate, transcript: string, notes: string, regData: any): Promise<any> => {
+   try {
+      console.log('🎙️ Starting Continuous Interview Analysis...');
+      
+      const questionsList = project.questions.map(q => `- ${q.text} (Dimension: ${q.dimension})`).join('\n');
+      
+      const prompt = `
+      ROL: Eres un Analista de Venture Capital de Alto Nivel (Socio de Y Combinator).
+      
+      OBJETIVO: Analizar una entrevista contínua (texto corrido) y estructurar los hallazgos validados.
+      
+      PROYECTO:
+      - Nombre: "${project.name}"
+      - Descripción: "${project.description}"
+      
+      PERFIL ENTREVISTADO:
+      ${JSON.stringify(regData, null, 2)}
+      
+      TRANSCRIPCIÓN COMPLETA:
+      "${transcript}"
+      
+      NOTAS DEL ENTREVISTADOR:
+      "${notes}"
+      
+      PREGUNTAS OBJETIVO (Las que se intentaron responder):
+      ${questionsList}
+      
+      TU TAREA (EJECUTAR EN ORDEN):
+      1. Lee la transcripción completa para entender el contexto, tono y veracidad.
+      2. Mapea las partes de la conversación a las preguntas objetivo. Si el usuario respondió algo no preguntado pero relevante, extráelo.
+      3. Realiza el scoring de validación (Problem, Solution, WTP).
+      
+      FORMATO DE SALIDA (JSON):
+      {
+         "extractedAnswers": [
+            {
+               "questionId": "relacionado_con_pregunta_original_si_aplica", 
+               "questionText": "Pregunta identificada o Tópico",
+               "answer": "Resumen conciso y fiel de lo que dijo el usuario sobre esto",
+               "sentiment": "positive|neutral|negative"
+            }
+         ],
+         "scores": {
+            "totalScore": number, // 0-10
+            "dimensionScores": {
+               "problemIntensity": number,
+               "solutionFit": number,
+               "willingnessToPay": number,
+               "currentBehavior": number,
+               "painPoint": number,
+               "earlyAdopter": number
+            }
+         },
+         "summary": "Perfil psicológico profundo (150 palabras). Enfócate en sus motivaciones subconscientes y barreras.",
+         "keyInsights": ["Insight 1", "Insight 2", "Insight 3"],
+         "oneLinerVerdict": "Frase lapidaria sobre si este usuario compraría o no."
+      }
+      
+      IDIOMA: Español Latinoamericano.
+      `;
+
+      const response = await callGeminiAPI(prompt, true);
+      const cleanText = repairJSON(response);
+      const parsed = JSON.parse(cleanText);
+      
+      console.log('✅ Continuous Analysis Complete', parsed);
+      return parsed;
+
+   } catch (error) {
+      console.error("❌ Continuous Analysis Failed:", error);
+      throw error;
+   }
+};
+
 export const generatePersonaImage = async (summary: string) => {
   // Using external service for reliability
   return null;

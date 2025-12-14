@@ -90,8 +90,20 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({
         language,
         onStateChange: setSttState,
         onResult: (result) => {
+          // Emit FULL transcript updates (interim or final) if desired, 
+          // or just final. We want the parent to have the full context.
           if (result.isFinal) {
-            onTranscriptChange?.(result.text);
+            // Get the complete cumulative transcript from the service
+            const fullTranscript = speechToText.getFullTranscript();
+            onTranscriptChange?.(fullTranscript);
+          } else {
+             // Optional: emit interim too if we want live typing effect in parent?
+             // InterviewForm handles its own display, but assumes 'text' is full?
+             // If we want allow live preview in parent, we should emit here too.
+             // But let's stick to final for stability first, or full.
+             // Actually, parent handles display via `fullTranscript`. Updates should be live.
+             const fullTranscript = speechToText.getFullTranscript();
+             onTranscriptChange?.(fullTranscript);
           }
         },
       });

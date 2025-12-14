@@ -11,6 +11,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { Onboarding } from './components/Onboarding';
 import { ProjectProfileModal } from './components/ProjectProfileModal';
 import { InterviewModal } from './components/InterviewModal';
+import { OnboardingOverlay } from './components/OnboardingOverlay';
 import { stateManager } from './services/stateManager';
 import { staggerContainer, staggerItem, fadeInUp, scaleIn } from './utils/animations';
 import { TemplateGallery } from './components/TemplateGallery';
@@ -21,6 +22,7 @@ import { LandingPage } from './components/LandingPage';
 import { ExportButton } from './components/ExportButton';
 import { DynamicNotification, NotificationPayload } from './components/DynamicNotification';
 import { VoiceInput } from './components/VoiceInput';
+import { DashboardMetrics } from './components/DashboardMetrics';
 import { YCReadinessBadge } from './components/YCReadinessBadge';
 import { TrendService, TrendReport } from './services/trendService';
 import { CertificateModal } from './components/CertificateModal';
@@ -35,11 +37,14 @@ import { useInterviews } from './hooks/useInterviews';
 
 // --- TYPES ---
 interface ConfirmationState {
+  isOpen: boolean;
   title: string;
   message: string;
   confirmText: string;
+  cancelText?: string;
   variant: 'danger' | 'info';
-  onConfirm: () => Promise<void>;
+  onConfirm: () => Promise<void> | void;
+  onCancel?: () => void;
 }
 
 import { BusinessReportGenerator } from './components/BusinessReportGenerator'; // Static Import to fix #426
@@ -904,7 +909,7 @@ const CreateProjectModal = ({ onClose, onSave, lang, user }: any) => {
                 id: `p_${Date.now()}`,
                 name: metadata.title,
                 description: metadata.description,
-                detailedDescription: plan || '',
+                detailedDescription: (typeof plan === 'string' ? plan : JSON.stringify(plan)) || '',
                 emoji: '💡',
                 coverImage: cover,
                 targetAudience: 'General',
@@ -1569,283 +1574,88 @@ const SwotSection = ({ title, items, color, icon }: any) => (
 );
 
 // 5. Interview Form (Visual Update v2.0)
-const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => {
-  const [step, setStep] = useState(-1);
-  const [answers, setAnswers] = useState<any>({});
-  const [regData, setRegData] = useState({ 
-    name: '', email: '', phone: '', instagram: '', tiktok: '', role: '', city: '', country: '' 
-  });
-  const [currentVal, setCurrentVal] = useState('');
+// 4. CONTINUOUS INTERVIEW FORM (Refactored)
+const InterviewForm = ({ lang, project, onSave, onCancel, onClose }: any) => {
+  const t = TRANSLATIONS[lang];
+  
+  // Registration State
+  const [step, setStep] = useState(-1); // -1 = Registration, 0 = Active Session
+  const [regData, setRegData] = useState({ name: '', email: '', phone: '', city: '', country: '', role: '', instagram: '', tiktok: '' });
+  
+  // Session State
+  const [isRecording, setIsRecording] = useState(false);
+  const [fullTranscript, setFullTranscript] = useState('');
+  const [notes, setNotes] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [elapsedTime, setElapsedTime] = useState(0);
 
-  const [observation, setObservation] = useState('');
-  const [isSaving, setIsSaving] = useState(false);
-  // FIX: Stable Image (prevent changing on re-renders)
-  const coverImage = React.useMemo(() => {
-     return project.coverImage || getCoverByIdea(project.name);
-  }, [project.id, project.name]);
-
-
-  // Removed showVoice toggle - now Dual Mode by default
-  // DRAFT PERSISTENCE
-  // DRAFT PERSISTENCE
-  const [showDraftRestore, setShowDraftRestore] = useState(false);
-  const [draftData, setDraftData] = useState<any>(null);
-
+  // Timer
   useEffect(() => {
-    const draftKey = `draft_interview_${project.id}`;
-    const saved = localStorage.getItem(draftKey);
-    if (saved) {
+    let interval: any;
+    if (isRecording) {
+      interval = setInterval(() => setElapsedTime(e => e + 1), 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isRecording]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const handleStartSession = () => {
+     if(!regData.name) return alert(t.nameRequired || "Nombre requerido");
+     setStep(0); // Go to Active Session
+  };
+
+  const handleFinishSession = async () => {
+    if (!fullTranscript && !notes) {
+       if (!window.confirm("No hay transcripción ni notas. ¿Seguro que quieres finalizar sin datos?")) return;
+    }
+
+    if (window.confirm("¿FINALIZAR ENTREVISTA? Esto enviará la grabación a la IA para análisis.")) {
+       setIsProcessing(true);
        try {
-         const data = JSON.parse(saved);
-         // Only prompt if there is meaningful data
-         if (Object.keys(data.answers || {}).length > 0) {
-            setDraftData(data);
-            setShowDraftRestore(true);
-         }
-       } catch (e) {
-         localStorage.removeItem(draftKey);
+          // 1. Analyze
+          const analysis = await Gemini.analyzeContinuousInterview(project, fullTranscript, notes, regData);
+          
+          // 2. Construct Interview Object
+          const interview: Interview = {
+             id: Date.now().toString(),
+             projectId: project.id,
+             respondentName: regData.name || 'Anónimo',
+             respondentEmail: regData.email || '',
+             respondentPhone: regData.phone || '',
+             respondentRole: regData.role || '',
+             respondentCity: regData.city || '',
+             respondentCountry: regData.country || '',
+             respondentInstagram: regData.instagram,
+             respondentTikTok: regData.tiktok,
+             date: new Date().toISOString(),
+             // Data from Analysis
+             totalScore: analysis.scores.totalScore,
+             dimensionScores: analysis.scores.dimensionScores,
+             summary: analysis.summary,
+             keyInsights: analysis.keyInsights,
+             answers: {}, // No structured answers anymore
+             enhancedAnalysis: analysis // Store full result
+          };
+
+          // 3. Save
+          await onSave(interview);
+          onClose(interview);
+
+       } catch (error) {
+          console.error("Critical Error during analysis:", error);
+          alert("Error en el análisis. Revisa la consola.");
+       } finally {
+          setIsProcessing(false);
        }
     }
-  }, [project.id]);
-
-  const handleRestoreDraft = () => {
-     if (draftData) {
-        setAnswers(draftData.answers || {});
-        setRegData(draftData.regData || {});
-        setStep(draftData.step || -1);
-        setShowDraftRestore(false);
-     }
   };
 
-  const handleDiscardDraft = () => {
-     localStorage.removeItem(`draft_interview_${project.id}`);
-     setShowDraftRestore(false);
-  };
-
-  useEffect(() => {
-     if (Object.keys(answers).length > 0 || step > -1) {
-        localStorage.setItem(`draft_interview_${project.id}`, JSON.stringify({
-           answers, regData, step
-        }));
-     }
-  }, [answers, regData, step, project.id]);
-
-  // RESTORE ANSWER ON NAVIGATION
-  useEffect(() => {
-     if (step > -1 && project.questions[step]) {
-        const qId = project.questions[step].id;
-        const savedAns = answers[qId];
-        if (savedAns) {
-           setCurrentVal(savedAns.rawValue || '');
-           setObservation(savedAns.observation || '');
-        } else {
-           setCurrentVal('');
-           setObservation('');
-        }
-     }
-  }, [step, project.questions, answers]); // Added answers dependency to ensure sync
-
-  const question = project.questions[step];
-
-  const handleNext = async () => {
-     if(step === -1) {
-        if(!regData.name) return alert("Name required");
-        setStep(0);
-        return;
-     }
-
-     // Analyze (Mocking the call for UI demo, use real service in prod)
-     // Only analyze if new or changed? For now, re-analyze or keep simple.
-     // To save tokens, maybe check if rawValue changed? 
-     // For this demo, we just proceed.
-     
-     const ans = {
-        questionId: question.id,
-        rawValue: currentVal,
-        observation,
-        aiAnalysis: "Analysis pending..." // Placeholder to avoid slow API call on every step for now
-     };
-     
-     const newAnswers = { ...answers, [question.id]: ans };
-     setAnswers(newAnswers);
-     // currentVal is cleared by useEffect when step changes, but we can force it here too if needed
-     // But the useEffect above handles the "next question" state (which is empty if not answered)
-
-     if(step < project.questions.length - 1) {
-        setStep(step + 1);
-      } else {
-         // Prevent duplicate submissions
-         if (isSaving) return;
-
-         // Finalize
-         setIsSaving(true);
-         console.log("🚀 Starting finalization...");
-
-         // Default analysis in case of total failure
-         let analysis = {
-            totalScore: 0,
-            summary: "Analysis failed: Please retry from the interview details.",
-            dimensionScores: { 
-               problemIntensity: 0, 
-               solutionFit: 0, 
-               willingnessToPay: 0,
-               currentBehavior: 0,
-               painPoint: 0,
-               earlyAdopter: 0
-            },
-            keyInsights: ["AI Analysis Unavailable"]
-         };
-
-         try {
-            // Perform AI Analysis with RETRY logic
-            let retries = 2; // Try up to 3 times total
-            let aiSuccess = false;
-            
-            for (let attempt = 0; attempt <= retries; attempt++) {
-                try {
-                  console.log(`🤖 Enhanced AI Analysis attempt ${attempt + 1}/${retries + 1}...`);
-                  console.log("📦 [DEBUG] Answers sent to analysis:", JSON.stringify(newAnswers, null, 2));
-                  
-                  const result = await Gemini.analyzeFullInterviewEnhanced(project, newAnswers, regData);
-                  
-                  if (result) {
-                     analysis = result as any;
-                     console.log("✅ Surgical AI analysis successful:", analysis);
-                     aiSuccess = true;
-                     break; 
-                  }
-               } catch (aiError) {
-                  console.error(`❌ AI Analysis attempt ${attempt + 1} failed:`, aiError);
-                  
-                  if (attempt < retries) {
-                     console.log(`⏳ Retrying in 2 seconds...`);
-                     await new Promise(resolve => setTimeout(resolve, 2000));
-                  } else {
-                     console.error("❌ All AI analysis attempts exhausted");
-                  }
-               }
-            }
-            
-            if (!aiSuccess) {
-               alert("⚠️ El análisis de IA falló. Se guardará sin resultados detallados.");
-            }
-
-            // Sanitize and construct interview object
-            // Map NEW Enhanced Analysis to OLD Interview structure for backwards compat
-            // + Store the full new object in 'enhancedAnalysis'
-            
-            const safeAnalysis = {
-               totalScore: (analysis as any).matchScore || 0, // NEW field
-               summary: (analysis as any).oneLinerVerdict || (analysis as any).summary || "Sin resumen", // NEW field
-               dimensionScores: {
-                  problemIntensity: (analysis as any).scores?.problemIntensity || 0,
-                  solutionFit: (analysis as any).scores?.solutionFit || 0,
-                  willingnessToPay: 0, // Not in new scores directly?
-                  currentBehavior: 0,
-                  painPoint: 0,
-                  earlyAdopter: 0
-               },
-               keyInsights: (analysis as any).signals?.buying || [] // Map buying signals to insights for now
-            };
-
-            const interview: Interview = {
-               id: Date.now().toString(),
-               projectId: project.id,
-               respondentName: regData.name || 'Anónimo',
-               respondentEmail: regData.email || '',
-               respondentPhone: regData.phone || '',
-               respondentInstagram: regData.instagram || '',
-               respondentTikTok: regData.tiktok || '',
-               respondentRole: regData.role || '',
-               respondentCity: regData.city || '',
-               respondentCountry: regData.country || '',
-               date: new Date().toISOString(),
-               answers: newAnswers,
-               totalScore: safeAnalysis.totalScore,
-               dimensionScores: safeAnalysis.dimensionScores,
-               summary: safeAnalysis.summary,
-               keyInsights: safeAnalysis.keyInsights,
-               enhancedAnalysis: analysis as any // Store full surgical result
-            };
-           
-           console.log("Saving sanitized interview:", interview);
-
-           try {
-              // Save (Logic handled by parent: Online -> Timeout -> Offline)
-              await onSave(interview);
-              
-              console.log("✅ Interview saved successfully");
-              // Clear draft only on success
-              localStorage.removeItem(`draft_interview_${project.id}`);
-
-              // AUTO-CLOSE form and open the interview modal
-              console.log("🔄 Closing form and opening interview profile...");
-              
-              // Wait a moment to let user see completion message
-              await new Promise(resolve => setTimeout(resolve, 1000));
-              
-              // Close this form AND pass the interview to be opened
-              onClose(interview);
-              setIsSaving(false);
-
-           } catch (saveError) {
-              console.error("Database save failed:", saveError);
-              alert("Error al guardar. Intenta nuevamente.");
-              setIsSaving(false);
-              return; 
-           }
-        } catch (error) {
-           console.error("Error processing interview:", error);
-           alert("Error crítico. Revisa la consola.");
-           setIsSaving(false);
-        }
-     }
-  };
-
-   const handleAnswer = (val: any) => {
-      setCurrentVal(val.toString());
-   };
-
-  const handleBack = () => {
-     if (step > -1) {
-        const qId = project.questions[step].id;
-        const tempAns = { ...answers[qId], questionId: qId, rawValue: currentVal, observation };
-        setAnswers({ ...answers, [qId]: tempAns });
-        setStep(step - 1);
-     }
-  };
-
-  if (showDraftRestore) {
-     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-           <div className="bg-[#111] border border-white/10 p-8 rounded-3xl max-w-md w-full shadow-[0_0_50px_rgba(0,0,0,0.5)]">
-              <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-6 mx-auto">
-                 <RefreshCw className="text-neon w-8 h-8" />
-              </div>
-              <h3 className="text-2xl font-bold text-white mb-2 text-center">Sesión Recuperada</h3>
-              <p className="text-slate-400 mb-8 text-center leading-relaxed">
-                 Encontramos una entrevista en progreso ({draftData?.regData?.name || 'Candidato'}). 
-                 <br/>¿Deseas continuar donde la dejaste?
-              </p>
-              <div className="flex gap-4">
-                 <button 
-                  onClick={handleDiscardDraft} 
-                  className="flex-1 py-4 bg-white/5 hover:bg-white/10 text-slate-300 rounded-xl font-bold transition-colors uppercase tracking-wider text-xs"
-                 >
-                    Reiniciar
-                 </button>
-                 <button 
-                  onClick={handleRestoreDraft} 
-                  className="flex-1 py-4 bg-neon hover:bg-emerald-400 text-black rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(58,255,151,0.3)] uppercase tracking-wider text-xs"
-                 >
-                    Continuar
-                 </button>
-              </div>
-           </div>
-        </div>
-     )
-  }
-
+  // REGISTRATION VIEW
   if(step === -1) {
      return (
         <div className="max-w-4xl mx-auto mt-8 animate-fade-in-up pb-20">
@@ -1874,142 +1684,111 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
                  </div>
               </div>
 
-              <button onClick={handleNext} className="w-full bg-gradient-to-r from-neon to-emerald-400 text-black font-bold py-4 rounded-xl shadow-[0_0_20px_rgba(223,255,0,0.3)] mt-8 hover:shadow-[0_0_40px_rgba(223,255,0,0.6)] hover:scale-[1.02] transition-all tracking-wide uppercase text-sm">{t.startInterview}</button>
+              <button onClick={handleStartSession} className="w-full bg-gradient-to-r from-neon to-emerald-400 text-black font-bold py-4 rounded-xl shadow-[0_0_20px_rgba(223,255,0,0.3)] mt-8 hover:shadow-[0_0_40px_rgba(223,255,0,0.6)] hover:scale-[1.02] transition-all tracking-wide uppercase text-sm">
+                 INICIAR SESIÓN DE ENTREVISTA
+              </button>
            </div>
         </div>
      )
   }
 
+  // ACTIVE SESSION VIEW
   return (
-     <div className="w-full h-[calc(100vh-140px)] animate-fade-in flex gap-6 px-6 pb-6">
-        {/* Visual Side */}
-        <div className="hidden lg:block w-1/2 h-full relative rounded-3xl overflow-hidden shadow-2xl border border-white/10 group">
-           <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10"></div>
-            <img 
-              src={coverImage} 
-              className="w-full h-full object-cover transition-transform duration-[20s] ease-linear group-hover:scale-110" 
-            />
-           <div className="absolute bottom-8 left-8 z-20 max-w-sm">
-              <div className="bg-black/60 backdrop-blur-md p-4 rounded-xl border border-white/10 text-sm text-slate-200">
-                 <p className="font-bold text-white mb-1">AI Context Analysis</p>
-                 <p className="text-xs">Analyzing response patterns for: <span className="text-neon">{question.dimension}</span></p>
+     <div className="w-full h-[calc(100vh-140px)] animate-fade-in flex flex-col md:flex-row gap-6 px-6 pb-6">
+        
+        {/* LEFT COLUMN: GUIDELINES */}
+        <div className="w-full md:w-1/3 flex flex-col gap-4">
+           <div className={`flex-1 ${GLASS_PANEL} p-6 rounded-3xl overflow-hidden flex flex-col`}>
+              <h3 className="text-xs text-slate-400 uppercase font-bold tracking-widest mb-4 flex items-center gap-2">
+                 <FileText size={14} className="text-neon" /> Guía de Entrevista
+              </h3>
+              <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-4">
+                 {project.questions.map((q: any, idx: number) => (
+                    <div key={q.id} className="p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
+                       <span className="text-[10px] text-neon/70 font-bold uppercase mb-1 block">Pregunta {idx + 1} • {q.dimension}</span>
+                       <p className="text-sm text-white font-medium">{q.text}</p>
+                    </div>
+                 ))}
+                 <div className="p-4 rounded-xl bg-gradient-to-br from-neon/10 to-transparent border border-neon/20">
+                    <p className="text-xs text-neon italic">
+                       💡 Tip: Mantén una conversación fluida. La IA detectará las respuestas automáticamente aunque no sigas el orden exacto.
+                    </p>
+                 </div>
               </div>
            </div>
         </div>
 
-        {/* Input Side */}
-        <div className="flex-1 flex flex-col h-full min-h-0">
-           <div className="flex justify-between items-center mb-2 flex-shrink-0">
-              <div className="flex gap-2">
-                 <button onClick={handleBack} className="text-slate-400 hover:text-white flex items-center gap-2 text-xs font-bold uppercase tracking-wider bg-white/5 px-3 py-2 rounded-lg hover:bg-white/10 transition-colors">
-                    <ArrowLeft size={14}/> Atrás
-                 </button>
-                 {step < project.questions.length - 1 && (
-                    <button onClick={handleNext} className="text-slate-400 hover:text-neon flex items-center gap-2 text-xs font-bold uppercase tracking-wider bg-white/5 px-3 py-2 rounded-lg hover:bg-white/10 transition-colors">
-                       Siguiente <ArrowRight size={14}/>
-                    </button>
-                 )}
+        {/* RIGHT COLUMN: CONTROL CENTER */}
+        <div className="w-full md:w-2/3 flex flex-col gap-4">
+           {/* Top Bar: Status & Timer */}
+           <div className={`${GLASS_PANEL} p-4 rounded-2xl flex justify-between items-center`}>
+              <div className="flex items-center gap-4">
+                 <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider ${isRecording ? 'bg-red-500/20 text-red-500 border border-red-500/30' : 'bg-slate-800 text-slate-400'}`}>
+                    <div className={`w-2 h-2 rounded-full ${isRecording ? 'bg-red-500 animate-pulse' : 'bg-slate-500'}`}></div>
+                    {isRecording ? 'GRABANDO EN VIVO' : 'EN ESPERA'}
+                 </div>
+                 <span className="font-mono text-2xl text-white font-bold tabular-nums tracking-widest text-shadow-neon">
+                    {formatTime(elapsedTime)}
+                 </span>
               </div>
-              <div className="text-neon font-bold tracking-widest text-[10px] uppercase">Pregunta {step+1}/{project.questions.length}</div>
+              <button onClick={onCancel} className="text-slate-400 hover:text-white transition-colors">
+                 <X size={20} />
+              </button>
            </div>
-           
-           <div className={`${GLASS_PANEL} p-4 flex-1 flex flex-col min-h-0 overflow-hidden`}>
-              <h2 className="text-2xl md:text-3xl font-bold text-white mb-12 leading-tight flex-shrink-0">{question.text}</h2>
-               
-               {/* Input Area - DUAL MODE */}
-               <div className="mb-6 flex-1 flex flex-col gap-6 overflow-y-auto pr-4 custom-scrollbar">
-                  
-                  {/* 1. Manual Input (Always Visible) */}
-                  <div className="flex-1 min-h-[160px]">
-                     <SmartQuestionWidget
-                        question={question}
-                        value={currentVal}
-                        onChange={handleAnswer}
-                        onBlur={() => handleAnswer(currentVal)}
-                     />
-                  </div>
 
-                  {/* 2. Voice Input (Always Available) - Appends to answer */}
-                  <div className="flex-shrink-0 relative group">
-                     {/* Ambient Glow */}
-                     <div className="absolute inset-0 bg-neon/5 rounded-2xl blur-xl group-hover:bg-neon/10 transition-all duration-500"></div>
-                     
-                     <div className="relative bg-black/60 backdrop-blur-xl p-6 rounded-2xl border border-white/10 group-hover:border-neon/30 transition-all shadow-lg overflow-hidden">
-                        {/* Decorative background grid */}
-                        <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
-                        
-                        <div className="relative z-10">
-                           <p className="text-[10px] text-neon font-bold uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                              <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-neon opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-neon"></span>
-                              </span>
-                              Grabadora de Voz (Complemento)
-                           </p>
-                           <VoiceInput
-                              language={lang === 'es' ? 'es' : 'en'}
-                              className="w-full"
-                              onTranscriptChange={(text) => {
-                                 // Real-time updates could overwrite manual typing, so be careful.
-                              }}
-                              onRecordingComplete={(data) => {
-                                // Append the voice text to existing text
-                                const specificTranscript = data.transcript;
-                                if (specificTranscript) {
-                                   const newText = currentVal ? `${currentVal}\n\n[Voz]: ${specificTranscript}` : specificTranscript;
-                                   handleAnswer(newText);
-                                }
-                              }}
-                              placeholder={t.voicePlaceholder || "Graba tu respuesta adicional o completa..."}
-                           />
-                        </div>
-                     </div>
-                  </div>
-               </div>
-
-              <div className="mt-auto pt-6 border-t border-white/5 flex-shrink-0">
-                 <div className="flex items-center gap-2 mb-3 text-xs text-slate-400 uppercase font-bold tracking-wider">
-                    <Sparkles size={12} className="text-neon"/> 
-                    Observaciones / Emociones Detectadas
-                 </div>
-                 <div className="relative group">
-                    <div className="absolute -inset-0.5 bg-gradient-to-r from-neon/20 to-blue-500/20 rounded-xl blur opacity-0 group-hover:opacity-100 transition duration-500"></div>
-                    <textarea 
-                      className="relative w-full h-32 bg-black/50 backdrop-blur-md rounded-xl border border-white/10 p-5 text-base text-slate-200 focus:text-white outline-none resize-none focus:border-neon/50 transition-all placeholder:text-slate-600 shadow-inner"
-                      placeholder={t.obsLabel + "..."}
-                      value={observation}
-                      onChange={e => setObservation(e.target.value)}
-                   />
-                 </div>
-                 <button onClick={handleNext} disabled={isSaving} className={`w-full font-bold py-4 rounded-xl mt-4 transition-all shadow-lg flex items-center justify-center gap-2 text-sm uppercase tracking-wider relative overflow-hidden group ${isSaving ? 'bg-white/10 text-white cursor-wait border border-white/10' : 'bg-white text-black hover:scale-[1.01]'}`}>
-                    {/* Button Gradient Hover Effect */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-neon via-white to-neon opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
-                    
-                    {isSaving ? (
-                       <span className="flex items-center gap-2 animate-pulse">
-                          <RefreshCw className="animate-spin" size={20} /> 
-                          <span className="animate-shimmer bg-gradient-to-r from-white via-slate-400 to-white bg-[length:200%_auto] bg-clip-text text-transparent">
-                             Analizando Datos...
-                          </span>
-                       </span>
-                    ) : step === project.questions.length - 1 ? (
-                       <span className="relative z-10 flex items-center gap-2"><CheckCircle size={22} className="text-black"/> Finalizar</span>
-                    ) : (
-                       <span className="relative z-10 flex items-center gap-2">Siguiente <ArrowRight size={22} className="group-hover:translate-x-1 transition-transform"/></span>
-                    )}
-                 </button>
-                 {isSaving && (
-                    <div className="mt-4 text-center space-y-2 animate-fade-in">
-                       <p className="text-sm text-neon font-bold uppercase tracking-widest drop-shadow-[0_0_10px_rgba(58,255,151,0.5)]">Generando Reporte Científico</p>
-                       <p className="text-xs text-slate-400 max-w-xs mx-auto leading-relaxed">
-                          Esto puede tardar unos segundos mientras la IA procesa los patrones...
-                       </p>
-                       {/* Fake Countdown for UX */}
-                       <div className="w-full h-1 bg-white/10 rounded-full mt-2 overflow-hidden">
-                          <div className="h-full bg-neon animate-[width_25s_linear_forwards] w-0"></div>
-                       </div>
+           {/* Main Area: Voice & Transcript */}
+           <div className={`flex-1 ${GLASS_PANEL} p-6 rounded-3xl relative overflow-hidden flex flex-col`}>
+              
+              {/* Transcript Display */}
+              <div className="flex-1 overflow-y-auto custom-scrollbar mb-4 bg-black/30 rounded-xl p-4 border border-white/5 shadow-inner font-mono text-sm leading-relaxed text-slate-300">
+                 {fullTranscript ? (
+                    <p className="whitespace-pre-wrap">{fullTranscript}</p>
+                 ) : (
+                    <div className="h-full flex flex-col items-center justify-center text-slate-600 opacity-50">
+                       <Mic size={48} className="mb-4" />
+                       <p>La transcripción en vivo aparecerá aquí...</p>
                     </div>
                  )}
+                 {/* Auto-scroll anchor */}
+                 <div id="transcript-end"></div>
+              </div>
+
+              {/* Controls */}
+              <div className="flex gap-4 items-center">
+                 <div className="flex-1">
+                    <VoiceInput 
+                       language={lang === 'es' ? 'es' : 'en'}
+                       maxDuration={3600} // 1 Hour
+                       showTranscript={false} // We handle transcript manually above
+                       onRecordingComplete={(data) => {
+                          // This acts as a "chunk" or final handler if stopped manually
+                          // But we want continuous updates ideally.
+                       }}
+                       onTranscriptChange={(text) => {
+                          // WEB SPEECH API GIVES CUMULATIVE TRANSCRIPT USUALLY
+                          // BUT IF WE PAUSE, RESTART, WE NEED TO HANDLE APPENDING CAREFULLY.
+                          // VoiceInput internally resets on stop.
+                          // Strategy: We will append ONLY when "Session" ends? No, we want live.
+                          // VoiceInput `onTranscriptChange` returns partial or full?
+                          // Let's rely on VoiceInput internal state not being cleared OR append intelligently.
+                          // Current VoiceInput emits `result.text` which is cumulative for *current session*.
+                          
+                          // Hack: If we stop and start, VoiceInput clears its internal state.
+                          // But we are in "Continuous Mode". We won't stop until the end.
+                          setFullTranscript(text); 
+                       }}
+                    />
+                 </div>
+                 
+                 {/* Notes Toggler / Area */}
+                 <div className="w-[40%]">
+                    <textarea 
+                       className="w-full h-full bg-black/30 border border-white/10 rounded-xl p-4 text-white resize-none focus:border-neon outline-none text-sm font-mono"
+                       placeholder="Notas del entrevistador..."
+                       value={notes}
+                       onChange={(e) => setNotes(e.target.value)}
+                    />
+                 </div>
               </div>
            </div>
         </div>
@@ -2036,9 +1815,9 @@ const DashboardView = ({ project, interviews, t }: any) => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in pb-20">
          {/* NEW: Quantum Metrics */}
          <DashboardMetrics 
-            totalInterviews={stats.totalCount} 
-            avgScore={stats.avgScore} 
-            status={Number(stats.avgScore) > 7 ? 'High Potential' : 'Needs Validation'} 
+            totalInterviews={totalInterviews} 
+            avgScore={avgScore} 
+            status={Number(avgScore) > 7 ? 'High Potential' : 'Needs Validation'} 
          />
 
          {/* Main Chart */}
@@ -2278,7 +2057,7 @@ function AppContent() {
     isOpen: false,
     title: '',
     message: '',
-    onConfirm: () => {},
+    onConfirm: async () => {},
   });
 
   const requestConfirm = (options: Omit<ConfirmationState, 'isOpen'>) => {
