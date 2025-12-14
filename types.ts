@@ -164,7 +164,7 @@ export interface UserCredits {
   lastUpdated: string;
 }
 
-export const INITIAL_CREDITS = 100;
+export const INITIAL_CREDITS = 200;
 
 // ============ BUSINESS REPORT SYSTEM ============
 

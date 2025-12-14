@@ -30,7 +30,7 @@ interface Props {
 type Step = 'config' | 'generating' | 'complete';
 
 // Icon Mapping Helper
-const getSectionIcon = (id: string, className: string = "w-5 h-5") => {
+const getSectionIcon = (id: string, className: string = "w-4 h-4") => {
   switch (id) {
     case 'executive_summary': return <LayoutDashboard className={className} />;
     case 'problem_solution': return <Target className={className} />;
@@ -197,70 +197,99 @@ export const BusinessReportGenerator: React.FC<Props> = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 lg:p-6"
         onClick={(e) => e.target === e.currentTarget && onClose()}
       >
         {/* Confetti Effect */}
         {showConfetti && <ConfettiEffect />}
         
         <motion.div
-          initial={{ scale: 0.95, opacity: 0, y: 20 }}
+          initial={{ scale: 0.95, opacity: 0, y: 10 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
-          exit={{ scale: 0.95, opacity: 0, y: 20 }}
+          exit={{ scale: 0.95, opacity: 0, y: 10 }}
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-          className="relative w-full max-w-5xl max-h-[90vh] bg-slate-900 rounded-3xl overflow-hidden border border-white/10 shadow-[0_40px_100px_rgba(0,0,0,0.5)] flex flex-col"
+          className="relative w-full max-w-6xl h-[85vh] bg-[#0A0A0A] rounded-2xl overflow-hidden border border-white/10 shadow-2xl flex flex-col"
         >
           {/* Decorative elements */}
-          <div className="absolute top-0 right-0 w-96 h-96 bg-neon/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none" />
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+          
           {/* Header */}
-          <div className="flex items-center justify-between p-5 border-b border-white/10 bg-gradient-to-r from-black to-[#111]">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-900/20">
-                <FileText className="w-5 h-5 text-emerald-500" />
+          <div className="flex items-center justify-between px-6 py-4 border-b border-white/5 bg-white/[0.02]">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-emerald-500/10 border border-emerald-500/20 rounded-lg flex items-center justify-center ring-2 ring-emerald-500/5">
+                <Crown className="w-4 h-4 text-emerald-500" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-white tracking-tight">Business Lab</h2>
-                <p className="text-xs text-slate-400 mt-0.5">Generador Estratégico AI</p>
+                <h2 className="text-lg font-bold text-white tracking-tight leading-none">Business Lab</h2>
+                <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wider mt-0.5">Consultoría Estratégica AI</p>
               </div>
             </div>
-            <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-lg transition text-slate-400 hover:text-white">
-              <X className="w-5 h-5" />
-            </button>
+            
+            <div className="flex items-center gap-3">
+               {/* Available Credits Pill */}
+               <div className="hidden md:flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-full border border-white/10">
+                   <Zap className="w-3 h-3 text-yellow-500" />
+                   <span className="text-xs text-white font-bold">{credits?.available ?? 0}</span>
+               </div>
+               <button onClick={onClose} className="p-1.5 hover:bg-white/10 rounded-lg transition text-slate-400 hover:text-white">
+                 <X className="w-5 h-5" />
+               </button>
+            </div>
           </div>
 
-          {/* Content */}
-          <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
-            {/* Interview Warning */}
-            {interviews.length < 3 && step === 'config' && (
-              <div className="mb-10 p-5 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-start gap-4">
-                <AlertCircle className="w-6 h-6 text-amber-500 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-amber-400 font-bold text-base">Sugerencia de Calidad</p>
-                  <p className="text-amber-300/70 text-sm mt-1 leading-relaxed">
-                     Actualmente tienes {interviews.length} entrevistas. Para obtener insights estratégicos profundos, nuestro algoritmo rinde mejor con al menos 5 entrevistas validadas.
-                  </p>
+          {/* Main Content Area */}
+          <div className="flex-1 overflow-hidden">
+            {step === 'config' && (
+              <div className="h-full grid grid-cols-1 lg:grid-cols-12">
+                
+                {/* LEFT COL: Financial & Value (4 cols) */}
+                <div className="lg:col-span-4 p-6 border-r border-white/5 bg-white/[0.01] flex flex-col overflow-y-auto custom-scrollbar">
+                    <ConfigSidebar 
+                      totalCost={totalCost} 
+                      interviewsCount={interviews.length} 
+                    />
+                    
+                    {/* Error Message */}
+                    {error && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-xs text-red-200 flex items-start gap-2"
+                      >
+                        <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+                        {error}
+                      </motion.div>
+                    )}
+                </div>
+
+                {/* RIGHT COL: Sections Grid (8 cols) */}
+                <div className="lg:col-span-8 p-6 overflow-y-auto custom-scrollbar bg-[#050505]">
+                    <div className="mb-6 flex items-center justify-between">
+                        <div>
+                           <h3 className="text-xl font-bold text-white">Configuración del Reporte</h3>
+                           <p className="text-slate-500 text-xs mt-1">Selecciona los módulos estratégicos a incluir.</p>
+                        </div>
+                        <div className="text-xs text-slate-400">
+                           {selectedSections.length} seleccionados
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pb-20">
+                      {REPORT_SECTIONS.map(section => (
+                        <SectionCard 
+                           key={section.id} 
+                           section={section} 
+                           isSelected={selectedSections.includes(section.id)}
+                           onToggle={() => toggleSection(section.id)}
+                        />
+                      ))}
+                    </div>
                 </div>
               </div>
             )}
 
-            {step === 'config' && (
-              <ConfigStep 
-                sections={REPORT_SECTIONS}
-                selectedSections={selectedSections}
-                onToggle={toggleSection}
-                totalCost={totalCost}
-                credits={credits}
-                hasEnoughCredits={hasEnoughCredits}
-                error={error}
-              />
-            )}
-
             {step === 'generating' && (
-              <GeneratingStep 
-                progress={progress} 
-                currentStage={currentStage} 
-              />
+              <GeneratingStep progress={progress} currentStage={currentStage} />
             )}
             
             {step === 'complete' && report && (
@@ -272,57 +301,30 @@ export const BusinessReportGenerator: React.FC<Props> = ({
             )}
           </div>
 
-          {/* Footer */}
-          <div className="flex items-center justify-between p-8 border-t border-white/10 bg-[#050505]">
-            <div className="flex items-center gap-4">
-              <div className="bg-yellow-500/10 p-2.5 rounded-xl border border-yellow-500/20">
-                 <Zap className="w-6 h-6 text-yellow-500" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-xs text-slate-500 uppercase font-bold tracking-wider mb-0.5">Saldo Disponible</span>
-                <div className="flex items-center gap-2">
-                   {loadingCredits ? (
-                      <Loader2 className="w-4 h-4 animate-spin text-slate-500" />
-                   ) : creditsError ? (
-                      <button onClick={loadCredits} className="text-red-400 text-xs hover:underline flex items-center gap-1">
-                         <AlertCircle size={12} /> Reintentar
-                      </button>
-                   ) : (
-                      <span className="text-white font-bold text-xl">{credits?.available ?? 0} <span className="text-slate-500 text-sm font-normal">créditos</span></span>
-                   )}
-                </div>
-              </div>
+          {/* Footer Bar (Only shown in config) */}
+          {step === 'config' && (
+            <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10 bg-[#0A0A0A]/90 backdrop-blur-md flex justify-end lg:pr-8">
+               <motion.button
+                  whileHover={hasEnoughCredits && selectedSections.length > 0 ? { scale: 1.02 } : {}}
+                  whileTap={hasEnoughCredits && selectedSections.length > 0 ? { scale: 0.98 } : {}}
+                  onClick={handleGenerate}
+                  disabled={!hasEnoughCredits || selectedSections.length === 0 || generating || loadingCredits || !!creditsError}
+                  className={`
+                    flex items-center gap-2 px-8 py-3 rounded-xl font-bold text-sm transition-all shadow-lg
+                    ${hasEnoughCredits && selectedSections.length > 0
+                      ? 'bg-gradient-to-r from-emerald-500 to-emerald-400 text-black shadow-emerald-900/40'
+                      : 'bg-white/5 text-slate-500 border border-white/5 cursor-not-allowed'
+                    }
+                  `}
+                >
+                  {generating ? (
+                    <><Loader2 className="w-4 h-4 animate-spin" /> Procesando...</>
+                  ) : (
+                    <><Sparkles className="w-4 h-4" /> Generar Reporte ({totalCost} CR)</>
+                  )}
+                </motion.button>
             </div>
-            
-            {step === 'config' && (
-              <motion.button
-                whileHover={hasEnoughCredits && selectedSections.length > 0 ? { scale: 1.02 } : {}}
-                whileTap={hasEnoughCredits && selectedSections.length > 0 ? { scale: 0.98 } : {}}
-                onClick={handleGenerate}
-                disabled={!hasEnoughCredits || selectedSections.length === 0 || generating || loadingCredits || !!creditsError}
-                className={`
-                  flex items-center gap-3 px-10 py-5 rounded-2xl font-bold text-base uppercase tracking-wide transition-all
-                  ${hasEnoughCredits && selectedSections.length > 0
-                    ? 'bg-emerald-500 text-black hover:bg-emerald-400 shadow-[0_0_30px_rgba(16,185,129,0.2)]'
-                    : 'bg-white/5 text-slate-500 border border-white/5 cursor-not-allowed'
-                  }
-                `}
-              >
-                <Sparkles className="w-5 h-5" />
-                Generar Reporte ({totalCost} créditos)
-              </motion.button>
-            )}
-            
-            {step === 'complete' && (
-              <button
-                onClick={onClose}
-                className="flex items-center gap-3 px-10 py-5 bg-white/10 text-white rounded-2xl font-bold hover:bg-white/20 transition-all border border-white/10"
-              >
-                <Check className="w-5 h-5" />
-                Finalizar Sesión
-              </button>
-            )}
-          </div>
+          )}
         </motion.div>
       </motion.div>
     </AnimatePresence>
@@ -331,304 +333,200 @@ export const BusinessReportGenerator: React.FC<Props> = ({
 
 // ============ SUB-COMPONENTS ============
 
-const ConfigStep: React.FC<{
-  sections: typeof REPORT_SECTIONS;
-  selectedSections: string[];
-  onToggle: (id: string) => void;
+const ConfigSidebar: React.FC<{
   totalCost: number;
-  credits: UserCredits | null;
-  hasEnoughCredits: boolean;
-  error: string | null;
-}> = ({ sections, selectedSections, onToggle, totalCost, credits, hasEnoughCredits, error }) => {
-  const [currency, setCurrency] = useState<'USD' | 'COP'>('COP');
+  interviewsCount: number;
+}> = ({ totalCost, interviewsCount }) => {
+   const [currency, setCurrency] = useState<'USD' | 'COP'>('COP');
+   const marketValue = totalCost * 2.5; 
+   const displayValue = currency === 'USD' ? marketValue : marketValue * 4100;
 
-  // MARKET VALUE SIMULATION
-  const marketValueAmount = totalCost * 2.5; 
-  const displayValue = currency === 'USD' ? marketValueAmount : marketValueAmount * 4100;
+   return (
+      <div className="space-y-6">
+         {/* Value Card */}
+         <div className="bg-gradient-to-b from-[#111] to-black border border-white/10 rounded-2xl p-5 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
+            
+            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-2 flex items-center gap-1.5">
+               <TrendingUp size={12} className="text-indigo-400" /> Valor de Mercado
+            </p>
+            
+            <div className="flex items-baseline gap-1 mb-3">
+               <span className="text-3xl font-bold text-white tracking-tight">
+                  {currency === 'USD' ? '$' : '$'}{displayValue.toLocaleString('es-CO')}
+               </span>
+               <span className="text-[10px] text-slate-500 font-bold">{currency}</span>
+            </div>
 
-  return (
-  <div className="space-y-12 animate-fade-in font-sans">
-    
-    {/* PREMIUM FINANCIAL DASHBOARD */}
-    <div className="bg-[#0f0f0f] border border-white/10 rounded-3xl p-0 overflow-hidden relative group shadow-2xl ring-1 ring-white/5">
-       <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-       
-       {/* Dashboard Header */}
-       <div className="flex justify-between items-center p-8 border-b border-white/5 bg-white/[0.02]">
-           <div className="flex items-center gap-4">
-              <div className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse relative">
-                <div className="absolute inset-0 bg-emerald-500 rounded-full animate-ping opacity-50"></div>
-              </div>
-              <span className="text-sm font-bold text-slate-300 uppercase tracking-[0.2em]">Panel de Valoración</span>
-           </div>
-           
-           <div className="flex bg-black/40 rounded-xl p-1.5 border border-white/10">
+            <div className="flex gap-1 mb-4">
               <button 
                 onClick={() => setCurrency('USD')} 
-                className={`px-5 py-2 rounded-lg text-xs font-bold transition-all duration-300 ${currency === 'USD' ? 'bg-white text-black shadow-lg scale-105' : 'text-slate-500 hover:text-white'}`}
-              >
-                 USD
-              </button>
+                className={`px-2 py-0.5 rounded text-[10px] font-medium transition-colors ${currency === 'USD' ? 'bg-white/10 text-white' : 'text-slate-600 hover:text-white'}`}
+              >USD</button>
               <button 
                 onClick={() => setCurrency('COP')} 
-                className={`px-5 py-2 rounded-lg text-xs font-bold transition-all duration-300 ${currency === 'COP' ? 'bg-white text-black shadow-lg scale-105' : 'text-slate-500 hover:text-white'}`}
-              >
-                 COP
-              </button>
-           </div>
-       </div>
+                className={`px-2 py-0.5 rounded text-[10px] font-medium transition-colors ${currency === 'COP' ? 'bg-white/10 text-white' : 'text-slate-600 hover:text-white'}`}
+              >COP</button>
+            </div>
+            
+            <p className="text-[10px] text-slate-500 leading-relaxed border-t border-white/5 pt-3">
+               Costo estimado si contrataras una firma externa clásica.
+            </p>
+         </div>
 
-       <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-white/5">
-          {/* Market Value Column */}
-          <div className="p-12 relative">
-              <p className="text-slate-500 text-xs font-bold uppercase tracking-wide mb-4 flex items-center gap-2">
-                 <TrendingUp size={14} /> Valor de Mercado Estimado
-              </p>
-              <div className="flex items-baseline gap-2 mb-4">
-                  <span className="text-5xl lg:text-6xl font-bold text-white tracking-tighter">
-                    {currency === 'USD' ? '$' : '$'}
-                    <NumberTicker key={currency} value={displayValue} />
-                  </span>
-                  <span className="text-lg text-slate-500 font-medium self-end mb-2">{currency}</span>
-              </div>
-              <p className="text-sm text-slate-400 leading-relaxed max-w-sm">
-                  Costo equivalente estimado si contrataras una firma de consultoría estratégica externa para realizar este análisis detallado.
-              </p>
-          </div>
+         {/* Cost Card */}
+         <div className="bg-emerald-950/[0.1] border border-emerald-500/10 rounded-2xl p-5 relative">
+            <p className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider mb-2 flex items-center gap-1.5">
+               <Target size={12} /> Costo Hoy
+            </p>
+            <div className="flex items-baseline gap-2 mb-2">
+               <span className="text-3xl font-bold text-white tracking-tight">{totalCost}</span>
+               <span className="text-[10px] text-slate-400 font-bold uppercase">Créditos</span>
+            </div>
+            <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-emerald-500/10 rounded-md border border-emerald-500/20">
+               <Check size={10} className="text-emerald-400" />
+               <span className="text-[10px] text-emerald-300 font-medium">Bonificado (Beta)</span>
+            </div>
+         </div>
 
-          {/* Your Cost Column */}
-          <div className="p-12 bg-emerald-950/[0.05] relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
-              
-              <div className="relative z-10">
-                  <div className="flex justify-between items-start mb-6">
-                      <p className="text-emerald-400 text-xs font-bold uppercase tracking-wide flex items-center gap-2">
-                        <Target size={14} /> Tu Inversión Actual
-                      </p>
-                      <span className="bg-emerald-500/10 text-emerald-400 text-[10px] font-bold px-3 py-1.5 rounded-full border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.1)] uppercase tracking-wider">
-                         Plan Beta
-                      </span>
-                  </div>
-                  
-                  <div className="flex items-baseline gap-3 mb-6">
-                      <span className="text-5xl lg:text-6xl font-bold text-white tracking-tighter tabular-nums">
-                         {totalCost}
-                      </span>
-                      <span className="text-sm text-slate-400 font-bold uppercase tracking-widest">Créditos</span>
-                  </div>
-
-                  <div className="flex items-center gap-4 text-sm text-emerald-300/90 bg-emerald-500/5 p-4 rounded-xl border border-emerald-500/10 hover:bg-emerald-500/10 transition-colors">
-                      <div className="bg-emerald-500/20 p-2 rounded-full">
-                        <Check size={16} className="text-emerald-400" />
-                      </div>
-                      <span className="font-medium">100% Bonificado en Etapa Beta</span>
-                  </div>
-              </div>
-          </div>
-       </div>
-    </div>
-    
-    {error && (
-      <motion.div 
-        initial={{ y: -10, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className="bg-red-500/5 border-l-4 border-red-500 p-6 rounded-r-xl flex items-center gap-4"
-      >
-        <AlertCircle className="w-6 h-6 text-red-500 flex-shrink-0" />
-        <p className="text-red-200 font-medium">{error}</p>
-      </motion.div>
-    )}
-    
-    {/* Section Selector */}
-    <div>
-      <div className="flex items-center gap-4 mb-8">
-        <div className="bg-white/5 p-3 rounded-xl border border-white/5">
-           <LayoutDashboard className="w-6 h-6 text-indigo-400" />
-        </div>
-        <div>
-           <h3 className="text-2xl font-bold text-white">Configuración del Alcance</h3>
-           <p className="text-slate-400 text-sm mt-1">Selecciona los módulos estratégicos a incluir en tu reporte</p>
-        </div>
+         {/* Interview Warning (Mini) */}
+         {interviewsCount < 5 && (
+            <div className="p-4 bg-amber-500/5 border border-amber-500/10 rounded-2xl">
+               <div className="flex items-center gap-2 mb-1">
+                  <AlertCircle size={14} className="text-amber-500" />
+                  <span className="text-xs font-bold text-amber-500">Nota de Calidad</span>
+               </div>
+               <p className="text-[11px] text-amber-200/60 leading-relaxed">
+                  Tienes {interviewsCount} entrevistas. Se recomiendan 5+ para mejores resultados.
+               </p>
+            </div>
+         )}
       </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {sections.map(section => {
-          const isSelected = selectedSections.includes(section.id);
-          return (
-            <motion.button
-              key={section.id}
-              onClick={() => onToggle(section.id)}
-              whileHover={{ scale: 1.01, y: -1 }}
-              whileTap={{ scale: 0.99 }}
-              className={`
-                group relative flex items-center gap-4 p-4 rounded-2xl text-left transition-all duration-300 border h-full
-                ${isSelected 
-                  ? 'bg-[#121212] border-emerald-500/40 shadow-[0_0_15px_rgba(16,185,129,0.05)]' 
-                  : 'bg-black border-white/5 hover:border-white/10 hover:bg-[#0a0a0a]'
-                }
-              `}
-            >
-              <div className={`
-                w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-300 border relative z-10
-                ${isSelected 
-                   ? 'bg-emerald-500 text-black border-emerald-400 shadow-lg shadow-emerald-500/20' 
-                   : 'bg-white/5 text-slate-500 border-white/5 group-hover:border-white/20 group-hover:text-slate-300 group-hover:bg-white/10'
-                }
-              `}>
-                {isSelected ? <Check size={18} strokeWidth={3} /> : getSectionIcon(section.id, "w-5 h-5")}
-              </div>
-              
-              <div className="relative z-10 flex-1 min-w-0">
-                <div className="flex justify-between items-center mb-1">
-                  <p className={`text-sm font-bold transition-colors truncate ${isSelected ? 'text-white' : 'text-slate-400 group-hover:text-white'}`}>
-                    {section.title}
-                  </p>
-                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-md border transition-colors uppercase tracking-wider ml-2 ${
-                      isSelected 
-                         ? 'text-emerald-400 border-emerald-500/30 bg-emerald-950/30' 
-                         : 'text-slate-600 border-white/5 bg-white/5'
-                   }`}>
-                      {section.creditCost} CR
-                   </span>
-                </div>
-                
-                <p className="text-xs text-slate-500 leading-snug group-hover:text-slate-400 transition-colors line-clamp-1">
-                   {section.description}
-                </p>
-              </div>
-            </motion.button>
-          );
-        })}
-      </div>
-    </div>
-  </div>
-  );
+   );
 };
 
-// Animated Number Component
-const NumberTicker = ({ value }: { value: number }) => {
-   const [display, setDisplay] = useState(0);
-   
-   useEffect(() => {
-      let start = 0;
-      const end = value;
-      const duration = 1000;
-      const startTime = performance.now();
+const SectionCard: React.FC<{
+  section: typeof REPORT_SECTIONS[0];
+  isSelected: boolean;
+  onToggle: () => void;
+}> = ({ section, isSelected, onToggle }) => (
+  <button
+      onClick={onToggle}
+      className={`
+        relative group flex items-start gap-3 p-4 rounded-xl text-left transition-all duration-200 border w-full
+        ${isSelected 
+          ? 'bg-[#151515] border-emerald-500/30 shadow-[0_4px_12px_rgba(0,0,0,0.2)]' 
+          : 'bg-black/40 border-white/5 hover:bg-white/5 hover:border-white/10'
+        }
+      `}
+    >
+      <div className={`
+        w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors duration-200
+        ${isSelected 
+            ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' 
+            : 'bg-white/5 text-slate-500 group-hover:bg-white/10 group-hover:text-slate-300'
+        }
+      `}>
+        {isSelected ? <Check size={14} strokeWidth={3} /> : getSectionIcon(section.id)}
+      </div>
       
-      const animate = (currentTime: number) => {
-         const elapsed = currentTime - startTime;
-         const progress = Math.min(elapsed / duration, 1);
-         const easeOutQuart = 1 - Math.pow(1 - progress, 4);
-         
-         const current = Math.floor(easeOutQuart * end);
-         setDisplay(current);
-         
-         if (progress < 1) {
-            requestAnimationFrame(animate);
-         }
-      };
-      
-      requestAnimationFrame(animate);
-   }, [value]);
-   
-   return <>{display.toLocaleString('es-CO')}</>;
-};
-
-const GeneratingStep: React.FC<{
-  progress: number;
-  currentStage: string;
-}> = ({ progress, currentStage }) => (
-  <div className="py-24 space-y-16">
-    <div className="text-center relative">
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-emerald-500/20 rounded-full blur-[100px]"></div>
-      
-      <motion.div
-        animate={{ rotate: 360 }}
-        transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
-        className="w-32 h-32 mx-auto mb-10 bg-gradient-to-br from-emerald-500 to-cyan-500 p-0.5 rounded-full relative z-10"
-      >
-        <div className="w-full h-full bg-black rounded-full flex items-center justify-center backdrop-blur-xl">
-            <Loader2 className="w-16 h-16 text-emerald-500" />
+      <div className="flex-1 min-w-0">
+        <div className="flex justify-between items-center mb-0.5">
+          <p className={`text-sm font-medium transition-colors ${isSelected ? 'text-white' : 'text-slate-400 group-hover:text-white'}`}>
+            {section.title}
+          </p>
+          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border transition-colors ${
+              isSelected 
+                  ? 'text-emerald-400 border-emerald-500/20 bg-emerald-950/30' 
+                  : 'text-slate-600 border-white/5 bg-white/5'
+            }`}>
+              {section.creditCost} CR
+            </span>
         </div>
-      </motion.div>
-      <h3 className="text-4xl font-bold text-white mb-4 relative z-10">Generando tu Reporte</h3>
-      <p className="text-slate-400 text-xl relative z-10 animate-pulse font-light">{currentStage}</p>
-    </div>
+        <p className="text-[11px] text-slate-500 leading-snug group-hover:text-slate-400 line-clamp-2">
+            {section.description}
+        </p>
+      </div>
+  </button>
+);
+
+const GeneratingStep: React.FC<{ progress: number; currentStage: string }> = ({ progress, currentStage }) => (
+  <div className="h-full flex flex-col items-center justify-center p-10 text-center relative">
+    <div className="w-64 h-64 bg-emerald-500/5 rounded-full blur-[80px] absolute"></div>
     
-    <div className="max-w-xl mx-auto space-y-4">
-      <div className="flex justify-between text-sm uppercase tracking-widest font-bold">
-        <span className="text-slate-500">Procesando Datos</span>
-        <span className="text-emerald-500">{progress}%</span>
-      </div>
-      <div className="h-3 bg-white/5 rounded-full overflow-hidden">
-        <motion.div
-          initial={{ width: 0 }}
-          animate={{ width: `${progress}%` }}
-          className="h-full bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full shadow-[0_0_20px_rgba(16,185,129,0.4)]"
-          transition={{ duration: 0.5 }}
-        />
-      </div>
+    <div className="relative z-10 w-full max-w-sm space-y-8">
+       <div className="mx-auto w-20 h-20 relative">
+          <svg className="w-full h-full transform -rotate-90">
+             <circle cx="40" cy="40" r="36" fill="none" stroke="currentColor" strokeWidth="4" className="text-white/5" />
+             <circle 
+                cx="40" cy="40" r="36" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="4" 
+                strokeDasharray={`${2 * Math.PI * 36}`} 
+                strokeDashoffset={`${2 * Math.PI * 36 * (1 - progress / 100)}`} 
+                className="text-emerald-500 transition-all duration-300 ease-out" 
+             />
+          </svg>
+          <div className="absolute inset-0 flex items-center justify-center">
+             <span className="text-sm font-bold text-white">{progress}%</span>
+          </div>
+       </div>
+
+       <div>
+          <h3 className="text-2xl font-bold text-white mb-2">Construyendo Estrategia</h3>
+          <p className="text-emerald-400 text-sm animate-pulse">{currentStage}...</p>
+       </div>
     </div>
   </div>
-  );
-
+);
 
 const CompleteStep: React.FC<{
   report: GeneratedReport;
   onDownload: () => void;
   onOpenNew: () => void;
 }> = ({ report, onDownload, onOpenNew }) => (
-  <div className="py-16 space-y-10 text-center">
+  <div className="h-full flex flex-col items-center justify-center p-10 text-center bg-gradient-to-b from-[#0A0A0A] to-[#050505]">
     <motion.div
       initial={{ scale: 0 }}
       animate={{ scale: 1 }}
-      transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-      className="w-40 h-40 mx-auto bg-emerald-500/10 rounded-full flex items-center justify-center border border-emerald-500/20 shadow-[0_0_50px_rgba(16,185,129,0.1)]"
+      className="w-24 h-24 bg-emerald-500/10 rounded-full flex items-center justify-center border border-emerald-500/20 shadow-2xl shadow-emerald-500/10 mb-8"
     >
-      <Check className="w-20 h-20 text-emerald-500" />
+      <Check className="w-10 h-10 text-emerald-500" />
     </motion.div>
     
-    <div>
-      <h3 className="text-4xl font-bold text-white mb-4">¡Reporte Estratégico Listo!</h3>
-      <p className="text-slate-400 text-xl max-w-xl mx-auto leading-relaxed">
-        Tu análisis de mercado y validación ha sido completado exitosamente.
-      </p>
-    </div>
+    <h3 className="text-3xl font-bold text-white mb-3">¡Reporte Listo!</h3>
+    <p className="text-slate-400 text-sm max-w-md mx-auto mb-10 leading-relaxed">
+      Tu reporte ha sido generado exitosamente. Puedes descargarlo ahora o visualizar una versión amigable para impresión.
+    </p>
     
-    <div className="flex flex-col sm:flex-row gap-6 justify-center mt-10">
+    <div className="flex gap-4">
       <button
         onClick={onDownload}
-        className="group flex items-center justify-center gap-4 px-10 py-5 bg-emerald-500 text-black rounded-2xl font-bold text-lg hover:bg-emerald-400 transition-all hover:scale-105 shadow-[0_0_30px_rgba(16,185,129,0.3)]"
+        className="flex items-center gap-2 px-6 py-3 bg-emerald-500 text-black rounded-xl font-bold text-sm hover:bg-emerald-400 transition-transform hover:scale-105 shadow-emerald-900/20 shadow-lg"
       >
-        <Download className="w-6 h-6" />
-        Descargar HTML
+        <Download className="w-4 h-4" />
+        Descargar (HTML)
       </button>
       <button
         onClick={onOpenNew}
-        className="flex items-center justify-center gap-4 px-10 py-5 bg-white/5 text-white rounded-2xl font-bold text-lg hover:bg-white/10 transition-all border border-white/10"
+        className="flex items-center gap-2 px-6 py-3 bg-white/5 text-white rounded-xl font-bold text-sm hover:bg-white/10 transition-colors border border-white/10"
       >
-        <ExternalLink className="w-6 h-6" />
-        Vista de Impresión
+        <ExternalLink className="w-4 h-4" />
+        Ver Reporte
       </button>
     </div>
-    
-    <div className="mt-12 pt-8 border-t border-white/5 opacity-50">
-       <p className="text-slate-500 text-sm">
-         ID: <span className="font-mono">{report.id.substring(0,8)}</span> • Generado: {new Date(report.generatedAt).toLocaleString()}
-       </p>
-    </div>
   </div>
-  );
-
+);
 
 const ConfettiEffect: React.FC = () => {
   const colors = ['#00FF94', '#3B82F6', '#8B5CF6', '#F59E0B', '#EC4899'];
-  const particles = Array.from({ length: 50 }, (_, i) => ({
+  const particles = Array.from({ length: 30 }, (_, i) => ({
     id: i,
     x: Math.random() * 100,
     color: colors[Math.floor(Math.random() * colors.length)],
     delay: Math.random() * 0.5,
-    size: Math.random() * 8 + 4,
+    size: Math.random() * 6 + 3,
   }));
 
   return (

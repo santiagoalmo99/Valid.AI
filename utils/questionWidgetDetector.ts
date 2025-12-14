@@ -213,9 +213,9 @@ export function detectWidgetType(question: Question): WidgetConfig {
     console.log(`🎯 [Widget] SEMANTIC: Frequency question detected → frequency`);
     
     // Detect question context to provide appropriate time ranges
-    const PURCHASE_RENEWAL_PATTERNS = /compra|renueva|adquiere|cambias|reemplaza|repones|comprar|renovar|adquirir/i;
-    const DAILY_ACTIVITY_PATTERNS = /haces|realizas|practicas|comes|duermes|entrenas|meditas|visitas|vas|asistes/i;
-    const SERVICE_USAGE_PATTERNS = /usas|utilizas|consultas|abres|revisas|accedes|entras/i;
+    const PURCHASE_RENEWAL_PATTERNS = /compra|renueva|adquiere|cambias|reemplaza|repones|comprar|renovar|adquirir|pagas|suscribes|contratas|inviertes|gastas/i;
+    const DAILY_ACTIVITY_PATTERNS = /haces|realizas|practicas|comes|duermes|entrenas|meditas|visitas|vas|asistes|tomas|bebes|fumas|juegas|sales|caminas|lees|estudias/i;
+    const SERVICE_USAGE_PATTERNS = /usas|utilizas|consultas|abres|revisas|accedes|entras|inicias|logueas|conectas|navegas|verificas|miras|escuchas|ves/i;
     
     const isPurchaseRenewal = PURCHASE_RENEWAL_PATTERNS.test(question.text);
     const isDailyActivity = DAILY_ACTIVITY_PATTERNS.test(question.text);
@@ -226,36 +226,37 @@ export function detectWidgetType(question: Question): WidgetConfig {
     if (isPurchaseRenewal) {
       // Product purchases/renewals: weeks → months
       frequencyOptions = [
-        'Cada 1-2 semanas',
-        'Cada 3-4 semanas',
-        'Cada 1-2 meses',
-        'Cada 3-4 meses',
-        'Cada 5-6 meses',
-        'Más de 6 meses',
+        'Semanalmente',
+        'Cada 2 semanas',
+        'Mensualmente',
+        'Cada 3 meses (Trimestral)',
+        'Cada 6 meses (Semestral)',
+        'Anualmente',
+        'Solo cuando es necesario',
         'Nunca'
       ];
-      console.log(`   → Context: Purchase/Renewal (weekly-monthly range)`);
+      console.log(`   → Context: Purchase/Renewal (weekly-annual range)`);
     } else if (isServiceUsage) {
       // App/service usage: multiple times per day → monthly
       frequencyOptions = [
-        'Varias veces al día',
+        'Múltiples veces al día',
         'Diariamente',
-        '3-4 veces por semana',
-        '1-2 veces por semana',
-        'Quincenalmente',
-        'Mensualmente',
-        'Rara vez'
+        '4-6 veces por semana',
+        '2-3 veces por semana',
+        'Semanalmente',
+        'Ocasionalmente',
+        'Nunca'
       ];
       console.log(`   → Context: Service/App Usage (daily range)`);
     } else if (isDailyActivity) {
       // Daily activities: daily → monthly
       frequencyOptions = [
+        'Varias veces al día',
         'Diariamente',
-        'Varias veces a la semana',
-        'Semanalmente',
-        'Quincenalmente',
-        'Mensualmente',
-        'Rara vez',
+        'Días de semana',
+        'Fines de semana',
+        '1-2 veces por semana',
+        'Ocasionalmente',
         'Nunca'
       ];
       console.log(`   → Context: Daily Activity (daily-weekly range)`);

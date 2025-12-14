@@ -85,17 +85,18 @@ export const InfoTooltip: React.FC<InfoTooltipProps> = ({
               duration: 0.2, 
               ease: [0.4, 0, 0.2, 1] // Apple-like easing
             }}
-            className="absolute z-[100] pointer-events-none"
+            className="absolute z-[9999] pointer-events-none"
             style={positionStyles[position]}
           >
             {/* Glassmorphism Card */}
             <div className="relative min-w-[280px] max-w-[360px] p-4 rounded-2xl
-              bg-slate-900/90 backdrop-blur-xl border border-white/10
-              shadow-[0_20px_60px_rgba(0,0,0,0.5),0_0_40px_rgba(0,255,148,0.05)]
+              bg-slate-900/95 backdrop-blur-2xl border border-white/10
+              shadow-[0_20px_60px_rgba(0,0,0,0.8),0_0_40px_rgba(0,255,148,0.1)]
+              pointer-events-auto
             ">
               {/* Arrow */}
               <div 
-                className="absolute w-3 h-3 bg-slate-900/90 border-r border-b border-white/10"
+                className="absolute w-3 h-3 bg-slate-900/95 border-r border-b border-white/10"
                 style={arrowStyles[position]}
               />
 

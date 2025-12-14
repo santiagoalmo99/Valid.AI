@@ -1930,27 +1930,40 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
                   </div>
 
                   {/* 2. Voice Input (Always Available) - Appends to answer */}
-                  <div className="flex-shrink-0 bg-[#0F0F0F] p-5 rounded-2xl border border-white/5 hover:border-white/10 transition-colors">
-                     <p className="text-xs text-neon font-bold uppercase tracking-widest mb-4 flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-neon animate-pulse"/> 
-                        Grabadora de Voz (Complemento)
-                     </p>
-                     <VoiceInput
-                       language={lang === 'es' ? 'es' : 'en'}
-                       compact={true} 
-                       onTranscriptChange={(text) => {
-                          // Real-time updates could overwrite manual typing, so be careful.
-                       }}
-                       onRecordingComplete={(data) => {
-                         // Append the voice text to existing text
-                         const specificTranscript = data.transcript;
-                         if (specificTranscript) {
-                            const newText = currentVal ? `${currentVal}\n\n[Voz]: ${specificTranscript}` : specificTranscript;
-                            handleAnswer(newText);
-                         }
-                       }}
-                       placeholder={t.voicePlaceholder || "Graba tu respuesta adicional o completa..."}
-                     />
+                  <div className="flex-shrink-0 relative group">
+                     {/* Ambient Glow */}
+                     <div className="absolute inset-0 bg-neon/5 rounded-2xl blur-xl group-hover:bg-neon/10 transition-all duration-500"></div>
+                     
+                     <div className="relative bg-black/60 backdrop-blur-xl p-6 rounded-2xl border border-white/10 group-hover:border-neon/30 transition-all shadow-lg overflow-hidden">
+                        {/* Decorative background grid */}
+                        <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
+                        
+                        <div className="relative z-10">
+                           <p className="text-[10px] text-neon font-bold uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                              <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-neon opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-neon"></span>
+                              </span>
+                              Grabadora de Voz (Complemento)
+                           </p>
+                           <VoiceInput
+                              language={lang === 'es' ? 'es' : 'en'}
+                              className="w-full"
+                              onTranscriptChange={(text) => {
+                                 // Real-time updates could overwrite manual typing, so be careful.
+                              }}
+                              onRecordingComplete={(data) => {
+                                // Append the voice text to existing text
+                                const specificTranscript = data.transcript;
+                                if (specificTranscript) {
+                                   const newText = currentVal ? `${currentVal}\n\n[Voz]: ${specificTranscript}` : specificTranscript;
+                                   handleAnswer(newText);
+                                }
+                              }}
+                              placeholder={t.voicePlaceholder || "Graba tu respuesta adicional o completa..."}
+                           />
+                        </div>
+                     </div>
                   </div>
                </div>
 
@@ -1959,13 +1972,19 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
                     <Sparkles size={12} className="text-neon"/> 
                     Observaciones / Emociones Detectadas
                  </div>
-                 <textarea 
-                   className="w-full h-32 bg-black/40 rounded-xl border border-white/10 p-4 text-base text-slate-200 focus:text-white outline-none resize-none focus:border-neon/50 transition-all focus:bg-black/60 placeholder:text-slate-600"
-                   placeholder={t.obsLabel + "..."}
-                   value={observation}
-                   onChange={e => setObservation(e.target.value)}
-                />
-                 <button onClick={handleNext} disabled={isSaving} className={`w-full font-bold py-3 rounded-xl mt-2 transition-all shadow-lg flex items-center justify-center gap-2 text-sm uppercase tracking-wider ${isSaving ? 'bg-white/10 text-white cursor-wait border border-white/10' : 'bg-white text-black hover:bg-neon hover:scale-[1.02]'}`}>
+                 <div className="relative group">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-neon/20 to-blue-500/20 rounded-xl blur opacity-0 group-hover:opacity-100 transition duration-500"></div>
+                    <textarea 
+                      className="relative w-full h-32 bg-black/50 backdrop-blur-md rounded-xl border border-white/10 p-5 text-base text-slate-200 focus:text-white outline-none resize-none focus:border-neon/50 transition-all placeholder:text-slate-600 shadow-inner"
+                      placeholder={t.obsLabel + "..."}
+                      value={observation}
+                      onChange={e => setObservation(e.target.value)}
+                   />
+                 </div>
+                 <button onClick={handleNext} disabled={isSaving} className={`w-full font-bold py-4 rounded-xl mt-4 transition-all shadow-lg flex items-center justify-center gap-2 text-sm uppercase tracking-wider relative overflow-hidden group ${isSaving ? 'bg-white/10 text-white cursor-wait border border-white/10' : 'bg-white text-black hover:scale-[1.01]'}`}>
+                    {/* Button Gradient Hover Effect */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-neon via-white to-neon opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                    
                     {isSaving ? (
                        <span className="flex items-center gap-2 animate-pulse">
                           <RefreshCw className="animate-spin" size={20} /> 
@@ -1974,9 +1993,9 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
                           </span>
                        </span>
                     ) : step === project.questions.length - 1 ? (
-                       <><CheckCircle size={22} /> Finalizar</>
+                       <span className="relative z-10 flex items-center gap-2"><CheckCircle size={22} className="text-black"/> Finalizar</span>
                     ) : (
-                       <>Siguiente <ArrowRight size={22} /></>
+                       <span className="relative z-10 flex items-center gap-2">Siguiente <ArrowRight size={22} className="group-hover:translate-x-1 transition-transform"/></span>
                     )}
                  </button>
                  {isSaving && (
