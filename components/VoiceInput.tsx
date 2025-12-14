@@ -90,8 +90,9 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({
         language,
         onStateChange: setSttState,
         onResult: (result) => {
+          // Emit FULL transcript updates
           if (result.isFinal) {
-            onTranscriptChange?.(result.text);
+            onTranscriptChange?.(speechToText.getFullTranscript());
           }
         },
       });

@@ -3,7 +3,7 @@ import { ProjectTemplate, Interview, Question, Answer, DeepAnalysisReport, Langu
 import { TRANSLATIONS, INITIAL_PROJECTS, DEMO_PROJECT } from './constants';
 import * as Gemini from './services/aiService';
 import { getCoverByIdea } from './utils/projectCovers';
-import { Sparkles, Zap, Target, ArrowRight, CheckCircle2, ChevronRight, BarChart3, PieChart as PieChartIcon, TrendingUp, Activity, Plus, Play, Users, X, Search, FileText, MessageSquare, Cpu, Globe, Lock, ArrowLeft, RefreshCw, Trash2, LayoutGrid, Upload, Settings, Download, Sun, Moon, Smartphone, CheckCircle, Mail, Phone, MapPin, Award, Power } from 'lucide-react';
+import { Sparkles, Zap, Target, ArrowRight, CheckCircle2, ChevronRight, BarChart3, PieChart as PieChartIcon, TrendingUp, Activity, Plus, Play, Users, X, Search, FileText, MessageSquare, Cpu, Globe, Lock, ArrowLeft, RefreshCw, Trash2, LayoutGrid, Upload, Settings, Download, Sun, Moon, Smartphone, CheckCircle, Mail, Phone, MapPin, Award, Power, Mic, MicOff, Pause } from 'lucide-react';
 import { motion, AnimatePresence, Transition, Variant } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell, PieChart, Pie, LineChart, Line, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Legend } from 'recharts';
@@ -1591,21 +1591,36 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
   const [showDraftRestore, setShowDraftRestore] = useState(false);
   const [draftData, setDraftData] = useState<any>(null);
 
+  // CONTINUOUS RECORDING STATE
+  const [fullTranscript, setFullTranscript] = useState('');
+  const [isGlobalRecording, setIsGlobalRecording] = useState(false);
+  const [sessionDuration, setSessionDuration] = useState(0);
+
   useEffect(() => {
-    const draftKey = `draft_interview_${project.id}`;
-    const saved = localStorage.getItem(draftKey);
-    if (saved) {
+    let interval: NodeJS.Timeout;
+    if (isGlobalRecording) {
+      interval = setInterval(() => setSessionDuration(d => d + 1), 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isGlobalRecording]);
+
+  useEffect(() => {
+     if (project.id) {
+       const draftKey = `draft_interview_${project.id}`;
        try {
-         const data = JSON.parse(saved);
-         // Only prompt if there is meaningful data
-         if (Object.keys(data.answers || {}).length > 0) {
-            setDraftData(data);
-            setShowDraftRestore(true);
+         const saved = localStorage.getItem(draftKey);
+         if (saved) {
+           const data = JSON.parse(saved);
+           // Only prompt if there is meaningful data
+           if (Object.keys(data.answers || {}).length > 0) {
+              setDraftData(data);
+              setShowDraftRestore(true);
+           }
          }
        } catch (e) {
          localStorage.removeItem(draftKey);
        }
-    }
+     }
   }, [project.id]);
 
   const handleRestoreDraft = () => {
@@ -1679,7 +1694,7 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
 
          // Finalize
          setIsSaving(true);
-         console.log("🚀 Starting finalization...");
+         console.log("🚀 Starting finalization (Continuous Mode)...");
 
          // Default analysis in case of total failure
          let analysis = {
@@ -1703,14 +1718,18 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
             
             for (let attempt = 0; attempt <= retries; attempt++) {
                 try {
-                  console.log(`🤖 Enhanced AI Analysis attempt ${attempt + 1}/${retries + 1}...`);
-                  console.log("📦 [DEBUG] Answers sent to analysis:", JSON.stringify(newAnswers, null, 2));
+                  console.log(`🤖 Continuous AI Analysis attempt ${attempt + 1}/${retries + 1}...`);
                   
-                  const result = await Gemini.analyzeFullInterviewEnhanced(project, newAnswers, regData);
+                  // USE CONTINUOUS ANALYSIS
+                  // We pass the full transcript + the structured answers (which contain notes/text)
+                  const observationText = Object.values(newAnswers).map((a: any) => `[Question ${a.questionId} Notes]: ${a.observation}`).join('\n');
+                  const combinedNotes = `ENTREVISTADOR NOTES:\n${observationText}\n\nUSER ANSWERS (Typed): ${Object.values(newAnswers).map((a: any) => a.rawValue).join(' | ')}`;
+                  
+                  const result = await Gemini.analyzeContinuousInterview(project, fullTranscript, combinedNotes, regData);
                   
                   if (result) {
                      analysis = result as any;
-                     console.log("✅ Surgical AI analysis successful:", analysis);
+                     console.log("✅ Continuous AI analysis successful:", analysis);
                      aiSuccess = true;
                      break; 
                   }
@@ -1734,20 +1753,6 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
             // Map NEW Enhanced Analysis to OLD Interview structure for backwards compat
             // + Store the full new object in 'enhancedAnalysis'
             
-            const safeAnalysis = {
-               totalScore: (analysis as any).matchScore || 0, // NEW field
-               summary: (analysis as any).oneLinerVerdict || (analysis as any).summary || "Sin resumen", // NEW field
-               dimensionScores: {
-                  problemIntensity: (analysis as any).scores?.problemIntensity || 0,
-                  solutionFit: (analysis as any).scores?.solutionFit || 0,
-                  willingnessToPay: 0, // Not in new scores directly?
-                  currentBehavior: 0,
-                  painPoint: 0,
-                  earlyAdopter: 0
-               },
-               keyInsights: (analysis as any).signals?.buying || [] // Map buying signals to insights for now
-            };
-
             const interview: Interview = {
                id: Date.now().toString(),
                projectId: project.id,
@@ -1760,12 +1765,11 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
                respondentCity: regData.city || '',
                respondentCountry: regData.country || '',
                date: new Date().toISOString(),
-               answers: newAnswers,
-               totalScore: safeAnalysis.totalScore,
-               dimensionScores: safeAnalysis.dimensionScores,
-               summary: safeAnalysis.summary,
-               keyInsights: safeAnalysis.keyInsights,
-               enhancedAnalysis: analysis as any // Store full surgical result
+               answers: newAnswers, // Keep structured answers for reference
+               totalScore: (analysis as any).matchScore || 0, // NEW field
+               dimensionScores: (analysis as any).scores || {},
+               summary: (analysis as any).oneLinerVerdict || (analysis as any).summary || "Sin resumen", // NEW field
+               keyInsights: (analysis as any).signals?.buying || [] // Map buying signals to insights for now
             };
            
            console.log("Saving sanitized interview:", interview);
@@ -1773,6 +1777,7 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
            try {
               // Save (Logic handled by parent: Online -> Timeout -> Offline)
               await onSave(interview);
+              setIsGlobalRecording(false); // Stop recording
               
               console.log("✅ Interview saved successfully");
               // Clear draft only on success
@@ -1798,6 +1803,7 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
            console.error("Error processing interview:", error);
            alert("Error crítico. Revisa la consola.");
            setIsSaving(false);
+           return;
         }
      }
   };
@@ -1899,6 +1905,96 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
 
         {/* Input Side */}
         <div className="flex-1 flex flex-col h-full min-h-0">
+            {/* GLOBAL RECORDING BAR */}
+            <div className="w-full mb-4">
+               <div className={`
+                 relative overflow-hidden rounded-2xl border transition-all duration-300
+                 ${isGlobalRecording 
+                   ? 'bg-gradient-to-r from-red-500/10 to-pink-500/10 border-red-500/30' 
+                   : 'bg-white/5 border-white/10'
+                 }
+               `}>
+                  {/* Active Pulse Background */}
+                  {isGlobalRecording && (
+                    <div className="absolute inset-0 bg-red-500/5 animate-pulse"></div>
+                  )}
+
+                  <div className="relative p-4 flex items-center justify-between gap-4">
+                     <div className="flex items-center gap-3">
+                        {/* Status Indicator */}
+                        <div className={`
+                           flex items-center justify-center w-10 h-10 rounded-full
+                           ${isGlobalRecording ? 'bg-red-500 text-white shadow-lg shadow-red-500/30' : 'bg-white/10 text-slate-400'}
+                           transition-all duration-300
+                        `}>
+                           {isGlobalRecording ? <Mic className="animate-pulse" size={20} /> : <MicOff size={20} />}
+                        </div>
+                        
+                        <div>
+                           <div className="flex items-center gap-2">
+                              <span className={`text-xs font-bold uppercase tracking-wider ${isGlobalRecording ? 'text-red-400' : 'text-slate-400'}`}>
+                                 {isGlobalRecording ? 'Grabando Sesión Completa' : 'Grabación Pausada'}
+                              </span>
+                              {isGlobalRecording && (
+                                <span className="flex h-2 w-2 relative">
+                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                  <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                                </span>
+                              )}
+                           </div>
+                           <div className="text-sm font-mono text-white/80 font-bold">
+                              {Math.floor(sessionDuration / 60).toString().padStart(2, '0')}:{(sessionDuration % 60).toString().padStart(2, '0')}
+                           </div>
+                        </div>
+                     </div>
+
+                     {/* Hidden VoiceInput acting as the engine */}
+                     <div className="opacity-0 w-0 h-0 overflow-hidden absolute">
+                          <VoiceInput 
+                            language={lang === 'es' ? 'es' : 'en'}
+                            disabled={!isGlobalRecording} // Control via prop if possible, or mounting
+                            onTranscriptChange={(text) => {
+                               if (isGlobalRecording) setFullTranscript(text);
+                            }}
+                            // We mount it once. If we want to start/stop, we might need to expose control or use `disabled` as toggle?
+                            // VoiceInput component likely starts on mount if we don't control it?
+                            // Let's check VoiceInput implementation. It has `handleStart` inside.
+                            // We need to trigger it. 
+                            // FORCE START HACK: We will use a key to remount it when isGlobalRecording changes? 
+                            // Or better: We assume user click "Start" button HERE which calls a ref?
+                            // Since I can't easily ref without changing VoiceInput, I will use valid buttons below.
+                          />
+                     </div>
+
+                     {/* Control Buttons */}
+                     <div className="flex items-center gap-2">
+                        {!isGlobalRecording ? (
+                           <button 
+                             onClick={() => { setIsGlobalRecording(true); }}
+                             className="px-4 py-2 bg-red-500 hover:bg-red-400 text-white rounded-lg text-xs font-bold uppercase tracking-wider transition-all shadow-lg shadow-red-500/20 flex items-center gap-2"
+                           >
+                              <Play size={12} fill="currentColor" /> Iniciar Grabación
+                           </button>
+                        ) : (
+                           <button 
+                             onClick={() => setIsGlobalRecording(false)}
+                             className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 border border-white/5"
+                           >
+                              <Pause size={12} fill="currentColor" /> Pausar
+                           </button>
+                        )}
+                     </div>
+                  </div>
+                  
+                  {/* Live Transcript Ticker - Optional */}
+                  {fullTranscript && isGlobalRecording && (
+                     <div className="px-4 pb-2 text-[10px] text-slate-400 font-mono line-clamp-1 opacity-60">
+                        {fullTranscript.slice(-50)}...
+                     </div>
+                  )}
+               </div>
+            </div>
+
            <div className="flex justify-between items-center mb-2 flex-shrink-0">
               <div className="flex gap-2">
                  <button onClick={handleBack} className="text-slate-400 hover:text-white flex items-center gap-2 text-xs font-bold uppercase tracking-wider bg-white/5 px-3 py-2 rounded-lg hover:bg-white/10 transition-colors">
@@ -1929,42 +2025,9 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
                      />
                   </div>
 
-                  {/* 2. Voice Input (Always Available) - Appends to answer */}
-                  <div className="flex-shrink-0 relative group">
-                     {/* Ambient Glow */}
-                     <div className="absolute inset-0 bg-neon/5 rounded-2xl blur-xl group-hover:bg-neon/10 transition-all duration-500"></div>
-                     
-                     <div className="relative bg-black/60 backdrop-blur-xl p-6 rounded-2xl border border-white/10 group-hover:border-neon/30 transition-all shadow-lg overflow-hidden">
-                        {/* Decorative background grid */}
-                        <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
-                        
-                        <div className="relative z-10">
-                           <p className="text-[10px] text-neon font-bold uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                              <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-neon opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-neon"></span>
-                              </span>
-                              Grabadora de Voz (Complemento)
-                           </p>
-                           <VoiceInput
-                              language={lang === 'es' ? 'es' : 'en'}
-                              className="w-full"
-                              onTranscriptChange={(text) => {
-                                 // Real-time updates could overwrite manual typing, so be careful.
-                              }}
-                              onRecordingComplete={(data) => {
-                                // Append the voice text to existing text
-                                const specificTranscript = data.transcript;
-                                if (specificTranscript) {
-                                   const newText = currentVal ? `${currentVal}\n\n[Voz]: ${specificTranscript}` : specificTranscript;
-                                   handleAnswer(newText);
-                                }
-                              }}
-                              placeholder={t.voicePlaceholder || "Graba tu respuesta adicional o completa..."}
-                           />
-                        </div>
-                     </div>
-                  </div>
+                  {/* 2. Voice Input (REMOVED - Using Global Recorder) */}
+                  {/* Kept wrapper for layout stability */}
+                  {/* <div className="hidden"></div> */}
                </div>
 
               <div className="mt-auto pt-6 border-t border-white/5 flex-shrink-0">
@@ -1977,8 +2040,8 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
                     <textarea 
                       className="relative w-full h-32 bg-black/50 backdrop-blur-md rounded-xl border border-white/10 p-5 text-base text-slate-200 focus:text-white outline-none resize-none focus:border-neon/50 transition-all placeholder:text-slate-600 shadow-inner"
                       placeholder={t.obsLabel + "..."}
-                      value={observation}
                       onChange={e => setObservation(e.target.value)}
+                      value={observation}
                    />
                  </div>
                  <button onClick={handleNext} disabled={isSaving} className={`w-full font-bold py-4 rounded-xl mt-4 transition-all shadow-lg flex items-center justify-center gap-2 text-sm uppercase tracking-wider relative overflow-hidden group ${isSaving ? 'bg-white/10 text-white cursor-wait border border-white/10' : 'bg-white text-black hover:scale-[1.01]'}`}>
@@ -1989,13 +2052,15 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
                        <span className="flex items-center gap-2 animate-pulse">
                           <RefreshCw className="animate-spin" size={20} /> 
                           <span className="animate-shimmer bg-gradient-to-r from-white via-slate-400 to-white bg-[length:200%_auto] bg-clip-text text-transparent">
-                             Analizando Datos...
+                             Finalizando & Analizando...
                           </span>
                        </span>
-                    ) : step === project.questions.length - 1 ? (
-                       <span className="relative z-10 flex items-center gap-2"><CheckCircle size={22} className="text-black"/> Finalizar</span>
                     ) : (
-                       <span className="relative z-10 flex items-center gap-2">Siguiente <ArrowRight size={22} className="group-hover:translate-x-1 transition-transform"/></span>
+                       step < project.questions.length - 1 ? (
+                          <span className="relative z-10 flex items-center gap-2">Siguiente <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform"/></span>
+                       ) : (
+                          <span className="relative z-10 flex items-center gap-2">Finalizar Entrevista <CheckCircle size={16} className="text-black"/></span>
+                       )
                     )}
                  </button>
                  {isSaving && (

@@ -794,3 +794,91 @@ export const analyzeFullInterviewEnhanced = async (project: ProjectTemplate, ans
    }
  };
 
+
+export const analyzeContinuousInterview = async (project: ProjectTemplate, transcript: string, notes: string, regData: any): Promise<EnhancedAnalysisResult> => {
+     try {
+     const prompt = `
+     ROL: Eres un Analista Senior de Venture Capital y Psicólogo Conductual experto en validación de productos. Tu trabajo es analizar entrevistas de descubrimiento de clientes para determinar la viabilidad real de una idea de negocio.
+     
+     CONTEXTO DEL PROYECTO:
+     Nombre: "${project.name}"
+     Descripción: "${project.description}"
+     
+     DATOS DEL ENTREVISTADO:
+     ${JSON.stringify(regData, null, 2)}
+     
+     TRANSCRIPCIÓN + NOTAS DE LA ENTREVISTA:
+     ${transcript}
+     ${notes}
+     
+     TAREA:
+     Realiza un análisis crítico y profundo basado en la conversación completa.
+     Identifica patrones de comportamiento, validación de problemas y disposición real a pagar.
+     
+     SISTEMA DE CALIFICACIÓN (0-10):
+     - Problem Intensity (40%): ¿Qué tan agudo es el problema para este usuario?
+     - Solution Fit (30%): ¿Qué tanto resuena la solución?
+     - Willingness to Pay (30%): ¿Hay evidencia de capacidad de pago?
+     
+     FORMATO DE SALIDA (JSON PURO):
+     {
+       "scores": {
+         "totalScore": number, // Promedio ponderado (0.0 - 10.0) 
+         "dimensionScores": {
+           "problemIntensity": number,
+           "solutionFit": number,
+           "willingnessToPay": number,
+           "currentBehavior": number, // 0-10: ¿Ya está tomando acciones para resolverlo?
+           "painPoint": number, // 0-10: Nivel de dolor explícito
+           "earlyAdopter": number // 0-10: Probabilidad de ser Early Adopter
+         }
+       },
+       "summary": "string", // Resumen ejecutivo detallado (100-150 palabras)
+       "keyInsights": ["string"], // 3-5 Insights clave
+       "oneLinerVerdict": "string", // Veredicto en una frase corta
+       "signals": { 
+          "buying": ["string"] // Señales de compra detectadas
+       }
+     }
+     
+     REGLAS:
+     1. IDIOMA: 100% Español Latinoamericano Profesional.
+     2. FORMATO: JSON válido minificado.
+     3. ANALISIS: Integra tanto lo que dijo (transcripción) como lo que observó el entrevistador (notas).
+     `;
+ 
+     const response = await callGeminiAPI(prompt, true);
+     const cleanText = repairJSON(response);
+     const parsed = JSON.parse(cleanText);
+     
+     return {
+         scores: {
+             totalScore: Number(parsed.scores?.totalScore || 0),
+             dimensionScores: {
+                 problemIntensity: Number(parsed.scores?.dimensionScores?.problemIntensity || 0),
+                 solutionFit: Number(parsed.scores?.dimensionScores?.solutionFit || 0),
+                 willingnessToPay: Number(parsed.scores?.dimensionScores?.willingnessToPay || 0),
+                 currentBehavior: Number(parsed.scores?.dimensionScores?.currentBehavior || 0),
+                 painPoint: Number(parsed.scores?.dimensionScores?.painPoint || 0),
+                 earlyAdopter: Number(parsed.scores?.dimensionScores?.earlyAdopter || 0)
+             }
+         },
+         summary: String(parsed.summary || ''),
+         keyInsights: Array.isArray(parsed.keyInsights) ? parsed.keyInsights : [],
+         oneLinerVerdict: parsed.oneLinerVerdict,
+         signals: parsed.signals
+     };
+   } catch (error) {
+     console.error("❌ Continuous AI Analysis Error:", error);
+     return {
+        scores: {
+          totalScore: 0,
+          dimensionScores: {
+              problemIntensity: 0, solutionFit: 0, willingnessToPay: 0, currentBehavior: 0, painPoint: 0, earlyAdopter: 0
+          }
+        },
+        summary: "Analysis failed due to error.",
+        keyInsights: ["AI Analysis Unavailable"]
+     };
+   }
+ };
