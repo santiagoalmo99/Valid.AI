@@ -42,12 +42,14 @@ interface ConfirmationState {
   onConfirm: () => Promise<void>;
 }
 
-// Lazy Load Heavy Components
+import { BusinessReportGenerator } from './components/BusinessReportGenerator'; // Static Import to fix #426
+
+// Lazy Load Heavy Components (Others remain lazy)
 const QuestionAnalysis = React.lazy(() => import('./components/QuestionAnalysis').then(module => ({ default: module.QuestionAnalysis })));
 const SmartChat = React.lazy(() => import('./components/SmartChat').then(module => ({ default: module.SmartChat })));
 const DocumentUploader = React.lazy(() => import('./components/DocumentUploader').then(module => ({ default: module.DocumentUploader })));
 const IdeaStudio = React.lazy(() => import('./components/IdeaStudio').then(module => ({ default: module.IdeaStudio })));
-const BusinessReportGenerator = React.lazy(() => import('./components/BusinessReportGenerator').then(module => ({ default: module.BusinessReportGenerator })));
+// const BusinessReportGenerator = React.lazy ... (Removed)
 
 // --- LOADING COMPONENT ---
 const LoadingSpinner = () => (
@@ -2508,17 +2510,15 @@ function AppContent() {
       />
 
       {/* BUSINESS REPORT GENERATOR (PREMIUM) */}
-      <React.Suspense fallback={<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"><LoadingSpinner /></div>}>
-        {showReportGenerator && activeProject && user && (
-           <BusinessReportGenerator 
-              project={activeProject}
-              interviews={interviews}
-              userId={user.uid}
-              onClose={() => setShowReportGenerator(false)}
-              credits={credits}
-           />
-        )}
-      </React.Suspense>
+      {showReportGenerator && activeProject && user && (
+          <BusinessReportGenerator 
+            project={activeProject}
+            interviews={interviews}
+            userId={user.uid}
+            onClose={() => setShowReportGenerator(false)}
+            credits={credits}
+          />
+      )}
 
       {/* CERTIFICATE MODAL */}
       {activeProject && (
