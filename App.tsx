@@ -2105,12 +2105,24 @@ const DashboardMetrics = ({ totalInterviews, avgScore, status }: any) => (
   </div>
 );
 
+const FixedTooltip = ({ x, y, content }: any) => (
+  <div 
+    className="fixed px-3 py-1 bg-black/90 border border-white/20 rounded-lg text-xs text-white pointer-events-none z-[9999] shadow-2xl backdrop-blur-md animate-fade-in"
+    style={{ left: x, top: y, transform: 'translate(-50%, -100%)', marginTop: '-12px' }}
+  >
+    {content}
+    <div className="absolute left-1/2 bottom-0 -translate-x-1/2 translate-y-full border-4 border-transparent border-t-white/20"></div>
+  </div>
+);
+
 const DashboardView = ({ project, interviews, t }: any) => {
    // Calculate real stats
    const totalInterviews = interviews.length;
    const avgScore = totalInterviews > 0 
       ? (interviews.reduce((acc: number, i: Interview) => acc + i.totalScore, 0) / totalInterviews).toFixed(1) 
       : '0.0';
+
+   const [hoveredData, setHoveredData] = useState<{x: number, y: number, content: string} | null>(null);
 
    // Mock distribution for demo if no data, else real
    const scoreDist = [
@@ -2120,7 +2132,10 @@ const DashboardView = ({ project, interviews, t }: any) => {
    ];
 
    return (
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in pb-20">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in pb-20 relative">
+         {/* Global Tooltip Portal */}
+         {hoveredData && <FixedTooltip {...hoveredData} />}
+
          {/* NEW: Quantum Metrics */}
          <DashboardMetrics 
             totalInterviews={totalInterviews} 
@@ -2129,11 +2144,11 @@ const DashboardView = ({ project, interviews, t }: any) => {
          />
 
          {/* Main Chart */}
-         <div className={`${GLASS_PANEL} p-8 rounded-3xl col-span-1 md:col-span-2 h-[400px] relative z-40 overflow-visible`}>
+         <div className={`${GLASS_PANEL} p-8 rounded-3xl col-span-1 md:col-span-2 h-[400px] relative z-20`}>
              <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2"><BarChart3 className="text-neon" /> Score Distribution</h3>
              
              <div className="w-full h-[85%] flex items-end justify-around gap-4 px-4 pb-8 relative">
-                {/* Grid lines */}
+                {/* Grid lines - UNCHANGED */}
                 <div className="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-20">
                    <div className="w-full h-px bg-slate-500 border-t border-dashed"></div>
                    <div className="w-full h-px bg-slate-500 border-t border-dashed"></div>
@@ -2148,11 +2163,20 @@ const DashboardView = ({ project, interviews, t }: any) => {
                    const color = index === 2 ? 'bg-neon shadow-[0_0_20px_rgba(58,255,151,0.4)]' : index === 1 ? 'bg-yellow-400 shadow-[0_0_20px_rgba(250,204,21,0.4)]' : 'bg-red-400 shadow-[0_0_20px_rgba(248,113,113,0.4)]';
                    
                    return (
-                      <div key={index} className="flex flex-col items-center justify-end h-full w-full group relative z-30">
-                         {/* Tooltip on hover */}
-                         <div className="absolute -top-12 opacity-0 group-hover:opacity-100 transition-opacity bg-black/90 border border-white/20 px-3 py-1 rounded-lg text-xs text-white whitespace-nowrap pointer-events-none z-50 shadow-xl">
-                            {item.value} Interviews
-                         </div>
+                      <div 
+                        key={index} 
+                        className="flex flex-col items-center justify-end h-full w-full group relative z-30"
+                        onMouseEnter={(e) => {
+                           // Calculate center of the bar
+                           const rect = e.currentTarget.getBoundingClientRect();
+                           setHoveredData({
+                              x: rect.left + rect.width / 2,
+                              y: rect.top,
+                              content: `${item.value} Interviews`
+                           });
+                        }}
+                        onMouseLeave={() => setHoveredData(null)}
+                      >
                          
                          {/* Bar */}
                          <motion.div 
@@ -2161,7 +2185,7 @@ const DashboardView = ({ project, interviews, t }: any) => {
                             transition={{ duration: 1, type: "spring" }}
                             className={`w-full max-w-[60px] rounded-t-xl ${color} relative group-hover:brightness-110 transition-all`}
                          >
-                            {/* Value label inside bar if tall enough, else outside? kept simple for now */}
+                            {/* Visual only */}
                          </motion.div>
                          
                          {/* Label */}
