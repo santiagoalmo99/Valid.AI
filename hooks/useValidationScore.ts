@@ -64,15 +64,17 @@ export const useValidationScore = (project: ProjectTemplate, interviews: Intervi
     interviews.forEach(interview => {
       validInterviewsCount++;
       
-      interview.answers.forEach((ans, idx) => {
-        if (idx >= dimensionMap.length) return;
-        
-        const dimension = dimensionMap[idx];
-        const val = normalizeAnswerValue(ans, questions[idx]);
-        
-        if (dimension === 'problemIntensity') totalProblemIntensity += val;
-        if (dimension === 'willingnessToPay') totalWillingness += val;
-      });
+      if (Array.isArray(interview.answers)) {
+          interview.answers.forEach((ans, idx) => {
+            if (idx >= dimensionMap.length) return;
+            
+            const dimension = dimensionMap[idx];
+            const val = normalizeAnswerValue(ans, questions[idx]);
+            
+            if (dimension === 'problemIntensity') totalProblemIntensity += val;
+            if (dimension === 'willingnessToPay') totalWillingness += val;
+          });
+      }
     });
 
     // Averages

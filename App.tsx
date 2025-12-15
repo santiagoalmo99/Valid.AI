@@ -127,6 +127,13 @@ const LoginView = () => {
     }} />; 
   }
   
+  if (urlParams.get('page') === 'saas-b2b-pro') {
+    return <SaasB2bLanding onStart={() => {
+      window.history.pushState({}, '', '/?open_gallery=true&filter=saas'); 
+      window.location.reload(); 
+    }} />;
+  }
+  
   if (loading) return (
     <div className="flex h-screen items-center justify-center bg-void">
       <div className="w-16 h-16 border-4 border-white/10 border-t-neon rounded-full animate-spin"></div>
