@@ -714,7 +714,9 @@ export const analyzeFullInterviewEnhanced = async (project: ProjectTemplate, ans
      });
  
      const prompt = `
-     ROL: Eres un Analista Senior de Venture Capital y Psicólogo Conductual experto en validación de productos. Tu trabajo es analizar entrevistas de descubrimiento de clientes para determinar la viabilidad real de una idea de negocio.
+     ROL: Eres un CONSULTOR DE ÉLITE (ex-McKinsey, ex-Y Combinator) y Psicólogo Conductual.
+     Tu trabajo NO es validar la idea, es DESTRUIRLA para ver si sobrevive.
+     Sé BRUTALMENTE HONESTO. Los falsos positivos matan startups.
      
      CONTEXTO DEL PROYECTO:
      Nombre: "${project.name}"
@@ -727,12 +729,14 @@ export const analyzeFullInterviewEnhanced = async (project: ProjectTemplate, ans
      ${JSON.stringify(enrichedAnswers, null, 2)}
      
      TAREA:
-     Realiza un análisis crítico y profundo.
+     Realiza una auditoría forense de estas respuestas.
+     Detecta "Mom Test failures" (cuando el usuario miente por amabilidad).
+     Busca COMPROMISO REAL (Dinero, Tiempo, Reputación).
      
-     SISTEMA DE CALIFICACIÓN (0-10):
-     - Problem Intensity (40%)
-     - Solution Fit (30%)
-     - Willingness to Pay (30%)
+     SISTEMA DE CALIFICACIÓN (0-10) - SÉ ESTRICTO:
+     - Problem Intensity (40%): ¿Se está desangrando el usuario por este problema o es solo una molestia leve?
+     - Solution Fit (30%): ¿Gritó "SÍ, ESTO ES"? ¿O solo dijo "se ve interesante"?
+     - Willingness to Pay (30%): ¿Mencionó precios concretos? ¿Ya paga por algo similar? (0 si solo dijo "pagaría" sin monto).
      
      FORMATO DE SALIDA (JSON PURO):
      {
@@ -747,15 +751,22 @@ export const analyzeFullInterviewEnhanced = async (project: ProjectTemplate, ans
            "earlyAdopter": number
          }
        },
-       "summary": "string",
-       "keyInsights": ["string"],
-       "oneLinerVerdict": "string",
-       "signals": { "buying": ["string"] }
+       "summary": "string", // Resumen ejecutivo CRÍTICO (100-150 palabras). Habla de hechos, no de deseos.
+       "keyInsights": [
+          "INSIGHT 1: (Hecho observado)",
+          "INSIGHT 2: (Patrón conductual)",
+          "INSIGHT 3: (Veredicto brutal)"
+       ],
+       "oneLinerVerdict": "string", // Ej: "Falso Positivo - Solo quiere ser amable" o "Cliente Potencial Real - Dolor agudo confirmado"
+       "signals": { 
+          "buying": ["string"] // Frases exactas que demuestran intención de compra o mentiras detectadas
+       }
      }
      
      REGLAS:
      1. IDIOMA: 100% Español Latinoamericano Profesional.
      2. FORMATO: JSON válido minificado.
+     3. ACTITUD: Sé el "Bad Cop". Si el usuario es tibio, califica BAJO.
      `;
  
      const response = await callGeminiAPI(prompt, true);

@@ -38,6 +38,7 @@ import { PivotAlert } from './components/PivotAlert';
 import { SaasLanding } from './components/landings/SaasLanding';
 import { EcommerceLanding } from './components/landings/EcommerceLanding';
 import { MarketplaceLanding } from './components/landings/MarketplaceLanding';
+import { ScoreShareModal } from './components/ScoreShareModal';
 
 interface ConfirmationState {
   title: string;
@@ -2128,6 +2129,8 @@ const DashboardView = ({ project, interviews, t }: any) => {
       ? (interviews.reduce((acc: number, i: Interview) => acc + i.totalScore, 0) / totalInterviews).toFixed(1) 
       : '0.0';
 
+   const [isShareModalOpen, setShareModalOpen] = useState(false);
+
    // Mock distribution for demo if no data, else real
    const scoreDist = [
       { name: '0-4', value: interviews.filter((i: Interview) => i.totalScore < 4).length, fill: '#ef4444' },
@@ -2155,13 +2158,20 @@ const DashboardView = ({ project, interviews, t }: any) => {
                <div className="text-4xl font-bold text-white mb-1">{totalInterviews}</div>
                <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Entrevistas</div>
             </div>
-            <div className={`${GLASS_PANEL} p-6 rounded-2xl flex flex-col items-center justify-center border border-white/5 bg-white/5`}>
-               <div className="text-4xl font-bold text-neon mb-1 drop-shadow-[0_0_10px_rgba(58,255,151,0.5)]">{avgScore}</div>
+            <div className={`${GLASS_PANEL} p-6 rounded-2xl flex flex-col items-center justify-center border border-white/5 bg-white/5 relative group`}>
+               <button 
+                  onClick={() => setShareModalOpen(true)}
+                  className="absolute top-2 right-2 p-1.5 rounded-lg bg-white/5 hover:bg-neon/20 hover:text-neon text-slate-400 transition-all opacity-0 group-hover:opacity-100"
+                  title="Share Score"
+               >
+                  <Share2 size={14} />
+               </button>
+               <div className="text-4xl font-bold text-neon mb-1 drop-shadow-[0_0_10px_rgba(58,255,151,0.5)] cursor-pointer hover:scale-105 transition-transform" onClick={() => setShareModalOpen(true)}>{avgScore}</div>
                <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Viabilidad</div>
             </div>
             <div className={`${GLASS_PANEL} p-6 rounded-2xl flex flex-col items-center justify-center border border-white/5 bg-white/5`}>
-               <div className={`text-2xl font-bold mb-1 ${Number(avgScore) > 7 ? 'text-emerald-400' : 'text-amber-400'}`}>
-                  {Number(avgScore) > 7 ? 'ALTA' : 'VALIDAR'}
+               <div className={`text-2xl font-bold mb-1 ${Number(avgScore) > 60 ? 'text-emerald-400' : 'text-amber-400'}`}>
+                  {Number(avgScore) > 60 ? 'ALTA' : 'VALIDAR'}
                </div>
                <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Potencial</div>
             </div>
@@ -2223,6 +2233,14 @@ const DashboardView = ({ project, interviews, t }: any) => {
                 </div>
              )}
          </div>
+         <ScoreShareModal 
+            isOpen={isShareModalOpen} 
+            onClose={() => setShareModalOpen(false)} 
+            score={Number(avgScore)} 
+            trend="up" // Placeholder, ideally calculate from interviews
+            projectName={project.name}
+            totalInterviews={totalInterviews}
+         />
       </div>
    )
 };

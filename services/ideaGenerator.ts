@@ -528,178 +528,120 @@ export async function generateResearchPlan(
 
   try {
     const prompt = `
-You are a world-class startup analyst who has advised companies like Airbnb, Uber, and Stripe.
+You are an ELITE STARTUP CONSULTANT (ex-McKinsey, ex-Y Combinator). 
+Your job is to brutally test the viability of this idea.
+DO NOT BE POLITE. BE FACTUAL, DATA-DRIVEN, AND SPECIFIC.
 
-USER'S EXACT IDEA:
+⚠️ CRITICAL INSTRUCTION:
+You MUST adopt the persona of a local industry expert in: ${context.region}.
+If the idea is for Colombia, speak like a Colombian expert. If Mexico, Mexican expert.
+Use local currency (${context.region === 'Colombia' ? 'COP' : 'Local Currency'}) for ALL financial questions.
+
+USER'S IDEA:
 "${idea}"
 
-DEEP CONTEXT ANALYSIS:
+CONTEXT:
 - Industry: ${context.industry}
-- Target Market: ${context.target}
-- Geographic Focus: ${context.region}
+- Region: ${context.region}
+- Target: ${context.target}
 - Business Model: ${context.businessModel}
-- Current Stage: ${context.stage}
-- Budget Level: ${context.budget}
 
-USER'S CLARIFICATIONS & INSIGHTS:
+USER CLARIFICATIONS:
 ${clarificationInsights}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-YOUR MISSION: Create a DEEPLY PERSONALIZED validation research plan.
+YOUR MISSION: Create a HIGH-PRECISION Research Plan.
 
-🚨 CRITICAL RULES - FAILURE = REJECTION:
+RULES FOR "PERSONAS" (FAILURE TO FOLLOW = REJECTION):
+1.  **REAL NAMES**: Use names typical of ${context.region}. (e.g., "Camila" not "Persona 1").
+2.  **SPECIFIC ROLES**: NOT "Manager". YES "Gerente de Logística en empresa de 500+ empleados".
+3.  **REAL PAIN**: Don't say "wants efficiency". Say "Loses 4 hours/week manually exporting Excel sheets".
+4.  **QUOTES**: Write a quote that sounds like a real human complaining in Spanish.
 
-1. **PERSONAS**: Use REAL first names common in ${context.region}. NOT "Usuario A" or "Maria Smith". Examples for Colombia: "Camilo Rodríguez", "Daniela Torres", "Andrés Vargas"
+RULES FOR "COMPETITORS":
+1.  **NAME NAMES**: List REAL companies operating in ${context.region} or global giants used locally.
+2.  **BE SPECIFIC**: "Excel" is a competitor. "Notebook and pencil" is a competitor.
 
-2. **JOB TITLES**: Be HYPER-SPECIFIC. NOT "Gerente". YES: "Growth Lead en startup fintech", "Fundador de agencia de marketing digital", "Product Manager en Rappi"
-
-3. **COMPETITORS**: Name REAL companies that exist in ${context.region} or globally. Research current market leaders in ${context.industry}.
-
-4. **MARKET DATA**: Provide realistic TAM/SAM/SOM numbers for ${context.region}, ${context.industry}. If you don't have exact data, estimate conservatively.
-
-5. **PIVOT IDEAS**: Base these on CURRENT 2024-2025 trends:
-   - AI/ML integration (GPT-4, Claude, Gemini)
-   - Community-led growth
-   - B2B SaaS plays
-   - Marketplace/platform models
-   - Web3/crypto (if relevant)
-
-6. **VALIDATION QUESTIONS**: Must extract ACTIONABLE data. Include willingness-to-pay questions with specific price points in local currency (COP, MXN, etc.)
+RULES FOR "QUESTIONS" (THE MOST IMPORTANT PART):
+1.  **HARD HITTING**: Ask about money, past behaviors, and specific failures.
+2.  **NO FLUFF**: Do not ask "Would you use this?". Ask "Have you paid for a solution to this problem in the last year?".
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-OUTPUT FORMAT (JSON):
+OUTPUT FORMAT (JSON ONLY):
 {
-  "objectives": [
-    "Specific, measurable objective 1 tied to this exact idea",
-    "Specific, measurable objective 2",
-    "Specific, measurable objective 3"
-  ],
-  
+  "objectives": ["string"],
   "personas": [
     {
-      "name": "Real First Name + Last Name, Specific Job Title at Real/Specific Company Type",
-      "demographics": "Exact age, city in ${context.region}, monthly income range in local currency, specific job situation",
-      "painPoints": ["Specific pain 1 related to ${idea.substring(0, 30)}...", "Specific pain 2", "Specific pain 3"],
-      "goals": ["Specific goal 1", "Specific goal 2"],
-      "behaviors": ["Observable behavior 1", "Observable behavior 2", "Tool/platform they currently use"],
-      "quote": "First-person quote this person would actually say about the problem",
-      "spending power": "Monthly discretionary spend in local currency",
-      "techSavviness": "low/medium/high"
+      "name": "string",
+      "demographics": "string (specific)",
+      "painPoints": ["string"],
+      "goals": ["string"],
+      "behaviors": ["string"],
+      "quote": "string",
+      "spendingPower": "string",
+      "techSavviness": "low|medium|high"
     }
   ],
-  
   "questions": [
     {
-      "id": "unique_id",
-      "text": "Validation question in Spanish that references the specific idea",
+      "id": "string",
+      "text": "string (The actual question to ask)",
       "type": "scale|text|boolean|select",
       "category": "problem|solution|market|financial",
       "dimension": "problemIntensity|solutionFit|willingnessToPay|painPoint|earlyAdopter|currentBehavior",
-      "weight": 0.5-1.0,
-      "options": ["if applicable"]
+      "weight": number (0.1 - 1.0),
+      "options": ["string"] (if select),
+      "widgetType": "default|currency_bucket|gauge_1_10|boolean_donut|keyword_cloud" (Choose the best visualization logic)
     }
   ],
-  
   "successMetrics": {
-    "viabilityThreshold": 70-85,
-    "interviewTarget": 15-25,
-    "earlyAdopterPercentage": 30-50,
-    "willingnessToPayThreshold": 60-75
+    "viabilityThreshold": 75,
+    "interviewTarget": 20,
+    "earlyAdopterPercentage": 40,
+    "willingnessToPayThreshold": 60
   },
-  
   "risks": [
-    {
-      "risk": "Specific risk for this exact idea",
-      "severity": "high|medium|low",
-      "mitigation": "Specific mitigation strategy",
-      "probability": 10-90
-    }
+    { "risk": "string", "severity": "high|medium|low", "mitigation": "string", "probability": number }
   ],
-  
   "competitors": [
-    {
-      "name": "REAL company name (e.g., 'Rappi', 'Nubank', 'Mercado Libre') or specific description",
-      "strength": "Their actual strength",
-      "weakness": "Their actual weakness",
-      "differentiation": "HOW THIS IDEA is different",
-      "marketShare": "Estimated % or 'dominant'/'emerging'",
-      "pricing": "Their actual pricing model"
+    { 
+      "name": "string", "strength": "string", "weakness": "string", 
+      "differentiation": "string", "marketShare": "string", "pricing": "string" 
     }
   ],
-  
   "timeline": {
-    "phase1_preparation": "Week 1-2: Specific activities",
-    "phase2_interviews": "Week 3-5: Specific activities",
-    "phase3_analysis": "Week 6: Specific activities",
-    "totalDuration": "6-8 weeks"
+    "phase1_preparation": "string", "phase2_interviews": "string", 
+    "phase3_analysis": "string", "totalDuration": "string"
   },
-  
   "marketInsights": {
-    "tam": "Total addressable market size for ${context.industry} in ${context.region} with $ figure",
-    "sam": "Serviceable addressable market with $ figure",
-    "som": "Serviceable obtainable market Year 1 with $ figure",
-    "growthRate": "Annual growth rate % with source/reasoning",
-    "trends": ["Trend 1", "Trend 2", "Trend 3"],
-    "keyDrivers": ["Driver 1", "Driver 2"],
-    "barriers": ["Barrier 1", "Barrier 2"]
+    "tam": "string", "sam": "string", "som": "string", 
+    "growthRate": "string", "trends": ["string"], "keyDrivers": ["string"], "barriers": ["string"]
   },
-  
   "pivotIdeas": [
-    {
-      "name": "Specific pivot name based on the original idea",
-      "description": "How this pivot works",
-      "angle": "ai_powered|b2b_saas|community|marketplace|platform",
-      "potential": "high|medium|low",
-      "reasoning": "WHY this pivot could work better, with market evidence",
-      "estimatedRevenue": "$X-Y in Year 1",
-      "complexity": "low|medium|high"
-    }
+    { "name": "string", "description": "string", "angle": "ai_powered|b2b_saas|community|marketplace|platform", "potential": "high|medium|low", "reasoning": "string", "estimatedRevenue": "string", "complexity": "low|medium|high" }
   ],
-  
   "monetizationStrategies": [
-    {
-      "model": "Specific model name",
-      "pricing": "Exact pricing structure in local currency",
-      "pros": ["Pro 1", "Pro 2"],
-      "cons": ["Con 1", "Con 2"],
-      "recommendation": true/false,
-      "estimatedLTV": "$X over Y months",
-      "estimatedCAC": "$X"
-    }
+    { "model": "string", "pricing": "string", "pros": ["string"], "cons": ["string"], "recommendation": boolean, "estimatedLTV": "string", "estimatedCAC": "string" }
   ],
-  
   "validationExperiments": [
-    {
-      "name": "Experiment name",
-      "description": "What to do exactly",
-      "cost": "$X-Y in local currency",
-      "duration": "X days/weeks",
-      "successMetric": "Specific measurable outcome",
-      "difficulty": "easy|medium|hard"
-    }
+    { "name": "string", "description": "string", "cost": "string", "duration": "string", "successMetric": "string", "difficulty": "easy|medium|hard" }
   ],
-  
   "trendAnalysis": {
-    "emergingTrends": ["2024-2025 trend 1 in ${context.industry}", "trend 2"],
-    "dyingTrends": ["What's declining"],
-    "opportunityWindows": ["Time-sensitive opportunities"],
-    "threats": ["Market threats"]
+    "emergingTrends": ["string"], "dyingTrends": ["string"], "opportunityWindows": ["string"], "threats": ["string"]
   },
-  
   "competitiveLandscape": {
-    "directCompetitors": [{"name": "Real company", "strength": "X", "weakness": "Y", "differentiation": "Z"}],
-    "indirectCompetitors": [{"name": "Real company", "strength": "X", "weakness": "Y", "differentiation": "Z"}],
-    "substitutes": ["Current solutions people use"],
-    "barriersToEntry": ["Barrier 1", "Barrier 2"],
-    "whitespace": "Market gap this idea fills"
+    "directCompetitors": [{"name": "string", "strength": "string", "weakness": "string", "differentiation": "string"}],
+    "indirectCompetitors": [{"name": "string", "strength": "string", "weakness": "string", "differentiation": "string"}],
+    "substitutes": ["string"],
+    "barriersToEntry": ["string"],
+    "whitespace": "string"
   }
 }
 
-Generate 2-3 personas, 6-10 questions, 3-5 risks, 2-4 real competitors, 3 pivot ideas, 2-3 monetization strategies, 3 experiments.
-
-RESPOND WITH VALID JSON ONLY. NO MARKDOWN.`;
+RESPOND WITH VALID JSON ONLY.
+`;
 
     console.log('🚀 [IdeaGenerator] Calling Gemini with ultra-specific prompt...');
     const response = await callGeminiAPI(prompt, true);

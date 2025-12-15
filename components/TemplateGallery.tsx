@@ -14,7 +14,11 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onSelectTempla
   const [selectedTemplate, setSelectedTemplate] = useState<NicheTemplate | null>(null);
   
   const filteredTemplates = initialFilter 
-    ? NICHE_TEMPLATES.filter(t => t.industry?.toLowerCase() === initialFilter.toLowerCase() || t.id.toLowerCase().includes(initialFilter.toLowerCase()))
+    ? NICHE_TEMPLATES.filter(t => 
+        t.industry?.toLowerCase().includes(initialFilter.toLowerCase()) || 
+        t.id.toLowerCase().includes(initialFilter.toLowerCase()) ||
+        t.name.toLowerCase().includes(initialFilter.toLowerCase())
+      )
     : NICHE_TEMPLATES;
 
   return (
@@ -99,6 +103,28 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onSelectTempla
             </motion.div>
           ))}
         </motion.div>
+
+        {/* Empty State */}
+        {filteredTemplates.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="bg-white/5 p-4 rounded-full mb-4">
+              <Sparkles size={32} className="text-slate-500" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">No se encontraron plantillas</h3>
+            <p className="text-slate-400 max-w-md">
+              No hay plantillas que coincidan con el filtro "{initialFilter}". Intenta ver todas las plantillas.
+            </p>
+            <button 
+              onClick={() => {
+                window.history.pushState({}, '', '/?open_gallery=true');
+                window.location.reload();
+              }}
+              className="mt-6 px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-colors font-medium border border-white/10"
+            >
+              Ver Todas
+            </button>
+          </div>
+        )}
       </motion.div>
 
       {/* Template Preview Modal */}
