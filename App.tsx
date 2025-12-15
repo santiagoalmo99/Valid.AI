@@ -104,28 +104,7 @@ const LoginView = () => {
      return <PublicVerificationPage />;
   }
   
-  // PUBLIC ROUTE: Niche Landing Pages
-  if (urlParams.get('page') === 'saas-b2b') {
-    return <SaasLanding onStart={() => {
-      // Clear param to show login, optionally pass a state to auto-open gallery
-      window.history.pushState({}, '', '/');
-      window.location.reload(); // Simple reload to get to login/dashboard
-    }} />; 
-  }
 
-  if (urlParams.get('page') === 'ecommerce') {
-    return <EcommerceLanding onStart={() => {
-      window.history.pushState({}, '', '/?open_gallery=true&filter=ecommerce');
-      window.location.reload();
-    }} />; 
-  }
-
-  if (urlParams.get('page') === 'marketplace') {
-    return <MarketplaceLanding onStart={() => {
-      window.history.pushState({}, '', '/?open_gallery=true&filter=marketplace');
-      window.location.reload();
-    }} />; 
-  }
   
   if (urlParams.get('page') === 'saas-b2b-pro') {
     return <SaasB2bLanding onStart={() => {
@@ -2397,6 +2376,31 @@ function AppContent() {
   const [lang, setLang] = useState<Language>('es');
   const [theme, setTheme] = useState<'dark' | 'light'>('dark'); 
   const [notification, setNotification] = useState<NotificationPayload | null>(null);
+
+  // --- ROUTING LOGIC (GLOBAL) ---
+  // Moved here so it works for BOTH Logged In and Logged Out users
+  const urlParams = new URLSearchParams(window.location.search);
+  
+  if (urlParams.get('page') === 'saas-b2b') {
+    return <SaasLanding onStart={() => {
+      window.history.pushState({}, '', '/?open_gallery=true&filter=saas'); // Fixed filter param
+      window.location.reload();
+    }} />; 
+  }
+
+  if (urlParams.get('page') === 'ecommerce') {
+    return <EcommerceLanding onStart={() => {
+      window.history.pushState({}, '', '/?open_gallery=true&filter=ecommerce');
+      window.location.reload();
+    }} />; 
+  }
+
+  if (urlParams.get('page') === 'marketplace') {
+    return <MarketplaceLanding onStart={() => {
+      window.history.pushState({}, '', '/?open_gallery=true&filter=marketplace');
+      window.location.reload();
+    }} />; 
+  }
 
   const notify = (title: string, type: 'success'|'error'|'info'|'live' = 'info', message?: string, duration: number = 4000) => {
       setNotification({ title, type, message, duration });
