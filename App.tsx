@@ -2138,7 +2138,7 @@ const DashboardView = ({ project, interviews, t }: any) => {
 
          {/* Main Chart */}
          <div className={`${GLASS_PANEL} p-8 rounded-3xl col-span-1 md:col-span-2 h-[400px] relative z-40`}>
-             <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2"><BarChart3 className="text-neon" /> Score Distribution</h3>
+             <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2"><BarChart3 className="text-neon" /> Score Distribution (Fixed v2.1)</h3>
              
              <div className="w-full h-[85%]">
                 <ResponsiveContainer width="100%" height="100%">
