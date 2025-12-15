@@ -11,8 +11,46 @@ import {
 } from 'lucide-react';
 import { saveLead } from '../services/firebase';
 
+// Reusable Components for Niche Landings
+export const LandingHeader = ({ onLogin, c = "text-neon" }: { onLogin?: () => void, c?: string }) => (
+  <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-6 transition-all duration-300">
+    <div className="container mx-auto flex justify-between items-center bg-black/50 backdrop-blur-md p-4 rounded-full border border-white/5">
+      <div className="flex items-center gap-2">
+        <div className="w-8 h-8 bg-gradient-to-tr from-emerald-400 to-cyan-400 rounded-lg flex items-center justify-center font-bold text-black text-xs shadow-[0_0_15px_rgba(52,211,153,0.5)]">
+          V.AI
+        </div>
+        <span className="font-bold text-white tracking-wider text-lg">VALID<span className={c}>.AI</span></span>
+      </div>
+      <button 
+        onClick={onLogin}
+        className="px-6 py-2 text-sm font-bold text-white bg-white/5 hover:bg-white/10 rounded-full transition-all border border-white/5 hover:border-emerald-500/30"
+      >
+        Login
+      </button>
+    </div>
+  </nav>
+);
+
+export const ValidationWidget = ({ color = "text-emerald-400", bg = "bg-emerald-500" }: { color?: string, bg?: string }) => {
+   // Simple animation simulation
+   return (
+      <div className="relative w-full max-w-[300px] aspect-square rounded-full border border-white/10 flex items-center justify-center bg-black/40 backdrop-blur-md animate-float">
+         <div className={`absolute inset-0 ${bg}/10 rounded-full blur-3xl animate-pulse-slow`}></div>
+         <div className="text-center relative z-10">
+            <div className={`text-5xl font-bold ${color} mb-2 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]`}>92%</div>
+            <div className="text-[10px] uppercase tracking-[0.2em] text-slate-400">Viability Score</div>
+         </div>
+         {/* Orbital dots */}
+         <div className="absolute inset-0 animate-spin-slow">
+            <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-3 h-3 ${bg} rounded-full shadow-[0_0_10px_currentColor]`}></div>
+         </div>
+         <div className="absolute inset-4 border border-dashed border-white/10 rounded-full animate-reverse-spin"></div>
+      </div>
+   )
+}
+
 // --- ANIMATION UTILS ---
-export const springTransition = { type: "spring", stiffness: 100, damping: 20, mass: 1 };
+export const springTransition = { type: "spring" as const, stiffness: 100, damping: 20, mass: 1 };
 
 export const Reveal = ({ children, delay = 0 }: { children: React.ReactNode, delay?: number }) => (
   <motion.div

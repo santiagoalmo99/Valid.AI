@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Globe, Users, RefreshCw, Layers, ShieldCheck, Scale, AlertOctagon, HeartHandshake, Rocket } from 'lucide-react';
-import { Reveal, GlassCard } from '../LandingPage';
+import { Reveal, GlassCard, LandingHeader, ValidationWidget } from '../LandingPage';
 
 interface MarketplaceLandingProps {
   onStart: () => void;
@@ -10,7 +10,9 @@ interface MarketplaceLandingProps {
 export const MarketplaceLanding: React.FC<MarketplaceLandingProps> = ({ onStart }) => {
   return (
     <div className="min-h-screen bg-black text-white relative overflow-hidden font-sans selection:bg-cyan-500/30">
-      {/* Background Ambience - Cyan/Magenta for Tech/Marketplace */}
+      <LandingHeader onLogin={() => window.location.href = '/login'} />
+
+      {/* Background Ambience - Cyan/Pink/Neon */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute top-[-10%] left-[20%] w-[60vw] h-[60vw] bg-cyan-600/10 rounded-full blur-[120px] animate-pulse-slow"></div>
         <div className="absolute bottom-[-10%] right-[20%] w-[60vw] h-[60vw] bg-pink-600/10 rounded-full blur-[120px] animate-pulse-slow" style={{ animationDelay: '2s' }}></div>
@@ -18,43 +20,87 @@ export const MarketplaceLanding: React.FC<MarketplaceLandingProps> = ({ onStart 
       </div>
 
       {/* Hero Section */}
-      <section className="relative z-10 pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-visible">
-        <div className="container mx-auto px-6 flex flex-col items-center text-center">
-          <Reveal>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold uppercase tracking-widest mb-8 backdrop-blur-md">
-              <Globe size={14} /> Marketplace Validation Kit
-            </div>
-          </Reveal>
+      <section className="relative z-10 pt-40 pb-20 lg:pt-56 lg:pb-32 overflow-visible">
+        <div className="container mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           
-          <Reveal delay={0.1}>
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-8 leading-tight">
-              Resuelve el Problema del <br/>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-fuchsia-400 to-pink-400 animate-gradient-x">
-                Huevo y la Gallina
-              </span>
-            </h1>
-          </Reveal>
+          <div className="text-left">
+            <Reveal>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold uppercase tracking-widest mb-8 backdrop-blur-md">
+                <Globe size={14} /> Marketplace Validation Kit
+              </div>
+            </Reveal>
+            
+            <Reveal delay={0.1}>
+              <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-8 leading-tight">
+                Resuelve el Problema del <br/>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-fuchsia-400 to-pink-400 animate-gradient-x">
+                  Huevo y la Gallina
+                </span>
+              </h1>
+            </Reveal>
 
-          <Reveal delay={0.2}>
-            <p className="text-xl text-slate-400 max-w-3xl mb-12 leading-relaxed">
-              Lanzar un marketplace es brutalmente difícil. Valida la liquidez y evita la "fuga de plataforma" antes de escalar.
-              <br className="hidden md:block" />
-              <span className="text-white font-medium">Equilibra Oferta y Demanda sin quemar capital.</span>
-            </p>
-          </Reveal>
+            <Reveal delay={0.2}>
+              <p className="text-xl text-slate-400 max-w-xl mb-12 leading-relaxed">
+                Sin liquidez, tu marketplace es un pueblo fantasma.
+                <span className="text-white font-medium block mt-2">Equilibra Oferta y Demanda antes de gastar un centavo en marketing.</span>
+              </p>
+            </Reveal>
 
-          <Reveal delay={0.3}>
-            <button 
-              onClick={onStart}
-              className="group relative px-10 py-5 bg-white text-black font-bold rounded-full text-xl shadow-[0_0_40px_rgba(34,211,238,0.3)] hover:scale-105 hover:shadow-[0_0_60px_rgba(34,211,238,0.5)] transition-all overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 via-white to-pink-400 opacity-0 group-hover:opacity-100 transition-opacity duration-500 mix-blend-overlay"></div>
-              <span className="relative flex items-center gap-3">
-                Usar Plantilla Marketplace <ArrowRight size={24} />
-              </span>
-            </button>
-            <p className="mt-4 text-sm text-slate-500">Para plataformas como Airbnb, Uber, Fiverr, etc.</p>
-          </Reveal>
+            <Reveal delay={0.3}>
+              <button 
+                onClick={onStart}
+                className="group relative px-10 py-5 bg-white text-black font-bold rounded-full text-xl shadow-[0_0_40px_rgba(34,211,238,0.3)] hover:scale-105 hover:shadow-[0_0_60px_rgba(34,211,238,0.5)] transition-all overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 via-white to-pink-400 opacity-0 group-hover:opacity-100 transition-opacity duration-500 mix-blend-overlay"></div>
+                <span className="relative flex items-center gap-3">
+                  Usar Plantilla Marketplace <ArrowRight size={24} />
+                </span>
+              </button>
+            </Reveal>
+          </div>
+
+          {/* Visualization */}
+          <div className="relative flex justify-center lg:justify-end">
+             <Reveal delay={0.4}>
+                <div className="relative">
+                   <ValidationWidget color="text-pink-400" bg="bg-pink-500" />
+                   
+                   {/* Floating Metrics */}
+                   <motion.div 
+                      animate={{ scale: [1, 1.05, 1] }} 
+                      transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                      className="absolute -top-5 left-0 bg-black/80 backdrop-blur-md p-4 rounded-xl border border-white/10 shadow-xl"
+                   >
+                      <div className="flex items-center gap-3">
+                         <div className="w-8 h-8 rounded-full bg-cyan-500/20 flex items-center justify-center text-cyan-400">
+                            <Users size={16} />
+                         </div>
+                         <div>
+                            <div className="text-[10px] text-slate-400 uppercase">Supply Side</div>
+                            <div className="font-bold text-white">Active (Verified)</div>
+                         </div>
+                      </div>
+                   </motion.div>
+
+                   <motion.div 
+                      animate={{ scale: [1, 1.05, 1] }} 
+                      transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
+                      className="absolute bottom-5 -right-5 bg-black/80 backdrop-blur-md p-4 rounded-xl border border-white/10 shadow-xl"
+                   >
+                       <div className="flex items-center gap-3">
+                         <div className="w-8 h-8 rounded-full bg-pink-500/20 flex items-center justify-center text-pink-400">
+                            <HeartHandshake size={16} />
+                         </div>
+                         <div>
+                            <div className="text-[10px] text-slate-400 uppercase">Liquidity</div>
+                            <div className="font-bold text-white">High Potential</div>
+                         </div>
+                      </div>
+                   </motion.div>
+                </div>
+             </Reveal>
+          </div>
+
         </div>
       </section>
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, ShoppingCart, Truck, TrendingUp, Package, Tag, AlertTriangle, XCircle, DollarSign, Globe, ShieldCheck } from 'lucide-react';
-import { Reveal, GlassCard } from '../LandingPage';
+import { Reveal, GlassCard, LandingHeader, ValidationWidget } from '../LandingPage';
 
 interface EcommerceLandingProps {
   onStart: () => void;
@@ -10,7 +10,9 @@ interface EcommerceLandingProps {
 export const EcommerceLanding: React.FC<EcommerceLandingProps> = ({ onStart }) => {
   return (
     <div className="min-h-screen bg-black text-white relative overflow-hidden font-sans selection:bg-emerald-500/30">
-      {/* Background Ambience - Green/Gold for Commerce */}
+      <LandingHeader onLogin={() => window.location.href = '/login'} />
+
+      {/* Background Ambience - Green/Gold/Neon */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute top-[-20%] right-[-10%] w-[60vw] h-[60vw] bg-emerald-600/10 rounded-full blur-[120px] animate-pulse-slow"></div>
         <div className="absolute bottom-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-amber-600/10 rounded-full blur-[120px] animate-pulse-slow" style={{ animationDelay: '2s' }}></div>
@@ -19,43 +21,87 @@ export const EcommerceLanding: React.FC<EcommerceLandingProps> = ({ onStart }) =
       </div>
 
       {/* Hero Section */}
-      <section className="relative z-10 pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-visible">
-        <div className="container mx-auto px-6 flex flex-col items-center text-center">
-          <Reveal>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold uppercase tracking-widest mb-8 backdrop-blur-md">
-              <ShoppingCart size={14} /> E-commerce Validation Kit
-            </div>
-          </Reveal>
+      <section className="relative z-10 pt-40 pb-20 lg:pt-56 lg:pb-32 overflow-visible">
+        <div className="container mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           
-          <Reveal delay={0.1}>
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-8 leading-tight">
-              Vende Productos <br/>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-200 to-amber-400 animate-gradient-x">
-                Que La Gente Desea
-              </span>
-            </h1>
-          </Reveal>
+          <div>
+            <Reveal>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold uppercase tracking-widest mb-8 backdrop-blur-md">
+                <ShoppingCart size={14} /> E-commerce Validation Kit
+              </div>
+            </Reveal>
+            
+            <Reveal delay={0.1}>
+              <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-8 leading-tight">
+                Vende Productos <br/>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-200 to-amber-400 animate-gradient-x">
+                  Que La Gente Desea
+                </span>
+              </h1>
+            </Reveal>
 
-          <Reveal delay={0.2}>
-            <p className="text-xl text-slate-400 max-w-3xl mb-12 leading-relaxed">
-              El inventario muerto es la pesadilla del E-commerce.
-              <br className="hidden md:block" />
-              <span className="text-white font-medium">Valida Demanda, Márgenes y Logística antes de importar un solo contenedor.</span>
-            </p>
-          </Reveal>
+            <Reveal delay={0.2}>
+              <p className="text-xl text-slate-400 max-w-xl mb-12 leading-relaxed">
+                El inventario muerto quiebra más tiendas que los malos ads.
+                <span className="text-white font-medium block mt-2">Valida Demanda, Márgenes y Logística antes de importar un solo contenedor.</span>
+              </p>
+            </Reveal>
 
-          <Reveal delay={0.3}>
-            <button 
-              onClick={onStart}
-              className="group relative px-10 py-5 bg-white text-black font-bold rounded-full text-xl shadow-[0_0_40px_rgba(16,185,129,0.3)] hover:scale-105 hover:shadow-[0_0_60px_rgba(16,185,129,0.5)] transition-all overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 via-white to-amber-400 opacity-0 group-hover:opacity-100 transition-opacity duration-500 mix-blend-overlay"></div>
-              <span className="relative flex items-center gap-3">
-                Usar Plantilla E-commerce <ArrowRight size={24} />
-              </span>
-            </button>
-            <p className="mt-4 text-sm text-slate-500">Ideal para Dropshipping, DTC y Marcas Privadas</p>
-          </Reveal>
+            <Reveal delay={0.3}>
+              <button 
+                onClick={onStart}
+                className="group relative px-10 py-5 bg-white text-black font-bold rounded-full text-xl shadow-[0_0_40px_rgba(16,185,129,0.3)] hover:scale-105 hover:shadow-[0_0_60px_rgba(16,185,129,0.5)] transition-all overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 via-white to-amber-400 opacity-0 group-hover:opacity-100 transition-opacity duration-500 mix-blend-overlay"></div>
+                <span className="relative flex items-center gap-3">
+                  Usar Plantilla E-commerce <ArrowRight size={24} />
+                </span>
+              </button>
+            </Reveal>
+          </div>
+
+          {/* Visualization */}
+          <div className="relative flex justify-center lg:justify-end">
+             <Reveal delay={0.4}>
+                <div className="relative">
+                   <ValidationWidget color="text-emerald-400" bg="bg-emerald-500" />
+                   
+                   {/* Floating Metrics */}
+                   <motion.div 
+                      animate={{ x: [0, 10, 0] }} 
+                      transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                      className="absolute top-0 -left-5 bg-black/80 backdrop-blur-md p-4 rounded-xl border border-white/10 shadow-xl"
+                   >
+                      <div className="flex items-center gap-3">
+                         <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-400">
+                            <Tag size={16} />
+                         </div>
+                         <div>
+                            <div className="text-[10px] text-slate-400 uppercase">Margin Check</div>
+                            <div className="font-bold text-white">45% Gross</div>
+                         </div>
+                      </div>
+                   </motion.div>
+
+                   <motion.div 
+                      animate={{ y: [0, 10, 0] }} 
+                      transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                      className="absolute bottom-10 -right-5 bg-black/80 backdrop-blur-md p-4 rounded-xl border border-white/10 shadow-xl"
+                   >
+                       <div className="flex items-center gap-3">
+                         <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400">
+                            <Truck size={16} />
+                         </div>
+                         <div>
+                            <div className="text-[10px] text-slate-400 uppercase">Logistics</div>
+                            <div className="font-bold text-white">Verified</div>
+                         </div>
+                      </div>
+                   </motion.div>
+                </div>
+             </Reveal>
+          </div>
+
         </div>
       </section>
 

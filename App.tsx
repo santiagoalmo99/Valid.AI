@@ -3,7 +3,7 @@ import { ProjectTemplate, Interview, Question, Answer, DeepAnalysisReport, Langu
 import { TRANSLATIONS, INITIAL_PROJECTS, DEMO_PROJECT } from './constants';
 import * as Gemini from './services/aiService';
 import { getCoverByIdea } from './utils/projectCovers';
-import { Sparkles, Zap, Target, ArrowRight, CheckCircle2, ChevronRight, BarChart3, PieChart as PieChartIcon, TrendingUp, Activity, Plus, Play, Users, X, Search, FileText, MessageSquare, Cpu, Globe, Lock, ArrowLeft, RefreshCw, Trash2, LayoutGrid, Upload, Settings, Download, Sun, Moon, Smartphone, CheckCircle, Mail, Phone, MapPin, Award, Power, Mic, MicOff, Pause, AlertTriangle, TrendingDown, Minus } from 'lucide-react';
+import { Sparkles, Zap, Target, ArrowRight, CheckCircle2, ChevronRight, BarChart3, PieChart as PieChartIcon, TrendingUp, Activity, Plus, Play, Users, X, Search, FileText, MessageSquare, Cpu, Globe, Lock, ArrowLeft, RefreshCw, Trash2, LayoutGrid, Upload, Settings, Download, Sun, Moon, Smartphone, CheckCircle, Mail, Phone, MapPin, Award, Power, Mic, MicOff, Pause, AlertTriangle, TrendingDown, Minus, Share2 } from 'lucide-react';
 import { motion, AnimatePresence, Transition, Variant } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell, PieChart, Pie, LineChart, Line, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Legend } from 'recharts';
@@ -2103,16 +2103,29 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
 
 // Placeholder components for brevity in this single file update
 
+import { PercentageGauge } from './components/PercentageGauge';
+
 const DashboardMetrics = ({ totalInterviews, avgScore, status }: any) => (
   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 col-span-1 md:col-span-3 mb-6 relative z-10">
      <div className={`${GLASS_PANEL} p-6 rounded-2xl flex flex-col items-center justify-center border border-white/5 bg-white/5`}>
         <div className="text-4xl font-bold text-white mb-1">{totalInterviews}</div>
         <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Entrevistas</div>
      </div>
-     <div className={`${GLASS_PANEL} p-6 rounded-2xl flex flex-col items-center justify-center border border-white/5 bg-white/5`}>
-        <div className="text-4xl font-bold text-neon mb-1 drop-shadow-[0_0_10px_rgba(58,255,151,0.5)]">{avgScore}</div>
-        <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Viabilidad</div>
+     
+     {/* NEW: Gauge Component */}
+     <div className={`${GLASS_PANEL} p-4 rounded-2xl flex flex-col items-center justify-center border border-white/5 bg-white/5 relative group min-h-[160px]`}>
+        <button 
+           onClick={() => setShareModalOpen(true)}
+           className="absolute top-2 right-2 p-1.5 rounded-lg bg-white/5 hover:bg-neon/20 hover:text-neon text-slate-400 transition-all opacity-0 group-hover:opacity-100 z-50"
+           title="Share Score"
+        >
+           <Share2 size={16} />
+        </button>
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none" onClick={() => setShareModalOpen(true)}>
+            <PercentageGauge score={Number(avgScore)} size={180} />
+        </div>
      </div>
+
      <div className={`${GLASS_PANEL} p-6 rounded-2xl flex flex-col items-center justify-center border border-white/5 bg-white/5`}>
         <div className={`text-2xl font-bold mb-1 ${status === 'High Potential' ? 'text-emerald-400' : 'text-amber-400'}`}>
            {status === 'High Potential' ? 'ALTA' : 'VALIDAR'}

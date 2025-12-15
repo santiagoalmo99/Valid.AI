@@ -20,7 +20,7 @@ async function discoverAvailableModel(): Promise<string> {
     const models = data.models || [];
     
     // Prioritize newer models
-    const preferredModels = ['gemini-1.5-flash-latest', 'gemini-1.5-flash-001', 'gemini-1.5-pro-latest'];
+    const preferredModels = ['gemini-2.0-flash-exp', 'gemini-1.5-flash-latest', 'gemini-1.5-flash-001'];
     
     let validModel;
     for (const pref of preferredModels) {
