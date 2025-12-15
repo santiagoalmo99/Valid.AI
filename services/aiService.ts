@@ -133,6 +133,25 @@ export async function callGeminiAPI(prompt: string, json: boolean = false, useWe
       }
   }
 
+  // SPECIAL HANDLING: If using Web Tools, avoid experimental models that might not support it yet
+  // or are unstable with tools. Prioritize Gemini 1.5 Flash/Pro.
+  if (useWeb) {
+      console.log('🌐 Web Access requested: Prioritizing stable Gemini 1.5 models');
+      // Remove 2.0 experimental from top preference if present
+      const experimentalIdx = modelsToTry.findIndex(m => m.includes('2.0') || m.includes('exp'));
+      if (experimentalIdx !== -1) {
+          const [expModel] = modelsToTry.splice(experimentalIdx, 1);
+          modelsToTry.push(expModel); // Move to end
+      }
+      
+      // Ensure 1.5 Flash is top
+      const flashIdx = modelsToTry.findIndex(m => m.includes('1.5-flash'));
+      if (flashIdx > 0) { // If found and not at 0
+          const [flashModel] = modelsToTry.splice(flashIdx, 1);
+          modelsToTry.unshift(flashModel);
+      }
+  }
+
   let lastError: any = new Error('No models available');
 
   // Loop through models until one works

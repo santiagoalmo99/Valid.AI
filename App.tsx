@@ -2558,7 +2558,7 @@ function AppContent() {
       setShowTrendNotification(false);
     } catch (error) {
       console.error("Failed to generate trends", error);
-      alert("Error conectando con la inteligencia global. Intente más tarde.");
+      alert(`Error conectando con la inteligencia global: ${error instanceof Error ? error.message : 'Unknown error'}. Intente más tarde.`);
     }
     setIsGeneratingTrends(false);
   };
@@ -2783,7 +2783,13 @@ function AppContent() {
       >
         RESET APP DATA
       </button>
+
+      <div className="fixed bottom-1 right-1 px-2 py-1 bg-black/50 text-slate-700 text-[8px] font-mono pointer-events-none z-50 rounded">
+        v2.4 (INTELLIGENCE FIX)
+      </div>
     </div>
+  );
+}
   );
 }
 
