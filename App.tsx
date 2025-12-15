@@ -2084,22 +2084,24 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
 
 // Placeholder components for brevity in this single file update
 
-import { DashboardMetrics } from './components/DashboardMetrics';
-import ReactDOM from 'react-dom';
-
-const FixedTooltip = ({ x, y, content }: any) => {
-  if (typeof document === 'undefined') return null;
-  return ReactDOM.createPortal(
-    <div 
-      className="fixed px-3 py-1 bg-black/95 border border-white/20 rounded-lg text-xs text-white pointer-events-none z-[99999] shadow-2xl backdrop-blur-md animate-fade-in"
-      style={{ left: x, top: y, transform: 'translate(-50%, -100%)', marginTop: '-12px' }}
-    >
-      {content}
-      <div className="absolute left-1/2 bottom-0 -translate-x-1/2 translate-y-full border-4 border-transparent border-t-white/20"></div>
-    </div>,
-    document.body
-  );
-};
+const DashboardMetrics = ({ totalInterviews, avgScore, status }: any) => (
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 col-span-1 md:col-span-3 mb-6 relative z-10">
+     <div className={`${GLASS_PANEL} p-6 rounded-2xl flex flex-col items-center justify-center border border-white/5 bg-white/5`}>
+        <div className="text-4xl font-bold text-white mb-1">{totalInterviews}</div>
+        <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Entrevistas</div>
+     </div>
+     <div className={`${GLASS_PANEL} p-6 rounded-2xl flex flex-col items-center justify-center border border-white/5 bg-white/5`}>
+        <div className="text-4xl font-bold text-neon mb-1 drop-shadow-[0_0_10px_rgba(58,255,151,0.5)]">{avgScore}</div>
+        <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Viabilidad</div>
+     </div>
+     <div className={`${GLASS_PANEL} p-6 rounded-2xl flex flex-col items-center justify-center border border-white/5 bg-white/5`}>
+        <div className={`text-2xl font-bold mb-1 ${status === 'High Potential' ? 'text-emerald-400' : 'text-amber-400'}`}>
+           {status === 'High Potential' ? 'ALTA' : 'VALIDAR'}
+        </div>
+        <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Potencial</div>
+     </div>
+  </div>
+);
 
 const DashboardView = ({ project, interviews, t }: any) => {
    // Calculate real stats
@@ -2108,21 +2110,26 @@ const DashboardView = ({ project, interviews, t }: any) => {
       ? (interviews.reduce((acc: number, i: Interview) => acc + i.totalScore, 0) / totalInterviews).toFixed(1) 
       : '0.0';
 
-   const [hoveredData, setHoveredData] = useState<{x: number, y: number, content: string} | null>(null);
-
    // Mock distribution for demo if no data, else real
    const scoreDist = [
-      { name: '0-4', value: interviews.filter((i: Interview) => i.totalScore < 4).length },
-      { name: '4-7', value: interviews.filter((i: Interview) => i.totalScore >= 4 && i.totalScore < 7).length },
-      { name: '7-10', value: interviews.filter((i: Interview) => i.totalScore >= 7).length },
+      { name: '0-4', value: interviews.filter((i: Interview) => i.totalScore < 4).length, fill: '#ef4444' },
+      { name: '4-7', value: interviews.filter((i: Interview) => i.totalScore >= 4 && i.totalScore < 7).length, fill: '#facc15' },
+      { name: '7-10', value: interviews.filter((i: Interview) => i.totalScore >= 7).length, fill: '#3aff97' },
    ];
 
-   return (
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in pb-20 relative">
-         {/* Global Tooltip Portal */}
-         {hoveredData && <FixedTooltip {...hoveredData} />}
+   const CustomTooltip = ({ active, payload, label }: any) => {
+      if (active && payload && payload.length) {
+        return (
+          <div className="bg-black/90 border border-white/20 px-3 py-2 rounded-lg text-xs text-white shadow-xl backdrop-blur-md">
+            <p className="font-bold">{`${payload[0].value} Interviews`}</p>
+          </div>
+        );
+      }
+      return null;
+   };
 
-         {/* NEW: Quantum Metrics */}
+   return (
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in pb-20">
          <DashboardMetrics 
             totalInterviews={totalInterviews} 
             avgScore={avgScore} 
@@ -2130,55 +2137,36 @@ const DashboardView = ({ project, interviews, t }: any) => {
          />
 
          {/* Main Chart */}
-         <div className={`${GLASS_PANEL} p-8 rounded-3xl col-span-1 md:col-span-2 h-[400px] relative z-20`}>
+         <div className={`${GLASS_PANEL} p-8 rounded-3xl col-span-1 md:col-span-2 h-[400px] relative z-40`}>
              <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2"><BarChart3 className="text-neon" /> Score Distribution</h3>
              
-             <div className="w-full h-[85%] flex items-end justify-around gap-4 px-4 pb-8 relative">
-                {/* Grid lines - UNCHANGED */}
-                <div className="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-20">
-                   <div className="w-full h-px bg-slate-500 border-t border-dashed"></div>
-                   <div className="w-full h-px bg-slate-500 border-t border-dashed"></div>
-                   <div className="w-full h-px bg-slate-500 border-t border-dashed"></div>
-                   <div className="w-full h-px bg-slate-500 border-t border-dashed"></div>
-                   <div className="w-full h-px bg-slate-500 border-t border-dashed"></div>
-                </div>
-
-                {scoreDist.map((item: any, index: number) => {
-                   const maxVal = Math.max(...scoreDist.map((d: any) => d.value), 1); // Avoid div by zero
-                   const heightPct = (item.value / maxVal) * 100;
-                   const color = index === 2 ? 'bg-neon shadow-[0_0_20px_rgba(58,255,151,0.4)]' : index === 1 ? 'bg-yellow-400 shadow-[0_0_20px_rgba(250,204,21,0.4)]' : 'bg-red-400 shadow-[0_0_20px_rgba(248,113,113,0.4)]';
-                   
-                   return (
-                      <div 
-                        key={index} 
-                        className="flex flex-col items-center justify-end h-full w-full group relative z-30"
-                        onMouseEnter={(e) => {
-                           // Calculate center of the bar
-                           const rect = e.currentTarget.getBoundingClientRect();
-                           setHoveredData({
-                              x: rect.left + rect.width / 2,
-                              y: rect.top,
-                              content: `${item.value} Interviews`
-                           });
-                        }}
-                        onMouseLeave={() => setHoveredData(null)}
+             <div className="w-full h-[85%]">
+                <ResponsiveContainer width="100%" height="100%">
+                   <BarChart data={scoreDist} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                      <XAxis 
+                         dataKey="name" 
+                         stroke="#94a3b8" 
+                         fontSize={12} 
+                         tickLine={false} 
+                         axisLine={false}
+                         fontWeight="bold"
+                      />
+                      <Tooltip 
+                         content={<CustomTooltip />} 
+                         cursor={{ fill: 'rgba(255,255,255,0.05)', radius: 8 }}
+                         allowEscapeViewBox={{ x: true, y: true }}
+                      />
+                      <Bar 
+                         dataKey="value" 
+                         radius={[8, 8, 0, 0]}
+                         animationDuration={1500}
                       >
-                         
-                         {/* Bar */}
-                         <motion.div 
-                            initial={{ height: 0 }}
-                            animate={{ height: `${heightPct}%` }}
-                            transition={{ duration: 1, type: "spring" }}
-                            className={`w-full max-w-[60px] rounded-t-xl ${color} relative group-hover:brightness-110 transition-all`}
-                         >
-                            {/* Visual only */}
-                         </motion.div>
-                         
-                         {/* Label */}
-                         <div className="mt-4 text-slate-400 font-bold text-sm">{item.name}</div>
-                      </div>
-                   );
-                })}
+                         {scoreDist.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.fill} />
+                         ))}
+                      </Bar>
+                   </BarChart>
+                </ResponsiveContainer>
              </div>
          </div>
 
