@@ -2130,19 +2130,32 @@ const DashboardView = ({ project, interviews, t }: any) => {
 
    return (
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in pb-20">
-         <DashboardMetrics 
-            totalInterviews={totalInterviews} 
-            avgScore={avgScore} 
-            status={Number(avgScore) > 7 ? 'High Potential' : 'Needs Validation'} 
-         />
+         
+         {/* Simple/Inline Metrics (Restored by Request) */}
+         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 col-span-1 md:col-span-3 mb-6 relative z-10">
+            <div className={`${GLASS_PANEL} p-6 rounded-2xl flex flex-col items-center justify-center border border-white/5 bg-white/5`}>
+               <div className="text-4xl font-bold text-white mb-1">{totalInterviews}</div>
+               <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Entrevistas</div>
+            </div>
+            <div className={`${GLASS_PANEL} p-6 rounded-2xl flex flex-col items-center justify-center border border-white/5 bg-white/5`}>
+               <div className="text-4xl font-bold text-neon mb-1 drop-shadow-[0_0_10px_rgba(58,255,151,0.5)]">{avgScore}</div>
+               <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Viabilidad</div>
+            </div>
+            <div className={`${GLASS_PANEL} p-6 rounded-2xl flex flex-col items-center justify-center border border-white/5 bg-white/5`}>
+               <div className={`text-2xl font-bold mb-1 ${Number(avgScore) > 7 ? 'text-emerald-400' : 'text-amber-400'}`}>
+                  {Number(avgScore) > 7 ? 'ALTA' : 'VALIDAR'}
+               </div>
+               <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Potencial</div>
+            </div>
+         </div>
 
          {/* Main Chart */}
-         <div className={`${GLASS_PANEL} p-8 rounded-3xl col-span-1 md:col-span-2 h-[400px] relative z-40`}>
-             <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2"><BarChart3 className="text-neon" /> Score Distribution (Fixed v2.1)</h3>
+         <div className={`${GLASS_PANEL} p-8 rounded-3xl col-span-1 md:col-span-2 h-[400px] relative z-50 overflow-visible`}>
+             <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2"><BarChart3 className="text-neon" /> Score Distribution (Final v3.0)</h3>
              
              <div className="w-full h-[85%]">
                 <ResponsiveContainer width="100%" height="100%">
-                   <BarChart data={scoreDist} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                   <BarChart data={scoreDist} margin={{ top: 20, right: 30, left: 0, bottom: 5 }} style={{ zIndex: 51 }}>
                       <XAxis 
                          dataKey="name" 
                          stroke="#94a3b8" 
@@ -2155,6 +2168,7 @@ const DashboardView = ({ project, interviews, t }: any) => {
                          content={<CustomTooltip />} 
                          cursor={{ fill: 'rgba(255,255,255,0.05)', radius: 8 }}
                          allowEscapeViewBox={{ x: true, y: true }}
+                         wrapperStyle={{ zIndex: 1000, pointerEvents: 'none' }}
                       />
                       <Bar 
                          dataKey="value" 
