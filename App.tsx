@@ -38,9 +38,7 @@ import { PivotAlert } from './components/PivotAlert';
 import { SaasLanding } from './components/landings/SaasLanding';
 import { EcommerceLanding } from './components/landings/EcommerceLanding';
 import { MarketplaceLanding } from './components/landings/MarketplaceLanding';
-import { SaasB2bLanding } from './components/landing-pages/SaasB2bLanding'; // New Import
 
-// --- TYPES ---
 interface ConfirmationState {
   title: string;
   message: string;
@@ -127,16 +125,6 @@ const LoginView = () => {
       window.history.pushState({}, '', '/?open_gallery=true&filter=marketplace');
       window.location.reload();
     }} />; 
-  }
-  
-    }} />; 
-  }
-
-  if (urlParams.get('page') === 'saas-b2b-pro') {
-    return <SaasB2bLanding onStart={() => {
-      window.history.pushState({}, '', '/?open_gallery=true&filter=saas'); // Reuse SaaS filter for now
-      window.location.reload(); 
-    }} />;
   }
   
   if (loading) return (

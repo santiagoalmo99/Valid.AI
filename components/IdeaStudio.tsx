@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { Lightbulb, MessageCircle, FileCheck, Loader, CheckCircle, ArrowRight, Target, Users, TrendingUp, AlertTriangle, Calendar } from 'lucide-react';
 import { generateClarificationQuestions, generateResearchPlan, ResearchPlan } from '../services/ideaGenerator';
 import { Question } from '../types';
-import { Question } from '../types';
+
 import { logger } from '../services/logger';
 import { ProcessingStatus } from './ProcessingStatus';
 
