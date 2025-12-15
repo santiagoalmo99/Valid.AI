@@ -5,7 +5,9 @@ import React, { useState } from 'react';
 import { Lightbulb, MessageCircle, FileCheck, Loader, CheckCircle, ArrowRight, Target, Users, TrendingUp, AlertTriangle, Calendar } from 'lucide-react';
 import { generateClarificationQuestions, generateResearchPlan, ResearchPlan } from '../services/ideaGenerator';
 import { Question } from '../types';
+import { Question } from '../types';
 import { logger } from '../services/logger';
+import { ProcessingStatus } from './ProcessingStatus';
 
 interface IdeaStudioProps {
   onPlanGenerated: (questions: Question[], metadata: {
@@ -362,18 +364,16 @@ export const IdeaStudio: React.FC<IdeaStudioProps> = ({ onPlanGenerated, onClose
 
           {/* STEP 3: Generating Plan */}
           {step === 'generation' && (
-            <div className="h-full flex flex-col items-center justify-center p-8">
-              <div className="relative">
-                <div className="absolute inset-0 bg-[#3AFF97]/20 blur-3xl rounded-full"></div>
-                <Loader size={80} className="relative text-[#3AFF97] animate-spin mb-8" />
-              </div>
-              <h3 className="text-3xl font-bold text-white mb-4 text-center">
-                Diseñando tu estrategia...
-              </h3>
-              <p className="text-slate-400 max-w-md text-center text-lg leading-relaxed">
-                Nuestra IA está sintetizando tus respuestas para crear un plan de validación a medida.
-              </p>
-            </div>
+             <ProcessingStatus 
+                loading={true} 
+                steps={[
+                  "Analizando respuestas del usuario...",
+                  "Construyendo perfiles de usuario (Personas)...",
+                  "Diseñando estrategia de validación...",
+                  "Formulando hipótesis de riesgo...",
+                  "Identificando métricas de éxito..."
+                ]}
+             />
           )}
 
           {/* STEP 4: Review Generated Plan */}

@@ -7,10 +7,15 @@ import { staggerContainer, staggerItem, scaleIn } from '../utils/animations';
 interface TemplateGalleryProps {
   onSelectTemplate: (template: NicheTemplate) => void;
   onClose: () => void;
+  initialFilter?: string | null;
 }
 
-export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onSelectTemplate, onClose }) => {
+export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onSelectTemplate, onClose, initialFilter }) => {
   const [selectedTemplate, setSelectedTemplate] = useState<NicheTemplate | null>(null);
+  
+  const filteredTemplates = initialFilter 
+    ? NICHE_TEMPLATES.filter(t => t.industry?.toLowerCase() === initialFilter.toLowerCase() || t.id.toLowerCase().includes(initialFilter.toLowerCase()))
+    : NICHE_TEMPLATES;
 
   return (
     <div 
@@ -48,7 +53,7 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onSelectTempla
           initial="initial"
           animate="animate"
         >
-          {NICHE_TEMPLATES.map((template) => (
+          {filteredTemplates.map((template) => (
             <motion.div
               key={template.id}
               variants={staggerItem}

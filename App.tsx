@@ -3,7 +3,7 @@ import { ProjectTemplate, Interview, Question, Answer, DeepAnalysisReport, Langu
 import { TRANSLATIONS, INITIAL_PROJECTS, DEMO_PROJECT } from './constants';
 import * as Gemini from './services/aiService';
 import { getCoverByIdea } from './utils/projectCovers';
-import { Sparkles, Zap, Target, ArrowRight, CheckCircle2, ChevronRight, BarChart3, PieChart as PieChartIcon, TrendingUp, Activity, Plus, Play, Users, X, Search, FileText, MessageSquare, Cpu, Globe, Lock, ArrowLeft, RefreshCw, Trash2, LayoutGrid, Upload, Settings, Download, Sun, Moon, Smartphone, CheckCircle, Mail, Phone, MapPin, Award, Power, Mic, MicOff, Pause } from 'lucide-react';
+import { Sparkles, Zap, Target, ArrowRight, CheckCircle2, ChevronRight, BarChart3, PieChart as PieChartIcon, TrendingUp, Activity, Plus, Play, Users, X, Search, FileText, MessageSquare, Cpu, Globe, Lock, ArrowLeft, RefreshCw, Trash2, LayoutGrid, Upload, Settings, Download, Sun, Moon, Smartphone, CheckCircle, Mail, Phone, MapPin, Award, Power, Mic, MicOff, Pause, AlertTriangle, TrendingDown, Minus } from 'lucide-react';
 import { motion, AnimatePresence, Transition, Variant } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell, PieChart, Pie, LineChart, Line, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Legend } from 'recharts';
@@ -13,6 +13,7 @@ import { ProjectProfileModal } from './components/ProjectProfileModal';
 import { InterviewModal } from './components/InterviewModal';
 import { stateManager } from './services/stateManager';
 import { staggerContainer, staggerItem, fadeInUp, scaleIn } from './utils/animations';
+import { DimensionCard } from './components/DimensionCard';
 import { TemplateGallery } from './components/TemplateGallery';
 import { templateToProject } from './constants/templates';
 import { SmartQuestionWidget } from './components/SmartQuestionWidget';
@@ -32,6 +33,12 @@ import { EnhancedAnalysisResult } from './services/aiService';
 import { useCredits } from './hooks/useCredits';
 import { useProjects } from './hooks/useProjects';
 import { useInterviews } from './hooks/useInterviews';
+import { useValidationScore } from './hooks/useValidationScore';
+import { PivotAlert } from './components/PivotAlert';
+import { SaasLanding } from './components/landings/SaasLanding';
+import { EcommerceLanding } from './components/landings/EcommerceLanding';
+import { MarketplaceLanding } from './components/landings/MarketplaceLanding';
+import { SaasB2bLanding } from './components/landing-pages/SaasB2bLanding'; // New Import
 
 // --- TYPES ---
 interface ConfirmationState {
@@ -97,6 +104,39 @@ const LoginView = () => {
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get('verify')) {
      return <PublicVerificationPage />;
+  }
+  
+  // PUBLIC ROUTE: Niche Landing Pages
+  if (urlParams.get('page') === 'saas-b2b') {
+    return <SaasLanding onStart={() => {
+      // Clear param to show login, optionally pass a state to auto-open gallery
+      window.history.pushState({}, '', '/');
+      window.location.reload(); // Simple reload to get to login/dashboard
+    }} />; 
+  }
+
+  if (urlParams.get('page') === 'ecommerce') {
+    return <EcommerceLanding onStart={() => {
+      window.history.pushState({}, '', '/?open_gallery=true&filter=ecommerce');
+      window.location.reload();
+    }} />; 
+  }
+
+  if (urlParams.get('page') === 'marketplace') {
+    return <MarketplaceLanding onStart={() => {
+      window.history.pushState({}, '', '/?open_gallery=true&filter=marketplace');
+      window.location.reload();
+    }} />; 
+  }
+  
+    }} />; 
+  }
+
+  if (urlParams.get('page') === 'saas-b2b-pro') {
+    return <SaasB2bLanding onStart={() => {
+      window.history.pushState({}, '', '/?open_gallery=true&filter=saas'); // Reuse SaaS filter for now
+      window.location.reload(); 
+    }} />;
   }
   
   if (loading) return (
@@ -353,6 +393,9 @@ const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, 
   const [selectedInterview, setSelectedInterview] = useState<Interview | null>(null);
   const [renderKey, setRenderKey] = useState(0);
   const [showReportGenerator, setShowReportGenerator] = useState(false);
+
+  // Real-time Validation Engine
+  const validationScore = useValidationScore(project, interviews);
 
   const t = TRANSLATIONS[lang];
 
@@ -768,9 +811,9 @@ const NavBtn = ({ icon, label, active, onClick }: any) => (
 );
 
 // 3. Smart Parsing / Create Flow
-const CreateProjectModal = ({ onClose, onSave, lang, user }: any) => {
+const CreateProjectModal = ({ onClose, onSave, lang, user, initialMode = 'manual', initialFilter = null }: any) => {
   const t = TRANSLATIONS[lang];
-  const [mode, setMode] = useState<'manual' | 'smart' | 'document' | 'idea' | 'template'>('manual');
+  const [mode, setMode] = useState<'manual' | 'smart' | 'document' | 'idea' | 'template'>(initialMode);
   const [context, setContext] = useState('');
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<Partial<ProjectTemplate>>({
@@ -945,6 +988,7 @@ const CreateProjectModal = ({ onClose, onSave, lang, user }: any) => {
           setLoading(false);
         }}
         onClose={() => setMode('manual')}
+        initialFilter={initialFilter}
       />
     );
   }
@@ -2391,6 +2435,8 @@ function AppContent() {
   const { interviews, loading: loadingInterviews } = useInterviews(activeProject?.id);
 
   const [showCreate, setShowCreate] = useState(false);
+  const [createMode, setCreateMode] = useState<'manual' | 'smart' | 'document' | 'idea' | 'template'>('manual');
+  const [galleryFilter, setGalleryFilter] = useState<string | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showCertModal, setShowCertModal] = useState(false);
@@ -2452,6 +2498,19 @@ function AppContent() {
      if (activeProject) localStorage.setItem('validai_active_project_id', activeProject.id);
   }, [view, activeProject]);
 
+  // DEEP LINK CHECK
+  useEffect(() => {
+     const params = new URLSearchParams(window.location.search);
+     if (params.get('open_gallery') === 'true') {
+        setShowCreate(true);
+        setCreateMode('template');
+        if (params.get('filter')) setGalleryFilter(params.get('filter'));
+        
+        // Clean URL
+        window.history.replaceState({}, '', '/');
+     }
+  }, []);
+
 
   
   // Trend Notification State
@@ -2503,9 +2562,20 @@ function AppContent() {
 
 
 
-  const handleCloseOnboarding = () => {
+  const handleCloseOnboarding = (action?: 'upload' | 'chat' | 'explore') => {
     localStorage.setItem('onboarding_completed', 'true');
     setShowOnboarding(false);
+    
+    if (action) {
+       // Convert Onboarding action to CreateProjectModal mode
+       let newMode: 'manual' | 'smart' | 'document' | 'idea' | 'template' = 'manual';
+       if (action === 'upload') newMode = 'document';
+       else if (action === 'chat') newMode = 'idea';
+       else if (action === 'explore') newMode = 'template';
+       
+       setCreateMode(newMode);
+       setShowCreate(true);
+    }
   };
 
   const handleSaveNewProject = async (newProject: ProjectTemplate) => {
@@ -2597,9 +2667,9 @@ function AppContent() {
          {/* Language Toggle Fixed - Adjusted position to avoid overlap */}
 
       </div>
-
-      {showCreate && <CreateProjectModal onClose={() => setShowCreate(false)} onSave={handleSaveNewProject} lang={lang} user={user} />}
-      {showOnboarding && <Onboarding onClose={handleCloseOnboarding} />}
+ 
+       {showCreate && <CreateProjectModal onClose={() => setShowCreate(false)} onSave={handleSaveNewProject} lang={lang} user={user} initialMode={createMode} initialFilter={galleryFilter} />}
+       {showOnboarding && <Onboarding onClose={handleCloseOnboarding} />}
       
       {/* Project Profile Modal */}
       {activeProject && (

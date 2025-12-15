@@ -12,9 +12,9 @@ import {
 import { saveLead } from '../services/firebase';
 
 // --- ANIMATION UTILS ---
-const springTransition = { type: "spring", stiffness: 100, damping: 20, mass: 1 };
+export const springTransition = { type: "spring", stiffness: 100, damping: 20, mass: 1 };
 
-const Reveal = ({ children, delay = 0 }: { children: React.ReactNode, delay?: number }) => (
+export const Reveal = ({ children, delay = 0 }: { children: React.ReactNode, delay?: number }) => (
   <motion.div
     initial={{ opacity: 0, y: 40 }}
     whileInView={{ opacity: 1, y: 0 }}
@@ -27,7 +27,7 @@ const Reveal = ({ children, delay = 0 }: { children: React.ReactNode, delay?: nu
 
 // --- COMPONENTS ---
 
-const GlassCard = ({ children, className = "", glow = false }: { children: React.ReactNode, className?: string, glow?: boolean }) => (
+export const GlassCard = ({ children, className = "", glow = false }: { children: React.ReactNode, className?: string, glow?: boolean }) => (
   <div className={`relative overflow-hidden bg-white/5 backdrop-blur-2xl rounded-3xl border border-white/10 ${glow ? 'shadow-[0_0_40px_rgba(58,255,151,0.1)]' : ''} ${className}`}>
     <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50 pointer-events-none"></div>
     <div className="relative z-10 h-full">
