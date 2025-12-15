@@ -2084,36 +2084,22 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
 
 // Placeholder components for brevity in this single file update
 
-// Placeholder components for brevity in this single file update
+import { DashboardMetrics } from './components/DashboardMetrics';
+import ReactDOM from 'react-dom';
 
-const DashboardMetrics = ({ totalInterviews, avgScore, status }: any) => (
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 col-span-1 md:col-span-3 mb-6 relative z-10">
-     <div className={`${GLASS_PANEL} p-6 rounded-2xl flex flex-col items-center justify-center border border-white/5 bg-white/5`}>
-        <div className="text-4xl font-bold text-white mb-1">{totalInterviews}</div>
-        <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Entrevistas</div>
-     </div>
-     <div className={`${GLASS_PANEL} p-6 rounded-2xl flex flex-col items-center justify-center border border-white/5 bg-white/5`}>
-        <div className="text-4xl font-bold text-neon mb-1 drop-shadow-[0_0_10px_rgba(58,255,151,0.5)]">{avgScore}</div>
-        <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Viabilidad</div>
-     </div>
-     <div className={`${GLASS_PANEL} p-6 rounded-2xl flex flex-col items-center justify-center border border-white/5 bg-white/5`}>
-        <div className={`text-2xl font-bold mb-1 ${status === 'High Potential' ? 'text-emerald-400' : 'text-amber-400'}`}>
-           {status === 'High Potential' ? 'ALTA' : 'VALIDAR'}
-        </div>
-        <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Potencial</div>
-     </div>
-  </div>
-);
-
-const FixedTooltip = ({ x, y, content }: any) => (
-  <div 
-    className="fixed px-3 py-1 bg-black/90 border border-white/20 rounded-lg text-xs text-white pointer-events-none z-[9999] shadow-2xl backdrop-blur-md animate-fade-in"
-    style={{ left: x, top: y, transform: 'translate(-50%, -100%)', marginTop: '-12px' }}
-  >
-    {content}
-    <div className="absolute left-1/2 bottom-0 -translate-x-1/2 translate-y-full border-4 border-transparent border-t-white/20"></div>
-  </div>
-);
+const FixedTooltip = ({ x, y, content }: any) => {
+  if (typeof document === 'undefined') return null;
+  return ReactDOM.createPortal(
+    <div 
+      className="fixed px-3 py-1 bg-black/95 border border-white/20 rounded-lg text-xs text-white pointer-events-none z-[99999] shadow-2xl backdrop-blur-md animate-fade-in"
+      style={{ left: x, top: y, transform: 'translate(-50%, -100%)', marginTop: '-12px' }}
+    >
+      {content}
+      <div className="absolute left-1/2 bottom-0 -translate-x-1/2 translate-y-full border-4 border-transparent border-t-white/20"></div>
+    </div>,
+    document.body
+  );
+};
 
 const DashboardView = ({ project, interviews, t }: any) => {
    // Calculate real stats
