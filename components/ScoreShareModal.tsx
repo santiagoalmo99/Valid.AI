@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Share2, Copy, Twitter, Linkedin, Download, Sparkles, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { GlassCard } from './LandingPage';
+import { toPng } from 'html-to-image';
 
 interface ScoreShareModalProps {
   isOpen: boolean;
@@ -23,6 +24,24 @@ export const ScoreShareModal: React.FC<ScoreShareModalProps> = ({
   totalInterviews 
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
+
+  const handleDownload = async () => {
+    if (cardRef.current === null) {
+      return;
+    }
+
+    try {
+      const dataUrl = await toPng(cardRef.current, { cacheBust: true, pixelRatio: 2 });
+      const link = document.createElement('a');
+      link.download = `${projectName.replace(/\s+/g, '-').toLowerCase()}-validation-score.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      console.error('Failed to generate image', err);
+      alert('Could not generate image. Please try again.');
+    }
+  };
+
 
   const getTier = (s: number) => {
     if (s >= 90) return { label: "UNICORN POTENTIAL", color: "text-purple-400", bg: "bg-purple-500/20", border: "border-purple-500/50" };
@@ -169,8 +188,11 @@ export const ScoreShareModal: React.FC<ScoreShareModalProps> = ({
               </button>
             </div>
             
-            <button className="w-full py-4 text-center text-xs text-slate-600 hover:text-slate-400 transition-colors">
-               Download Image (Coming Soon)
+            <button 
+               onClick={handleDownload}
+               className="w-full py-4 text-center text-xs text-slate-600 hover:text-white hover:bg-white/5 rounded-xl transition-all flex items-center justify-center gap-2"
+            >
+               <Download size={14} /> Download Image
             </button>
           </div>
 
