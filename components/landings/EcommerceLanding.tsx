@@ -17,7 +17,7 @@ export const EcommerceLanding: React.FC<EcommerceLandingProps> = ({ onStart }) =
         <div className="absolute top-[-20%] right-[-10%] w-[60vw] h-[60vw] bg-emerald-600/10 rounded-full blur-[120px] animate-pulse-slow"></div>
         <div className="absolute bottom-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-amber-600/10 rounded-full blur-[120px] animate-pulse-slow" style={{ animationDelay: '2s' }}></div>
         <div className="absolute top-[30%] right-[30%] w-[40vw] h-[40vw] bg-teal-900/10 rounded-full blur-[100px] animate-float"></div>
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
+        <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-20"></div>
       </div>
 
       {/* Hero Section */}

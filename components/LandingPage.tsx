@@ -379,7 +379,7 @@ export const LandingPage = () => {
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
          <div className="absolute top-[-20%] left-[-10%] w-[90vw] h-[90vw] bg-emerald-500/10 rounded-full blur-[120px] animate-chaos-slow mix-blend-screen"></div>
          <div className="absolute bottom-[-20%] right-[-10%] w-[80vw] h-[80vw] bg-blue-600/10 rounded-full blur-[140px] animate-chaos-slow mix-blend-screen" style={{animationDelay: '-5s', animationDirection: 'reverse'}}></div>
-         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
+         <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
       </div>
 
       {/* Navbar */}
@@ -439,7 +439,7 @@ export const LandingPage = () => {
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-neon/5 rounded-full blur-[100px] animate-pulse-slow pointer-events-none"></div>
                   
                   <GlassCard className="h-[400px] flex flex-col items-center justify-center relative overflow-hidden group" glow>
-                     <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
+                     <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-20"></div>
                      
                      <div className="w-24 h-24 rounded-full bg-black border border-neon/30 flex items-center justify-center relative z-10 group-hover:scale-110 transition-transform duration-500">
                         <div className="absolute inset-0 bg-neon/20 rounded-full animate-ping"></div>
@@ -1476,7 +1476,7 @@ export const LandingPage = () => {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-neon/10 rounded-full blur-[200px] pointer-events-none animate-pulse"></div>
           
           {/* Noise Texture */}
-          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
+          <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
         </div>
         
         {/* Floating Glassmorphism Card */}

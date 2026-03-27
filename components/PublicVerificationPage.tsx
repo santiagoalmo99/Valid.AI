@@ -65,7 +65,7 @@ export const PublicVerificationPage = () => {
       <div className="fixed inset-0 z-0">
          <div className="absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] bg-emerald-500/10 rounded-full blur-[120px]"></div>
          <div className="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vw] bg-blue-500/10 rounded-full blur-[120px]"></div>
-         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
+         <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-20"></div>
       </div>
 
       <div className="relative z-10 max-w-5xl mx-auto px-6 py-12 md:py-20">

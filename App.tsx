@@ -130,20 +130,30 @@ const LoginView = () => {
           <div className="absolute top-[20%] right-[20%] w-[30vw] h-[30vw] bg-cyan-500/10 rounded-full blur-[80px] animate-float"></div>
           
           {/* Noise Texture */}
-          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
+          <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-20"></div>
        </div>
 
        {/* Split Card Container */}
        <div className="relative z-10 w-full max-w-md bg-black/40 backdrop-blur-xl border border-white/10 rounded-[32px] overflow-hidden shadow-2xl animate-fade-in-up flex flex-col">
           
-          {/* Top Image Section */}
+          {/* Top Hero Section — CSS only, zero external deps */}
           <div className="h-48 relative overflow-hidden group">
-             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent z-10"></div>
-             <img 
-               src="https://image.pollinations.ai/prompt/High%20end%20abstract%203D%20technological%20composition%2C%20dark%20architectural%20grid%20background%20with%20rounded%20square%20cells%20and%20soft%20beveled%20edges%2C%20modular%20surface%20with%20depth%20and%20relief.%20Intense%20radiant%20volumetric%20god%20rays%20emanating%20from%20center%20through%20the%20grid%2C%20dramatic%20light%20beams%20towards%20corners%2C%20deep%20contrasted%20shadows.%20Central%20focal%20point%20floating%20matte%20metallic%203D%20emblem%20with%20embossed%20details.%20Monochromatic%20saturated%20neon%20green%20and%20cyan%20lighting%2C%20dense%20glowing%20atmosphere.%20Clean%203D%20render%20style%2C%20futuristic%20minimalism%2C%20cinematic%20lighting%2C%20smooth%20polished%20textures?nologo=true&width=800&height=400" 
-               alt="Login Visual" 
-               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-             />
+             {/* Animated gradient background — replaces external image */}
+             <div className="absolute inset-0 bg-[#050505]">
+               <div className="absolute top-[-30%] left-[-10%] w-[70%] h-[70%] bg-emerald-500/25 rounded-full blur-[60px] animate-pulse-slow" />
+               <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] bg-cyan-500/20 rounded-full blur-[50px] animate-pulse-slow" style={{animationDelay:'0.8s'}} />
+               <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-30 mix-blend-overlay" />
+               {/* Grid lines */}
+               <svg className="absolute inset-0 w-full h-full opacity-10" xmlns="http://www.w3.org/2000/svg">
+                 <defs>
+                   <pattern id="lgrid" width="40" height="40" patternUnits="userSpaceOnUse">
+                     <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#00ff94" strokeWidth="0.5"/>
+                   </pattern>
+                 </defs>
+                 <rect width="100%" height="100%" fill="url(#lgrid)" />
+               </svg>
+             </div>
+             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent z-10"></div>
              <div className="absolute bottom-4 left-6 z-20">
                 <Logo size="small" />
              </div>

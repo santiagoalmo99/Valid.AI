@@ -66,7 +66,7 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
           
           {/* Left: Preview */}
           <div className="flex flex-col items-center justify-center p-8 bg-black/40 rounded-2xl border border-white/5 relative group">
-             <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none"></div>
+             <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-20 pointer-events-none"></div>
              
              {/* The Badge */}
              <div className="relative z-10 transition-transform duration-500 hover:scale-105">

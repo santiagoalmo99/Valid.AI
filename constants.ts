@@ -368,7 +368,7 @@ export const INITIAL_PROJECTS: ProjectTemplate[] = [
     name: 'Holistic Biohacking Colombia',
     description: 'Validación de mercado para soluciones de bienestar integral y optimización biológica en el mercado colombiano.',
     emoji: '🧬',
-    coverImage: 'https://image.pollinations.ai/prompt/Futuristic%20holistic%20biohacking%20concept%2C%20DNA%20double%20helix%20made%20of%20glowing%20neon%20light%2C%20medical%20technology%20interface%2C%20dark%20void%20background%2C%20glass%20textures%2C%20high%20fidelity%203D%20render%2C%20cinematic%20lighting%2C%20macro%20detail?nologo=true', // Updated via Pollinations
+    coverImage: 'https://images.unsplash.com/photo-1576086213369-97a306d36557?auto=format&fit=crop&q=80&w=1000',
     targetAudience: 'Profesionales de alto rendimiento, entusiastas del fitness y bienestar en Colombia.',
     createdAt: new Date().toISOString(),
     questions: BIOHACKING_QUESTIONS

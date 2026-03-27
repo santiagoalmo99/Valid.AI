@@ -264,7 +264,7 @@ export const SaasB2bLanding = ({ onStart }: { onStart?: () => void }) => {
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
          <div className="absolute top-[-20%] left-[-10%] w-[80vw] h-[80vw] bg-blue-900/20 rounded-full blur-[120px] animate-chaos-slow mix-blend-screen"></div>
          <div className="absolute bottom-[-20%] right-[-10%] w-[70vw] h-[70vw] bg-cyan-900/10 rounded-full blur-[140px] animate-chaos-slow mix-blend-screen" style={{animationDelay: '-5s', animationDirection: 'reverse'}}></div>
-         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 brightness-100 contrast-150 mix-blend-overlay"></div>
+         <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-10 brightness-100 contrast-150 mix-blend-overlay"></div>
          
          {/* Grid Overlay for "Tech" feel */}
          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_0px)] bg-[size:100px_100px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_100%)]"></div>

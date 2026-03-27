@@ -103,7 +103,7 @@ export const ScoreShareModal: React.FC<ScoreShareModalProps> = ({
                {/* Background Effects */}
                <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2"></div>
                <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/10 rounded-full blur-[80px] translate-y-1/2 -translate-x-1/2"></div>
-               <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
+               <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-20"></div>
 
                {/* Branding */}
                <div className="relative z-10 flex justify-between items-start mb-8">

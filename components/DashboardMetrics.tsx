@@ -117,7 +117,7 @@ export const DashboardMetrics: React.FC<DashboardMetricsProps> = ({ totalIntervi
         className={`${GLASS_PANEL} rounded-3xl p-6 relative overflow-hidden group hover:border-white/20 transition-all duration-500`}
       >
          {/* Animated Background Mesh */}
-         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10"></div>
+         <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-10"></div>
          <div className={`absolute -right-20 -bottom-20 w-64 h-64 rounded-full blur-[80px] opacity-20 ${statusConfig.color.replace('text-', 'bg-')}`}></div>
 
          <div className="relative z-10 h-full flex flex-col justify-between">

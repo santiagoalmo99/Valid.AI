@@ -44,7 +44,7 @@ export const VerificationScanner: React.FC<VerificationScannerProps> = ({ onComp
     <div className="fixed inset-0 bg-black z-[999] flex flex-col items-center justify-center font-mono">
       {/* Background Matrix Effect (Simplified) */}
       <div className="absolute inset-0 overflow-hidden opacity-10 pointer-events-none">
-         <div className="absolute top-0 left-0 w-full h-[200%] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] animate-slide-down"></div>
+         <div className="absolute top-0 left-0 w-full h-[200%] bg-[url('/noise.svg')] animate-slide-down"></div>
       </div>
 
       <div className="relative z-10 w-full max-w-md p-8">
