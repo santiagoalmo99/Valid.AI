@@ -1161,13 +1161,13 @@ const DeepResearchView = ({ project, interviews, onUpdate, t }: any) => {
 
      // Simulation of complex processing steps
      const steps = [
-        { msg: "Inicializando Neural Engine...", time: 800 },
-        { msg: "Escaneando transcripciones de entrevistas...", time: 1500 },
-        { msg: "Detectando patrones de comportamiento...", time: 1200 },
-        { msg: "Cruzando datos con benchmarks de mercado...", time: 2000 },
-        { msg: "Calculando Product-Market Fit Score...", time: 1000 },
-        { msg: "Generando estrategias de crecimiento...", time: 1500 },
-        { msg: "Finalizando reporte ejecutivo...", time: 800 }
+        { msg: "Initializing Neural Engine...", time: 800 },
+        { msg: "Scanning interview transcripts...", time: 1500 },
+        { msg: "Detecting behavioral patterns...", time: 1200 },
+        { msg: "Cross-referencing market benchmarks...", time: 2000 },
+        { msg: "Calculating Product-Market Fit Score...", time: 1000 },
+        { msg: "Generating growth strategies...", time: 1500 },
+        { msg: "Finalizing executive report...", time: 800 }
      ];
 
      let currentProgress = 0;
@@ -1180,7 +1180,7 @@ const DeepResearchView = ({ project, interviews, onUpdate, t }: any) => {
         setProgress(Math.min(currentProgress, 90));
      }
      
-     setStatus("Compilando resultados finales...");
+     setStatus("Compiling final results...");
      
      try {
        console.log("🚀 Calling Gemini Deep Research...");
@@ -1229,25 +1229,25 @@ const DeepResearchView = ({ project, interviews, onUpdate, t }: any) => {
                    Deep Research <span className="text-neon">AI</span>
                  </h2>
                  <p className="text-slate-300 mb-12 leading-relaxed max-w-2xl mx-auto text-lg font-light">
-                    <span className="text-white font-medium">Deja de operar por intuición.</span> Ejecuta un proceso de <span className="text-neon font-bold">Due Diligence Algorítmico</span> de nivel institucional. 
-                    Nuestra IA cruza miles de puntos de datos cualitativos para predecir la viabilidad financiera, detectar saturación de mercado y entregarte una hoja de ruta de inversión clara.
+                    <span className="text-white font-medium">Stop operating on intuition.</span> Execute an institutional-grade <span className="text-neon font-bold">Algorithmic Due Diligence</span> protocol. 
+                    Our AI cross-references thousands of qualitative data points to predict financial viability, detect market saturation, and deliver a clear investment roadmap.
                  </p>
                  
                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12 text-left">
                     <div className="bg-black/40 p-5 rounded-2xl border border-white/5 hover:border-neon/30 transition-colors group">
                        <Search className="text-blue-400 mb-3 group-hover:scale-110 transition-transform" size={24}/>
-                       <h4 className="font-bold text-white text-sm mb-1">Reconocimiento de Patrones</h4>
-                       <p className="text-xs text-slate-400">Detecta sesgos y necesidades latentes.</p>
+                       <h4 className="font-bold text-white text-sm mb-1">Pattern Recognition</h4>
+                       <p className="text-xs text-slate-400">Detect bias and latent market needs.</p>
                     </div>
                     <div className="bg-black/40 p-5 rounded-2xl border border-white/5 hover:border-neon/30 transition-colors group">
                        <BarChart3 className="text-purple-400 mb-3 group-hover:scale-110 transition-transform" size={24}/>
-                       <h4 className="font-bold text-white text-sm mb-1">Veredicto de Mercado</h4>
-                       <p className="text-xs text-slate-400">Cálculo predictivo de Product-Market Fit.</p>
+                       <h4 className="font-bold text-white text-sm mb-1">Market Verdict</h4>
+                       <p className="text-xs text-slate-400">Predictive Product-Market Fit calculation.</p>
                     </div>
                     <div className="bg-black/40 p-5 rounded-2xl border border-white/5 hover:border-neon/30 transition-colors group">
                        <Sparkles className="text-neon mb-3 group-hover:scale-110 transition-transform" size={24}/>
-                       <h4 className="font-bold text-white text-sm mb-1">Estrategia de Salida</h4>
-                       <p className="text-xs text-slate-400">Roadmap accionable para iterar.</p>
+                       <h4 className="font-bold text-white text-sm mb-1">Exit Strategy</h4>
+                       <p className="text-xs text-slate-400">Actionable roadmap for iteration.</p>
                     </div>
                  </div>
 
@@ -1782,7 +1782,7 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
             const interview: Interview = {
                id: Date.now().toString(),
                projectId: project.id,
-               respondentName: regData.name || 'Anónimo',
+               respondentName: regData.name || 'Anonymous',
                respondentEmail: regData.email || '',
                respondentPhone: regData.phone || '',
                respondentInstagram: regData.instagram || '',
@@ -1794,7 +1794,7 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
                answers: newAnswers, // Keep structured answers for reference
                totalScore: (analysis as any).matchScore || 0, // NEW field
                dimensionScores: (analysis as any).scores || {},
-               summary: (analysis as any).oneLinerVerdict || (analysis as any).summary || "Sin resumen", // NEW field
+               summary: (analysis as any).oneLinerVerdict || (analysis as any).summary || "No summary available", // NEW field
                keyInsights: (analysis as any).signals?.buying || [] // Map buying signals to insights for now
             };
            
@@ -2124,7 +2124,7 @@ const DashboardMetrics = ({ totalInterviews, avgScore, status }: any) => (
         <button 
            onClick={() => setShareModalOpen(true)}
            className="absolute top-2 right-2 p-1.5 rounded-lg bg-white/5 hover:bg-neon/20 hover:text-neon text-slate-400 transition-all opacity-0 group-hover:opacity-100 z-50"
-           title={lang === 'en' ? "Share Score" : "Compartir Puntuación"}
+           title="Share Score"
         >
            <Share2 size={16} />
         </button>
@@ -2135,7 +2135,7 @@ const DashboardMetrics = ({ totalInterviews, avgScore, status }: any) => (
 
      <div className={`${GLASS_PANEL} p-6 rounded-2xl flex flex-col items-center justify-center border border-white/5 bg-white/5`}>
         <div className={`text-2xl font-bold mb-1 ${status === 'High Potential' ? 'text-emerald-400' : 'text-amber-400'}`}>
-           {status === 'High Potential' ? (lang === 'en' ? 'HIGH' : 'ALTA') : (lang === 'en' ? 'AUDIT' : 'VALIDAR')}
+           {status === 'High Potential' ? 'HIGH' : 'AUDIT'}
         </div>
         <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">{t.marketVerdict}</div>
      </div>
@@ -2162,7 +2162,7 @@ const DashboardView = ({ project, interviews, t }: any) => {
       if (active && payload && payload.length) {
         return (
           <div className="bg-black/90 border border-white/20 px-3 py-2 rounded-lg text-xs text-white shadow-xl backdrop-blur-md">
-            <p className="font-bold">{`${payload[0].value} ${lang === 'en' ? 'Interviews' : 'Entrevistas'}`}</p>
+            <p className="font-bold">{`${payload[0].value} Interviews`}</p>
           </div>
         );
       }
@@ -2182,16 +2182,16 @@ const DashboardView = ({ project, interviews, t }: any) => {
                <button 
                   onClick={() => setShareModalOpen(true)}
                   className="absolute top-2 right-2 p-1.5 rounded-lg bg-white/5 hover:bg-neon/20 hover:text-neon text-slate-400 transition-all opacity-0 group-hover:opacity-100"
-                  title={lang === 'en' ? "Share Score" : "Compartir Puntuación"}
+                  title="Share Score"
                >
                   <Share2 size={14} />
                </button>
                <div className="text-4xl font-bold text-neon mb-1 drop-shadow-[0_0_10px_rgba(58,255,151,0.5)] cursor-pointer hover:scale-105 transition-transform" onClick={() => setShareModalOpen(true)}>{avgScore}</div>
-               <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">{lang === 'en' ? 'Viability' : 'Viabilidad'}</div>
+               <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Viability</div>
             </div>
             <div className={`${GLASS_PANEL} p-6 rounded-2xl flex flex-col items-center justify-center border border-white/5 bg-white/5`}>
                <div className={`text-2xl font-bold mb-1 ${Number(avgScore) > 60 ? 'text-emerald-400' : 'text-amber-400'}`}>
-                  {Number(avgScore) > 60 ? (lang === 'en' ? 'HIGH' : 'ALTA') : (lang === 'en' ? 'AUDIT' : 'VALIDAR')}
+                  {Number(avgScore) > 60 ? 'HIGH' : 'AUDIT'}
                </div>
                <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">{t.marketVerdict}</div>
             </div>
@@ -2199,7 +2199,7 @@ const DashboardView = ({ project, interviews, t }: any) => {
 
          {/* Main Chart */}
          <div className={`${GLASS_PANEL} p-8 rounded-3xl col-span-1 md:col-span-2 h-[400px] relative z-50 overflow-visible`}>
-             <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2"><BarChart3 className="text-neon" /> {lang === 'en' ? 'Score Distribution' : 'Distribución de Puntuación'}</h3>
+             <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2"><BarChart3 className="text-neon" /> Score Distribution</h3>
              
              <div className="w-full h-[85%]">
                 <ResponsiveContainer width="100%" height="100%">
@@ -2238,18 +2238,18 @@ const DashboardView = ({ project, interviews, t }: any) => {
              {totalInterviews > 0 ? (
                 <div className="space-y-4 overflow-y-auto pr-2 custom-scrollbar">
                    <div className="bg-white/5 p-4 rounded-xl border border-white/5">
-                      <p className="text-xs text-slate-400 mb-1 uppercase font-bold">{lang === 'en' ? 'Trend' : 'Tendencia'}</p>
-                      <p className="text-sm text-slate-200">{lang === 'en' ? 'High interest in solution, though price sensitivity is a key barrier.' : 'Alto interés en la solución, aunque la sensibilidad al precio es una barrera clave.'}</p>
+                      <p className="text-xs text-slate-400 mb-1 uppercase font-bold">Trend</p>
+                      <p className="text-sm text-slate-200">High interest in solution, though price sensitivity is a key barrier.</p>
                    </div>
                    <div className="bg-white/5 p-4 rounded-xl border border-white/5">
-                      <p className="text-xs text-slate-400 mb-1 uppercase font-bold">{lang === 'en' ? 'Opportunity' : 'Oportunidad'}</p>
-                      <p className="text-sm text-slate-200">{lang === 'en' ? 'Consider a "Freemium" model to capture identified early adopters.' : 'Considera un modelo "Freemium" para capturar a los early adopters identificados.'}</p>
+                      <p className="text-xs text-slate-400 mb-1 uppercase font-bold">Opportunity</p>
+                      <p className="text-sm text-slate-200">Consider a "Freemium" model to capture identified early adopters.</p>
                    </div>
                 </div>
              ) : (
                 <div className="flex-1 flex flex-col items-center justify-center text-center text-slate-500">
-                   <p>{lang === 'en' ? 'No interviews yet.' : 'No hay entrevistas registradas aún.'}</p>
-                   <p className="text-xs mt-2">{lang === 'en' ? 'Start interviewing to get AI insights.' : 'Empieza a entrevistar para obtener insights de IA.'}</p>
+                   <p>No interviews recorded yet.</p>
+                   <p className="text-xs mt-2">Start interviewing to get AI insights.</p>
                 </div>
              )}
          </div>
@@ -2273,7 +2273,7 @@ const InterviewsView = ({ interviews, onDelete, onDeleteAll, onSelect, onRetry }
                onClick={onDeleteAll}
                className="text-red-400 hover:text-red-500 hover:bg-red-500/10 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-all"
             >
-               <Trash2 size={14} /> {lang === 'en' ? 'Delete All' : 'Eliminar Todo'}
+               <Trash2 size={14} /> Delete All
             </button>
          </div>
       )}
@@ -2295,12 +2295,12 @@ const InterviewsView = ({ interviews, onDelete, onDeleteAll, onSelect, onRetry }
                <button 
                   onClick={async (e) => { 
                      e.stopPropagation(); 
-                     if(window.confirm(lang === 'en' ? "Re-analyze this interview with AI?" : "Re-analizar esta entrevista con IA?")) {
+                     if(window.confirm("Re-analyze this interview with AI?")) {
                         const btn = e.currentTarget;
                         btn.classList.add('animate-spin');
                         try {
                            if(onRetry) await onRetry(i);
-                           alert(lang === 'en' ? "✅ Audit successfully recalibrated" : "✅ Análisis actualizado correctamente");
+                           alert("✅ Audit successfully recalibrated");
                         } catch(err) {
                            // Error handled in parent
                         } finally {
@@ -2309,14 +2309,14 @@ const InterviewsView = ({ interviews, onDelete, onDeleteAll, onSelect, onRetry }
                      }
                   }}
                   className="p-2 bg-black/60 hover:bg-neon hover:text-black text-slate-400 rounded-lg backdrop-blur-md border border-white/10 transition-all shadow-lg"
-                  title={lang === 'en' ? "Recalibrate with AI" : "Re-analizar con IA"}
+                  title="Recalibrate with AI"
                >
                   <RefreshCw size={16} />
                </button>
                <button 
                   onClick={(e) => { e.stopPropagation(); onDelete(i.id); }}
                   className="p-2 bg-black/60 hover:bg-red-500 hover:text-white text-slate-400 rounded-lg backdrop-blur-md border border-white/10 transition-all shadow-lg"
-                  title={lang === 'en' ? "Eradicate interview" : "Eliminar entrevista"}
+                  title="Eradicate interview"
                >
                   <Trash2 size={16} />
                </button>
@@ -2365,7 +2365,7 @@ const InterviewsView = ({ interviews, onDelete, onDeleteAll, onSelect, onRetry }
                   {/* WTP */}
                   <div className="flex flex-col gap-2">
                      <span className="text-[10px] uppercase text-slate-500 font-bold flex justify-between">
-                        WTPPayment <span className="text-neon">{i.dimensionScores?.willingnessToPay || 0}</span>
+                        Willingness to Pay <span className="text-neon">{i.dimensionScores?.willingnessToPay || 0}</span>
                      </span>
                      <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
                         <div className="h-full bg-neon rounded-full" style={{width: `${(i.dimensionScores?.willingnessToPay || 0)*10}%`}}></div>
@@ -2394,7 +2394,7 @@ const InterviewsView = ({ interviews, onDelete, onDeleteAll, onSelect, onRetry }
             <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center">
                <Users size={24} className="opacity-50"/>
             </div>
-            <p>No hay entrevistas registradas aún.</p>
+            <p>No interviews recorded yet.</p>
          </div>
       )}
    </div>
@@ -2411,14 +2411,14 @@ import { subscribeToInterviews } from './services/firebase';
 
 function AppContent() {
   const { user, logout, loginWithGoogle } = useAuth();
+  const urlParams = new URLSearchParams(window.location.search);
+
   const [lang, setLang] = useState<Language>('en');
   const [theme, setTheme] = useState<'dark' | 'light'>('dark'); 
   const [notification, setNotification] = useState<NotificationPayload | null>(null);
   const t = TRANSLATIONS[lang];
 
   // --- ROUTING LOGIC (GLOBAL) ---
-  // Moved here so it works for BOTH Logged In and Logged Out users
-  const urlParams = new URLSearchParams(window.location.search);
   
   if (urlParams.get('page') === 'saas-b2b') {
     return <SaasLanding onStart={() => {

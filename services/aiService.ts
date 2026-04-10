@@ -49,11 +49,11 @@ const checkRateLimit = () => {
   data.lastMinuteRequests = data.lastMinuteRequests.filter((t: number) => t > oneMinuteAgo);
   
   if (data.dayRequests >= LIMITS.RPD) {
-    throw new Error('Valid.AI Global Limit: Has excedido el límite diario (1,500 RPD).');
+    throw new Error('Valid.AI Global Limit: Daily quota exceeded (1,500 RPD).');
   }
   
   if (data.lastMinuteRequests.length >= LIMITS.RPM) {
-    throw new Error('Valid.AI Rate Limit: Estás haciendo demasiadas peticiones por minuto. Espera un momento.');
+    throw new Error('Valid.AI Rate Limit: Excessive requests per minute. Resuming in 60 seconds.');
   }
   
   // Record request
@@ -703,57 +703,57 @@ export const analyzeFullInterviewEnhanced = async (project: ProjectTemplate, ans
    }
  };
 
-
-export const analyzeContinuousInterview = async (project: ProjectTemplate, transcript: string, n     ROLE: You are a Senior Venture Capital Analyst and Behavioral Psychologist expert in product validation. Your job is to analyze customer discovery interviews to determine the real viability of a business idea.
-     
-     PROJECT CONTEXT:
-     Name: "${project.name}"
-     Description: "${project.description}"
-     
-     RESPONDENT DATA:
-     ${JSON.stringify(regData, null, 2)}
-     
-     INTERVIEW TRANSCRIPT + NOTES:
-     ${transcript}
-     ${notes}
-     
-     TASK:
-     Perform a critical and deep analysis based on the complete conversation.
-     Identify behavioral patterns, problem validation, and actual willingness to pay.
-     
-     SCORING SYSTEM (0-10):
-     - Problem Intensity (40%): How sharp is the problem for this user?
-     - Solution Fit (30%): How much does the solution resonate?
-     - Willingness to Pay (30%): Is there evidence of payment capacity?
-     
-     OUTPUT FORMAT (PURE JSON):
-     {
-       "scores": {
-         "totalScore": number, // Weighted average (0.0 - 10.0) 
-         "dimensionScores": {
-           "problemIntensity": number,
-           "solutionFit": number,
-           "willingnessToPay": number,
-           "currentBehavior": number, // 0-10: Already taking action?
-           "painPoint": number, // 0-10: Explicit pain level
-           "earlyAdopter": number // 0-10: Early Adopter Propensity
-         }
-       },
-       "summary": "string", // Detailed executive summary (100-150 words)
-       "keyInsights": ["string"], // 3-5 Key Insights
-       "oneLinerVerdict": "string", // Case verdict in a short sentence
-       "signals": { 
-          "buying": ["string"] // Purchase signals detected
-       }
-     }
-     
-     RULES:
-     1. LANGUAGE: 100% Professional Institutional English.
-     2. FORMAT: Valid minified JSON.
-     3. ANALYSIS: Integrate both what was said (transcript) and what the interviewer observed (notes).
-do minificado.
-     3. ANALISIS: Integra tanto lo que dijo (transcripción) como lo que observó el entrevistador (notas).
-     `;
+export const analyzeContinuousInterview = async (project: ProjectTemplate, transcript: string, notes: string, regData?: any): Promise<EnhancedAnalysisResult> => {
+    try {
+      const prompt = `
+      ROLE: You are a Senior Venture Capital Analyst and Behavioral Psychologist expert in product validation. Your job is to analyze customer discovery interviews to determine the real viability of a business idea.
+      
+      PROJECT CONTEXT:
+      Name: "${project.name}"
+      Description: "${project.description}"
+      
+      RESPONDENT DATA:
+      ${JSON.stringify(regData, null, 2)}
+      
+      INTERVIEW TRANSCRIPT + NOTES:
+      ${transcript}
+      ${notes}
+      
+      TASK:
+      Perform a critical and deep analysis based on the complete conversation.
+      Identify behavioral patterns, problem validation, and actual willingness to pay.
+      
+      SCORING SYSTEM (0-10):
+      - Problem Intensity (40%): How sharp is the problem for this user?
+      - Solution Fit (30%): How much does the solution resonate?
+      - Willingness to Pay (30%): Is there evidence of payment capacity?
+      
+      OUTPUT FORMAT (PURE JSON):
+      {
+        "scores": {
+          "totalScore": number, // Weighted average (0.0 - 10.0) 
+          "dimensionScores": {
+            "problemIntensity": number,
+            "solutionFit": number,
+            "willingnessToPay": number,
+            "currentBehavior": number, // 0-10: Already taking action?
+            "painPoint": number, // 0-10: Explicit pain level
+            "earlyAdopter": number // 0-10: Early Adopter Propensity
+          }
+        },
+        "summary": "string", // Detailed executive summary (100-150 words)
+        "keyInsights": ["string"], // 3-5 Key Insights
+        "oneLinerVerdict": "string", // Case verdict in a short sentence
+        "signals": { 
+           "buying": ["string"] // Purchase signals detected
+        }
+      }
+      
+      RULES:
+      1. LANGUAGE: 100% Professional Institutional English.
+      2. FORMAT: Valid minified JSON.
+      3. CRITICAL AUDIT: Synthesize both spoken data (transcript) and interviewer observations (notes).
+      `;
  
      const response = await callGeminiAPI(prompt, true);
      const cleanText = repairJSON(response);

@@ -201,7 +201,7 @@ export const SaasLanding: React.FC<SaasLandingProps> = ({ onStart }) => {
               onClick={onStart}
               className="px-16 py-8 bg-white text-black font-black uppercase tracking-widest rounded-full text-xl shadow-[0_20px_60px_rgba(0,0,0,0.5)] hover:scale-105 transition-all hover:bg-blue-400"
             >
-              Comenzar Validación Ahora
+              Initiate SaaS Audit
             </button>
           </Reveal>
         </div>

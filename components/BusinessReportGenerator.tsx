@@ -91,7 +91,7 @@ export const BusinessReportGenerator: React.FC<Props> = ({
       setCredits(data);
     } catch (e) {
       console.error("Failed to load credits:", e);
-      setCreditsError("Error de conexión");
+      setCreditsError("Connection Error");
     } finally {
       setLoadingCredits(false);
     }
@@ -120,14 +120,14 @@ export const BusinessReportGenerator: React.FC<Props> = ({
     
     // VALIDATION: Ensure enough data exists
     if (!interviews || interviews.length === 0) {
-       setError("No hay entrevistas realizadas. Necesitas datos reales para generar el reporte.");
+       setError("Insufficient Data: Real-world validation interviews are required to synthesize this report.");
        setStep('config');
        setGenerating(false);
        return;
     }
 
     if (!project.description || project.description.length < 20) {
-       setError("La descripción del proyecto es muy corta. Agrega más detalles en la configuración.");
+       setError("Context Depth Required: Project description must be at least 20 characters for strategic alignment.");
        setStep('config');
        setGenerating(false);
        return;
@@ -137,7 +137,7 @@ export const BusinessReportGenerator: React.FC<Props> = ({
       // Spend credits first
       const success = await spendCredits(userId, totalCost, `Report: ${project.name}`);
       if (!success) {
-        setError('No tienes suficientes créditos');
+        setError('Insufficient Credits');
         setStep('config');
         setGenerating(false);
         return;
@@ -152,13 +152,13 @@ export const BusinessReportGenerator: React.FC<Props> = ({
         projectId: project.id,
         template: 'startup',
         sections: selectedSections,
-        language: 'es',
+        language: 'en',
         depth: 'detailed',
       };
       
       // Safety Timeout (30s)
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Timeout: El reporte está tardando demasiado. Verifica tu conexión.')), 30000)
+        setTimeout(() => reject(new Error('Latency Exception: Generation exceeds 30s threshold. Check connectivity.')), 30000)
       );
 
       const generatedReport = await Promise.race([
@@ -184,7 +184,7 @@ export const BusinessReportGenerator: React.FC<Props> = ({
       
     } catch (err: any) {
       console.error('Report generation error:', err);
-      setError(err.message || 'Error generando el reporte. Por favor intenta de nuevo.');
+      setError(err.message || 'Generation Failed: An internal error occurred. Please re-initialize.');
       setStep('config');
     } finally {
       setGenerating(false);
@@ -221,7 +221,7 @@ export const BusinessReportGenerator: React.FC<Props> = ({
               </div>
               <div>
                 <h2 className="text-lg font-bold text-white tracking-tight leading-none">Business Lab</h2>
-                <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wider mt-0.5">Consultoría Estratégica AI</p>
+                <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wider mt-0.5">Strategic AI Consulting</p>
               </div>
             </div>
             
@@ -266,11 +266,11 @@ export const BusinessReportGenerator: React.FC<Props> = ({
                 <div className="lg:col-span-8 p-6 overflow-y-auto custom-scrollbar bg-[#050505]">
                     <div className="mb-6 flex items-center justify-between">
                         <div>
-                           <h3 className="text-xl font-bold text-white">Configuración del Reporte</h3>
-                           <p className="text-slate-500 text-xs mt-1">Selecciona los módulos estratégicos a incluir.</p>
+                           <h3 className="text-xl font-bold text-white">Report Configuration</h3>
+                           <p className="text-slate-500 text-xs mt-1">Select strategic synthesis modules for inclusion.</p>
                         </div>
                         <div className="text-xs text-slate-400">
-                           {selectedSections.length} seleccionados
+                           {selectedSections.length} selected
                         </div>
                     </div>
 
@@ -318,9 +318,9 @@ export const BusinessReportGenerator: React.FC<Props> = ({
                   `}
                 >
                   {generating ? (
-                    <><Loader2 className="w-4 h-4 animate-spin" /> Procesando...</>
+                    <><Loader2 className="w-4 h-4 animate-spin" /> Processing...</>
                   ) : (
-                    <><Sparkles className="w-4 h-4" /> Generar Reporte ({totalCost} CR)</>
+                    <><Sparkles className="w-4 h-4" /> Generate Report ({totalCost} CR)</>
                   )}
                 </motion.button>
             </div>
@@ -348,12 +348,12 @@ const ConfigSidebar: React.FC<{
             <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
             
             <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-2 flex items-center gap-1.5">
-               <TrendingUp size={12} className="text-indigo-400" /> Valor de Mercado
+               <TrendingUp size={12} className="text-indigo-400" /> Market Valuation
             </p>
             
             <div className="flex items-baseline gap-1 mb-3">
                <span className="text-3xl font-bold text-white tracking-tight">
-                  {currency === 'USD' ? '$' : '$'}{displayValue.toLocaleString('es-CO')}
+                  {currency === 'USD' ? '$' : '$'}{displayValue.toLocaleString('en-US')}
                </span>
                <span className="text-[10px] text-slate-500 font-bold">{currency}</span>
             </div>
@@ -370,22 +370,22 @@ const ConfigSidebar: React.FC<{
             </div>
             
             <p className="text-[10px] text-slate-500 leading-relaxed border-t border-white/5 pt-3">
-               Costo estimado si contrataras una firma externa clásica.
+               Estimated overhead if leveraging traditional consultancy firms.
             </p>
          </div>
 
          {/* Cost Card */}
          <div className="bg-emerald-950/[0.1] border border-emerald-500/10 rounded-2xl p-5 relative">
             <p className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider mb-2 flex items-center gap-1.5">
-               <Target size={12} /> Costo Hoy
+               <Target size={12} /> Deployment Cost
             </p>
             <div className="flex items-baseline gap-2 mb-2">
                <span className="text-3xl font-bold text-white tracking-tight">{totalCost}</span>
-               <span className="text-[10px] text-slate-400 font-bold uppercase">Créditos</span>
+               <span className="text-[10px] text-slate-400 font-bold uppercase">Credits</span>
             </div>
             <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-emerald-500/10 rounded-md border border-emerald-500/20">
                <Check size={10} className="text-emerald-400" />
-               <span className="text-[10px] text-emerald-300 font-medium">Bonificado (Beta)</span>
+               <span className="text-[10px] text-emerald-300 font-medium">Subsidized (Beta)</span>
             </div>
          </div>
 
@@ -394,10 +394,10 @@ const ConfigSidebar: React.FC<{
             <div className="p-4 bg-amber-500/5 border border-amber-500/10 rounded-2xl">
                <div className="flex items-center gap-2 mb-1">
                   <AlertCircle size={14} className="text-amber-500" />
-                  <span className="text-xs font-bold text-amber-500">Nota de Calidad</span>
+                  <span className="text-xs font-bold text-amber-500">Quality Metric</span>
                </div>
                <p className="text-[11px] text-amber-200/60 leading-relaxed">
-                  Tienes {interviewsCount} entrevistas. Se recomiendan 5+ para mejores resultados.
+                  Sample size reflects {interviewsCount} data points. N=5+ recommended for strategic relevance.
                </p>
             </div>
          )}
@@ -474,7 +474,7 @@ const GeneratingStep: React.FC<{ progress: number; currentStage: string }> = ({ 
        </div>
 
        <div>
-          <h3 className="text-2xl font-bold text-white mb-2">Construyendo Estrategia</h3>
+          <h3 className="text-2xl font-bold text-white mb-2">Synthesizing Strategy</h3>
           <p className="text-emerald-400 text-sm animate-pulse">{currentStage}...</p>
        </div>
     </div>
@@ -495,9 +495,9 @@ const CompleteStep: React.FC<{
       <Check className="w-10 h-10 text-emerald-500" />
     </motion.div>
     
-    <h3 className="text-3xl font-bold text-white mb-3">¡Reporte Listo!</h3>
+    <h3 className="text-3xl font-bold text-white mb-3">Synthesis Complete</h3>
     <p className="text-slate-400 text-sm max-w-md mx-auto mb-10 leading-relaxed">
-      Tu reporte ha sido generado exitosamente. Puedes descargarlo ahora o visualizar una versión amigable para impresión.
+      Your institutional-grade report has been successfully synthesized. Available for instant download or print-optimized review.
     </p>
     
     <div className="flex gap-4">
@@ -506,14 +506,14 @@ const CompleteStep: React.FC<{
         className="flex items-center gap-2 px-6 py-3 bg-emerald-500 text-black rounded-xl font-bold text-sm hover:bg-emerald-400 transition-transform hover:scale-105 shadow-emerald-900/20 shadow-lg"
       >
         <Download className="w-4 h-4" />
-        Descargar (HTML)
+        Export (HTML)
       </button>
       <button
         onClick={onOpenNew}
         className="flex items-center gap-2 px-6 py-3 bg-white/5 text-white rounded-xl font-bold text-sm hover:bg-white/10 transition-colors border border-white/10"
       >
         <ExternalLink className="w-4 h-4" />
-        Ver Reporte
+        Review Report
       </button>
     </div>
   </div>

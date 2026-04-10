@@ -42,7 +42,11 @@ const TRANSLATIONS = {
       keywords: "Palabras Clave",
       positive: "Positivo",
       neutral: "Neutral",
-      critical: "Crítico"
+      critical: "Crítico",
+      avgScoreDesc: "Puntaje compuesto (0-100) basado en análisis de sentimiento, urgencia y frecuencia de problemas detectados.",
+      dataVolumeDesc: "Cantidad total de palabras transcritas y procesadas por nuestros modelos de IA.",
+      sentimentDesc: "Tono emocional predominante (Crítico, Neutral, Positivo) extraído del lenguaje natural.",
+      seeQuotes: "Ver pestaña 'Citas' para detalles"
    },
    en: {
       deepInsights: "Deep Insights",
@@ -69,11 +73,15 @@ const TRANSLATIONS = {
       keywords: "Keywords",
       positive: "Positive",
       neutral: "Neutral",
-      critical: "Critical"
+      critical: "Critical",
+      avgScoreDesc: "Composite score (0-100) derived from sentiment analysis, problem urgency, and frequency of detected pain points.",
+      dataVolumeDesc: "Total aggregate of transcribed lexemes and proprietary multi-factor analysis data processed by Valid.AI.",
+      sentimentDesc: "Predominant emotional tone (Critical, Neutral, Positive) extracted via institutional-grade NLP models.",
+      seeQuotes: "Check 'Quotes' tab for qualitative synthesis"
    }
 };
 
-export const QuestionAnalysis = ({ project, interviews, lang = 'es' }: QuestionAnalysisProps) => {
+export const QuestionAnalysis = ({ project, interviews, lang = 'en' }: QuestionAnalysisProps) => {
   const [filterMode, setFilterMode] = useState<'all' | 'high_score' | 'low_score'>('all');
   const t = TRANSLATIONS[lang] || TRANSLATIONS.es;
 
@@ -157,7 +165,7 @@ export const QuestionAnalysis = ({ project, interviews, lang = 'es' }: QuestionA
               label={t.avgScore} 
               value={`${globalStats.avgScore}%`} 
               sub={t.marketViability}
-              description="Puntaje compuesto (0-100) basado en análisis de sentimiento, urgencia y frecuencia de problemas detectados."
+              description={t.avgScoreDesc}
               icon={<TrendingUp size={20} className="text-neon" />}
               chart={<div className="w-full h-1 my-2 bg-slate-800 rounded-full overflow-hidden"><div className="h-full bg-neon" style={{width: `${globalStats.avgScore}%`}}></div></div>}
             />
@@ -165,7 +173,7 @@ export const QuestionAnalysis = ({ project, interviews, lang = 'es' }: QuestionA
               label={t.dataVolume} 
               value={(globalStats.totalWords / 1000).toFixed(1) + 'k'} 
               sub={t.wordsAnalyzed}
-              description="Cantidad total de palabras transcritas y procesadas por nuestros modelos de IA."
+              description={t.dataVolumeDesc}
               icon={<MessageSquare size={20} className="text-blue-400" />}
               chart={<Sparkline color="#60a5fa" />}
             />
@@ -173,7 +181,7 @@ export const QuestionAnalysis = ({ project, interviews, lang = 'es' }: QuestionA
               label={t.sentiment} 
               value={globalStats.sentiment} 
               sub={t.overallTone}
-              description="Tono emocional predominante (Crítico, Neutral, Positivo) extraído del lenguaje natural."
+              description={t.sentimentDesc}
               icon={<Sparkles size={20} className={globalStats.sentiment === t.positive ? 'text-green-400' : 'text-yellow-400'} />}
               chart={<Sparkline color={globalStats.sentiment === t.positive ? '#4ade80' : '#facc15'} />}
             />
@@ -381,7 +389,7 @@ const renderWidget = (question: Question, data: any, colors: string[], selectedK
          <div className="flex items-center justify-center h-full flex-col gap-2">
             <MessageSquare size={24} className="text-slate-600"/>
             <p className="text-slate-500 text-xs italic">{data.rawAnswers.length} {t.responses}</p>
-            <p className="text-slate-700 text-[10px]">Ver pestaña "Citas" para detalles</p>
+            <p className="text-slate-700 text-[10px]">{t.seeQuotes}</p>
          </div>
       );
    }
