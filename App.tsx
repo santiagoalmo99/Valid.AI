@@ -161,20 +161,20 @@ const LoginView = () => {
 
           {/* Bottom Form Section */}
           <div className="p-8 pt-6 text-center">
-             <h2 className="text-2xl font-bold text-white mb-2">Bienvenido de nuevo</h2>
-             <p className="text-slate-400 mb-8 text-sm">Inicia sesión para acceder a tu panel de validación.</p>
+             <h2 className="text-2xl font-bold text-white mb-2">Welcome Back</h2>
+             <p className="text-slate-400 mb-8 text-sm">Sign in to access your validation intelligence dashboard.</p>
              
              <button onClick={loginWithGoogle} className="btn-premium w-full py-4 rounded-xl flex items-center justify-center gap-3 font-bold text-sm tracking-wide group hover:scale-[1.02] transition-transform shadow-lg hover:shadow-neon/20">
                 <Globe size={18} className="text-slate-600 group-hover:text-black transition-colors" /> 
-                CONTINUAR CON GOOGLE
+                CONTINUE WITH GOOGLE
              </button>
              
              <div className="mt-8 flex items-center justify-center gap-4 text-[10px] text-slate-500 uppercase tracking-widest font-bold">
-               <div className="flex items-center gap-1"><div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div> Seguro</div>
+               <div className="flex items-center gap-1"><div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div> Secure</div>
                <div className="w-1 h-1 bg-slate-700 rounded-full"></div>
-               <span>Privado</span>
+               <span>Private</span>
                <div className="w-1 h-1 bg-slate-700 rounded-full"></div>
-               <span>Encriptado</span>
+               <span>Encrypted</span>
              </div>
           </div>
        </div>
@@ -2630,8 +2630,25 @@ function AppContent() {
 
 
 
+  // --- PATH ROUTING ---
+  const [currentPath, setCurrentPath] = useState(window.location.pathname);
+
+  // Handle /landing route
+  if (currentPath === '/landing' || urlParams.get('page') === 'landing') {
+    return (
+      <LandingPage 
+        lang={lang} 
+        onLogin={() => {
+          window.history.pushState({}, '', '/');
+          setCurrentPath('/');
+        }} 
+      />
+    );
+  }
+
+  // Handle Tool Entrance (Root /)
   if (!user) {
-    return <LandingPage onLogin={loginWithGoogle} lang={lang} />;
+    return <LoginView />;
   }
 
   return (
