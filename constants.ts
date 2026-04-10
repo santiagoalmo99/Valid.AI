@@ -83,9 +83,9 @@ const BIOHACKING_QUESTIONS: Question[] = [
   {
     id: 'p1',
     order: 1,
-    text: '¿Podrías describir tu "rutina de optimización" típica en una semana?',
+    text: 'Could you describe your typical "optimization routine" in a week?',
     type: 'text',
-    widgetType: 'default', // Reverted from keyword_cloud
+    widgetType: 'default',
     dimension: 'currentBehavior',
     weight: 0.08,
     required: true,
@@ -94,9 +94,9 @@ const BIOHACKING_QUESTIONS: Question[] = [
   {
     id: 'p2',
     order: 2,
-    text: 'Del 1 al 10, ¿qué tan satisfecho/a estás con los resultados que ves actualmente?',
+    text: 'On a scale of 1-10, how satisfied are you with the results you currently see?',
     type: 'scale',
-    widgetType: 'default', // Reverted from gauge_1_10
+    widgetType: 'default',
     dimension: 'painPoint',
     weight: 0.12,
     required: true,
@@ -105,15 +105,15 @@ const BIOHACKING_QUESTIONS: Question[] = [
   {
     id: 'p3',
     order: 3,
-    text: '¿Cada cuánto renuevas/compras tus productos de skincare?',
+    text: 'How often do you renew/purchase your specialized skincare or health products?',
     type: 'select',
     widgetType: 'default',
     options: [
-      'No uso productos especializados',
-      'Cada 4-6 meses (básico)',
-      'Cada 2-3 meses (regular)',
-      'Mensualmente (frecuente)',
-      'Tengo suscripción/compro constantemente'
+      'I do not use specialized products',
+      'Every 4-6 months (basic)',
+      'Every 2-3 months (regular)',
+      'Monthly (frequent)',
+      'I have a subscription / buy constantly'
     ],
     dimension: 'problemIntensity',
     weight: 0.15,
@@ -123,15 +123,15 @@ const BIOHACKING_QUESTIONS: Question[] = [
   {
     id: 'p4',
     order: 4,
-    text: 'Aproximadamente, ¿cuánto gastas cuando renuevas tu skincare? (en COP)',
+    text: 'Approximately how much do you spend monthly on health optimization? (USD)',
     type: 'select',
-    widgetType: 'default', // Reverted from currency_bucket
+    widgetType: 'default',
     options: [
-      '$0 - $150,000 COP',
-      '$151,000 - $400,000 COP',
-      '$401,000 - $800,000 COP',
-      '$801,000 - $1,500,000 COP',
-      'Más de $1,500,000 COP'
+      '$0 - $50',
+      '$51 - $150',
+      '$151 - $300',
+      '$301 - $600',
+      'More than $600'
     ],
     dimension: 'problemIntensity',
     weight: 0.12,
@@ -141,7 +141,7 @@ const BIOHACKING_QUESTIONS: Question[] = [
   {
     id: 'p5',
     order: 5,
-    text: '¿Tomas suplementos actualmente? Si sí, ¿cuáles y cuánto gastas al mes aproximadamente?',
+    text: 'What specific supplements do you take and what is the primary goal for each?',
     type: 'text',
     widgetType: 'default',
     dimension: 'problemIntensity',
@@ -152,18 +152,18 @@ const BIOHACKING_QUESTIONS: Question[] = [
   {
     id: 'p6',
     order: 6,
-    text: '¿Usas algún wearable o dispositivo de tracking? (reloj inteligente, anillo, etc)',
+    text: 'Do you use any wearables or tracking devices? (Smartwatch, Oura, Whoop, etc.)',
     type: 'select', 
-    widgetType: 'default', // Reverted from boolean_donut
+    widgetType: 'default',
     options: [
-      'No uso ninguno',
+      'None',
       'Apple Watch',
       'Oura Ring',
       'Whoop',
       'Fitbit',
       'Garmin',
-      'Xiaomi Mi Band u otro básico',
-      'Dispositivos médicos'
+      'Basic fitness tracker',
+      'Medical grade devices'
     ],
     dimension: 'earlyAdopter',
     weight: 0.08,
@@ -173,9 +173,9 @@ const BIOHACKING_QUESTIONS: Question[] = [
   {
     id: 'p7',
     order: 7,
-    text: 'Si tuvieras que elegir 3 cosas de tu rutina actual que ELIMINARÍAS porque no estás seguro/a de si realmente funcionan, ¿cuáles serían?',
+    text: 'If you had to eliminate 3 things from your routine because you are unsure of their actual efficacy, what would they be?',
     type: 'text',
-    widgetType: 'default', // Reverted from keyword_cloud
+    widgetType: 'default',
     dimension: 'painPoint',
     weight: 0.15,
     required: true,
@@ -184,7 +184,7 @@ const BIOHACKING_QUESTIONS: Question[] = [
   {
     id: 'p8',
     order: 8,
-    text: '¿Alguna vez has intentado cruzar tus datos de sueño/estrés con cambios visibles en tu piel, energía o peso? ¿Cómo lo haces?',
+    text: 'Have you ever cross-referenced your sleep/stress data with visible changes in your energy or weight?',
     type: 'text',
     widgetType: 'default',
     dimension: 'painPoint',
@@ -195,9 +195,9 @@ const BIOHACKING_QUESTIONS: Question[] = [
   {
     id: 'p9',
     order: 9,
-    text: 'Del 1 al 10, ¿qué tan seguro/a estás de que tu suplemento MÁS CARO está generando un efecto real y medible?',
+    text: 'On a scale of 1-10, how confident are you that your MOST EXPENSIVE supplement is producing a measurable effect?',
     type: 'scale',
-    widgetType: 'default', // Reverted from gauge_1_10
+    widgetType: 'default',
     dimension: 'painPoint',
     weight: 0.12,
     required: true,
@@ -206,9 +206,9 @@ const BIOHACKING_QUESTIONS: Question[] = [
   {
     id: 'p10',
     order: 10,
-    text: '¿Has comprado algún producto que te prometieron resultados pero NO viste cambios claros?',
+    text: 'Have you ever bought a product that promised results but failed to show any clear changes?',
     type: 'boolean',
-    widgetType: 'default', // Reverted from boolean_donut
+    widgetType: 'default',
     dimension: 'painPoint',
     weight: 0.08,
     required: true,
@@ -217,9 +217,9 @@ const BIOHACKING_QUESTIONS: Question[] = [
   {
     id: 'p11',
     order: 11,
-    text: '¿Cuál es tu mayor frustración con tu rutina actual de optimización?',
+    text: 'What is the biggest friction point or frustration in your current routine?',
     type: 'text',
-    widgetType: 'default', // Reverted from keyword_cloud
+    widgetType: 'default',
     dimension: 'painPoint',
     weight: 0.05,
     required: true,
@@ -228,16 +228,16 @@ const BIOHACKING_QUESTIONS: Question[] = [
   {
     id: 'p12',
     order: 12,
-    text: '¿Llevas algún tipo de registro de tu rutina? (diario, app, Excel, fotos, etc)',
+    text: 'What kind of routine tracking do you currently maintain? (journal, app, Excel, photos, etc.)',
     type: 'select',
     widgetType: 'default',
     options: [
-      'No llevo ningún registro',
-      'Fotos ocasionales',
-      'Notas mentales',
-      'Fotos con fechas + notas',
-      'App especializada',
-      'Sistema completo (Excel/Apps)'
+      'I do not maintain any tracking',
+      'Occasional photos',
+      'Mental notes only',
+      'Photos with dated notes',
+      'Specialized health app',
+      'Complete tracking system (Excel/Custom)'
     ],
     dimension: 'earlyAdopter',
     weight: 0.10,
@@ -247,9 +247,9 @@ const BIOHACKING_QUESTIONS: Question[] = [
   {
     id: 'p13',
     order: 13,
-    text: '¿Qué apps de salud/bienestar usas actualmente?',
+    text: 'Which health/wellness apps do you use at least once a week?',
     type: 'text',
-    widgetType: 'default', // Reverted from keyword_cloud
+    widgetType: 'default',
     dimension: 'currentBehavior',
     weight: 0.03,
     required: false,
@@ -258,7 +258,7 @@ const BIOHACKING_QUESTIONS: Question[] = [
   {
     id: 'p14',
     order: 14,
-    text: '¿Has notado patrones entre tu estilo de vida y tu apariencia/energía?',
+    text: 'Have you documented any clear patterns between your lifestyle and your energy levels?',
     type: 'text',
     widgetType: 'default',
     dimension: 'currentBehavior',
@@ -269,9 +269,9 @@ const BIOHACKING_QUESTIONS: Question[] = [
   {
     id: 'p15',
     order: 15,
-    text: 'Imagina una app que cruza datos de wearable, escanea tu rostro y analiza tus suplementos para decirte qué funciona. Del 1 al 5, ¿qué tanto valor tendría?',
+    text: 'Imagine an app that cross-references wearable data, scans your skin, and analyzes supplement ROI. Scale of 1-5, how valuable is this?',
     type: 'scale',
-    widgetType: 'default', // Reverted from gauge_1_5
+    widgetType: 'default',
     dimension: 'solutionFit',
     weight: 0.25,
     required: true,
@@ -280,15 +280,15 @@ const BIOHACKING_QUESTIONS: Question[] = [
   {
     id: 'p16',
     order: 16,
-    text: 'Si esa app existiera, ¿cuánto estarías dispuesto/a a pagar mensualmente? (COP)',
+    text: 'If that app existed, how much would you be willing to invest monthly? (USD)',
     type: 'select',
-    widgetType: 'default', // Reverted from currency_bucket
+    widgetType: 'default',
     options: [
-      '$0 - No pagaría',
-      '$20,000 - $40,000 COP/mes',
-      '$41,000 - $70,000 COP/mes',
-      '$71,000 - $100,000 COP/mes',
-      'Más de $100,000 COP/mes'
+      '$0 - Not willing to pay',
+      '$10 - $25 USD/mo',
+      '$26 - $50 USD/mo',
+      '$51 - $100 USD/mo',
+      'Premium Custom Pricing (> $100/mo)'
     ],
     dimension: 'willingnessToPay',
     weight: 0.30,
@@ -298,9 +298,9 @@ const BIOHACKING_QUESTIONS: Question[] = [
   {
     id: 'p17',
     order: 17,
-    text: '¿Qué features específicas te gustaría que tuviera esa app?',
+    text: 'What specific features would be non-negotiable for this app?',
     type: 'text',
-    widgetType: 'default', // Reverted from keyword_cloud
+    widgetType: 'default',
     dimension: 'solutionFit', 
     weight: 0.0,
     required: false,
@@ -309,14 +309,14 @@ const BIOHACKING_QUESTIONS: Question[] = [
   {
     id: 'p18',
     order: 18,
-    text: 'Si lanzáramos una beta privada en los próximos 3 meses, ¿te interesaría probarla?',
+    text: 'If we launched a private beta in the next 90 days, would you be interested in participating?',
     type: 'select',
-    widgetType: 'default', // Reverted from boolean_donut
+    widgetType: 'default',
     options: [
-      'Sí, quiero probarla cuanto antes',
-      'Sí, pero prefiero esperar',
-      'Tal vez, depende de las features',
-      'No me interesa'
+      'Yes, grant me early access',
+      'Yes, but I prefer a stable version',
+      'Maybe, depends on the feature set',
+      'Not interested at this time'
     ],
     dimension: 'earlyAdopter',
     weight: 0.10,
@@ -326,7 +326,7 @@ const BIOHACKING_QUESTIONS: Question[] = [
   {
     id: 'p19',
     order: 19,
-    text: '¿Me darías tu email para enviarte acceso anticipado a la beta?',
+    text: 'Could you provide your primary email for the beta invitation?',
     type: 'text',
     widgetType: 'default',
     dimension: 'earlyAdopter',
@@ -337,7 +337,7 @@ const BIOHACKING_QUESTIONS: Question[] = [
   {
     id: 'p20',
     order: 20,
-    text: 'Si pudieras pedirle un consejo a alguien que lleva 10 años optimizándose, ¿qué le preguntarías?',
+    text: 'If you could ask for advice from a world-class longevity expert, what would it be?',
     type: 'text',
     widgetType: 'default',
     dimension: 'painPoint', 
@@ -349,13 +349,13 @@ const BIOHACKING_QUESTIONS: Question[] = [
 
 export const DEMO_PROJECT: ProjectTemplate = {
   id: 'demo_project_001',
-  name: 'Holistic Biohacking Colombia',
-  description: 'Validación de mercado para soluciones de bienestar integral y optimización biológica personalizada en el mercado latinoamericano.',
-  detailedDescription: 'Este proyecto busca validar la demanda de una plataforma de biohacking que integre nutrición, suplementación y tecnología wearable. Nos enfocamos en usuarios de alto rendimiento que buscan optimizar su salud y longevidad mediante datos cuantificables.',
+  name: 'Global Biohacking Intelligence',
+  description: 'Market validation for peak performance solutions and personalized biological optimization in the high-stakes corporate market.',
+  detailedDescription: 'This project aims to validate demand for a premier biohacking platform integrating nutrition, supplementation, and advanced wearable telemetry. Targeting high-performance professionals seeking to optimize longevity and cognitive ROI through quantifiable biological data.',
   emoji: '🧬',
   coverImage: 'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&q=80&w=1000',
-  targetAudience: 'Profesionales de 25-45 años, entusiastas del fitness, early adopters de tecnología de salud.',
-  region: 'Colombia / Latam',
+  targetAudience: 'Professionals aged 25-45, tech-early adopters, and corporate athletes focused on cognitive endurance.',
+  region: 'Global / USA / Europe',
   productTypes: ['App', 'SaaS', 'E-commerce'],
   questions: BIOHACKING_QUESTIONS,
   createdAt: new Date().toISOString(),
@@ -365,11 +365,11 @@ export const DEMO_PROJECT: ProjectTemplate = {
 export const INITIAL_PROJECTS: ProjectTemplate[] = [
   {
     id: 'proj_biohacking_001',
-    name: 'Holistic Biohacking Colombia',
-    description: 'Validación de mercado para soluciones de bienestar integral y optimización biológica en el mercado colombiano.',
+    name: 'Global Biohacking Intelligence',
+    description: 'Premier validation for longevity and high-performance solutions in the English-speaking market.',
     emoji: '🧬',
     coverImage: 'https://images.unsplash.com/photo-1576086213369-97a306d36557?auto=format&fit=crop&q=80&w=1000',
-    targetAudience: 'Profesionales de alto rendimiento, entusiastas del fitness y bienestar en Colombia.',
+    targetAudience: 'High-performance professionals, fitness enthusiasts, and corporate leadership.',
     createdAt: new Date().toISOString(),
     questions: BIOHACKING_QUESTIONS
   }

@@ -551,7 +551,7 @@ const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, 
   }, [project.id]);
 
   const handleDeleteAllInterviews = async () => {
-    if (!window.confirm("¿ELIMINAR TODAS LAS ENTREVISTAS? Esta acción no se puede deshacer.")) return;
+    if (!window.confirm("DELETE ALL INTERVIEWS? This action cannot be undone.")) return;
     
     // DEMO MODE: Local Only
     if (project.id === 'demo_project_001') {
@@ -2298,7 +2298,7 @@ const InterviewsView = ({ interviews, onDelete, onDeleteAll, onSelect, onRetry }
                <button 
                   onClick={async (e) => { 
                      e.stopPropagation(); 
-                     if(window.confirm("¿Re-analizar esta entrevista con IA?")) {
+                     if(window.confirm("Re-analyze this interview with AI?")) {
                         const btn = e.currentTarget;
                         btn.classList.add('animate-spin');
                         try {
@@ -2413,8 +2413,8 @@ import { subscribeToInterviews } from './services/firebase';
 
 
 function AppContent() {
-  const { user, logout } = useAuth();
-  const [lang, setLang] = useState<Language>('es');
+  const { user, logout, loginWithGoogle } = useAuth();
+  const [lang, setLang] = useState<Language>('en');
   const [theme, setTheme] = useState<'dark' | 'light'>('dark'); 
   const [notification, setNotification] = useState<NotificationPayload | null>(null);
 
@@ -2633,7 +2633,7 @@ function AppContent() {
 
 
   if (!user) {
-    return <LoginView />;
+    return <LandingPage onLogin={loginWithGoogle} />;
   }
 
   return (
@@ -2784,7 +2784,7 @@ function AppContent() {
       {/* EMERGENCY RESET BUTTON */}
       <button 
         onClick={() => {
-          if(confirm("¿ESTÁS SEGURO? Esto borrará todos los datos locales y reiniciará la app para intentar arreglar el error.")) {
+          if(confirm("ARE YOU SURE? This will clear all local data and reset the app to try and fix the error.")) {
             localStorage.clear();
             window.location.reload();
           }

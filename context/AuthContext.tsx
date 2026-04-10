@@ -17,6 +17,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // 1. Check for Demo Mode in URL ( stakeholder bypass )
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('demo') === 'true') {
+      console.log('🎟️ Demo Mode Active: Injecting Mock User');
+      const mockUser = {
+        uid: 'demo-user-123',
+        email: 'demo@validai.com',
+        displayName: 'Demo Stakeholder',
+        photoURL: 'https://ui-avatars.com/api/?name=Demo+User&background=6366f1&color=fff',
+        emailVerified: true,
+        isAnonymous: false,
+        providerData: [],
+        getIdToken: async () => 'mock-token',
+        phoneNumber: null,
+      } as unknown as User;
+      
+      setUser(mockUser);
+      setLoading(false);
+      return;
+    }
+
+    // 2. Standard Firebase Auth
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);

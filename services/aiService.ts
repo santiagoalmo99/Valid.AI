@@ -1,108 +1,70 @@
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Question, AIAnalysisResult, ProjectTemplate, Interview, DeepAnalysisReport } from '../types';
-
-// AUTO-DISCOVER available models from Google API
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
-let AVAILABLE_MODEL: string | null = null;
-
-// Discover available models
-async function discoverAvailableModel(): Promise<string> {
-  if (AVAILABLE_MODEL) return AVAILABLE_MODEL;
-  
-  try {
-    console.log('🔍 Discovering available Gemini models...');
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${API_KEY}`);
-    
-    if (!response.ok) {
-      throw new Error('Failed to list models');
-    }
-    
-    const data = await response.json();
-    const models = data.models || [];
-    
-    // Prioritize newer models
-    const preferredModels = ['gemini-2.0-flash-exp', 'gemini-1.5-flash-latest', 'gemini-1.5-flash-001'];
-    
-    let validModel;
-    for (const pref of preferredModels) {
-       validModel = models.find((m: any) => m.name.includes(pref));
-       if (validModel) break;
-    }
-    
-    if (!validModel) {
-       validModel = models.find((m: any) => 
-         m.supportedGenerationMethods?.includes('generateContent') &&
-         (m.name.includes('gemini') || m.name.includes('pro'))
-       );
-    }
-    
-    if (validModel) {
-      // Extract model name (e.g., "models/gemini-pro" -> "gemini-pro")
-      AVAILABLE_MODEL = validModel.name.replace('models/', '');
-      console.log('✅ Using model:', AVAILABLE_MODEL);
-      return AVAILABLE_MODEL;
-    }
-    
-    // Fallback to common model names if discovery fails
-    console.warn('⚠️ No models found via discovery, trying fallbacks...');
-    const fallbacks = ['gemini-1.5-flash-latest', 'gemini-1.5-flash', 'gemini-2.0-flash-exp', 'gemini-pro'];
-    for (const model of fallbacks) {
-      try {
-        await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}?key=${API_KEY}`);
-        AVAILABLE_MODEL = model;
-        console.log('✅ Using fallback model:', AVAILABLE_MODEL);
-        return AVAILABLE_MODEL;
-      } catch (e) {
-        continue;
-      }
-    }
-    
-    throw new Error('No compatible models found');
-  } catch (error) {
-    console.error('❌ Model discovery failed:', error);
-    // Last resort
-    AVAILABLE_MODEL = 'gemini-pro';
-    return AVAILABLE_MODEL;
-  }
-}
-
 import { cacheService } from './cacheService';
 
-// Retry with exponential backoff
-async function retryWithBackoff<T>(
-  fn: () => Promise<T>,
-  maxRetries: number = 3,
-  baseDelayMs: number = 2000
-): Promise<T> {
-  let lastError: Error | null = null;
+// Initialize the official Google Generative AI SDK
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
+const genAI = new GoogleGenerativeAI(API_KEY);
+
+// Simplified model selection: Flash for speed/cost, Pro for depth
+const MODELS = {
+  default: "gemini-1.5-flash",
+  pro: "gemini-1.5-pro"
+};
+
+
+
+// Rate limiting state
+const LIMITS = {
+  RPM: 15,    // Requests Per Minute
+  RPD: 1500   // Requests Per Day
+};
+
+const getTrackingData = () => {
+  try {
+    const data = localStorage.getItem('gemini_api_tracking');
+    if (data) return JSON.parse(data);
+  } catch (e) {
+    console.error('Error reading rate limit tracking data', e);
+  }
+  return { lastMinuteRequests: [], dayRequests: 0, lastDayReset: Date.now() };
+};
+
+const saveTrackingData = (data: any) => {
+  localStorage.setItem('gemini_api_tracking', JSON.stringify(data));
+};
+
+const checkRateLimit = () => {
+  const data = getTrackingData();
+  const now = Date.now();
   
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    try {
-      return await fn();
-    } catch (error: any) {
-      lastError = error;
-      
-      // Only retry on rate limit (429) or server errors (5xx)
-      const status = error.status || error.code;
-      const isRetryable = status === 429 || status === 503 || error.message?.includes('429');
-      
-      if (!isRetryable || attempt === maxRetries) {
-        throw error;
-      }
-      
-      // Exponential backoff: 2s, 4s, 8s
-      const delay = baseDelayMs * Math.pow(2, attempt);
-      console.log(`⏳ Rate limited. Retrying in ${delay/1000}s... (attempt ${attempt + 1}/${maxRetries})`);
-      await new Promise(resolve => setTimeout(resolve, delay));
-    }
+  // Day reset
+  if (now - data.lastDayReset > 24 * 60 * 60 * 1000) {
+    data.dayRequests = 0;
+    data.lastDayReset = now;
   }
   
-  throw lastError || new Error('Max retries exceeded');
-}
+  // Minute filter
+  const oneMinuteAgo = now - 60000;
+  data.lastMinuteRequests = data.lastMinuteRequests.filter((t: number) => t > oneMinuteAgo);
+  
+  if (data.dayRequests >= LIMITS.RPD) {
+    throw new Error('Valid.AI Global Limit: Has excedido el límite diario (1,500 RPD).');
+  }
+  
+  if (data.lastMinuteRequests.length >= LIMITS.RPM) {
+    throw new Error('Valid.AI Rate Limit: Estás haciendo demasiadas peticiones por minuto. Espera un momento.');
+  }
+  
+  // Record request
+  data.dayRequests++;
+  data.lastMinuteRequests.push(now);
+  saveTrackingData(data);
+};
 
-// Helper function for API calls with retry
-// Helper function for API calls with retry and model fallback
+// Helper function for API calls with SDK and automatic retry
 export async function callGeminiAPI(prompt: string, json: boolean = false, useWeb: boolean = false): Promise<string> {
-  // 1. Check strict key-value Cache first (skip cache if using web to get fresh data)
+  // 1. Check cache first
   if (!useWeb) {
     const cached = cacheService.get<string>(prompt);
     if (cached) {
@@ -111,142 +73,58 @@ export async function callGeminiAPI(prompt: string, json: boolean = false, useWe
     }
   }
 
-  // Models to try - ensuring we use STANDARD public API names
-  const modelsToTry = [
-    'gemini-1.5-flash-latest', // Most reliable
-    'gemini-1.5-flash-001',    // Specific version
-    'gemini-1.5-pro-latest',   // Pro
-    'gemini-2.0-flash-exp',    // Experimental (High Rate Limit Risk)
-    'gemini-pro'               // Legacy Fallback
-  ];
-  
-  // Ensure the auto-discovered model is tried first if not already in list
-  const discovered = await discoverAvailableModel();
-  if (discovered && !modelsToTry.includes(discovered)) {
-      modelsToTry.unshift(discovered);
-  } else if (discovered) {
-      // Move discovered to front
-      const idx = modelsToTry.indexOf(discovered);
-      if (idx > 0) {
-          modelsToTry.splice(idx, 1);
-          modelsToTry.unshift(discovered);
-      }
+  // 2. Check rate limit
+  try {
+    checkRateLimit();
+  } catch (error: any) {
+    console.error('🚫 Rate Limit Triggered:', error.message);
+    throw error;
   }
 
-  // SPECIAL HANDLING: If using Web Tools, avoid experimental models that might not support it yet
-  // or are unstable with tools. Prioritize Gemini 1.5 Flash/Pro.
-  if (useWeb) {
-      console.log('🌐 Web Access requested: Prioritizing stable Gemini 1.5 models');
-      // Remove 2.0 experimental from top preference if present
-      const experimentalIdx = modelsToTry.findIndex(m => m.includes('2.0') || m.includes('exp'));
-      if (experimentalIdx !== -1) {
-          const [expModel] = modelsToTry.splice(experimentalIdx, 1);
-          modelsToTry.push(expModel); // Move to end
-      }
-      
-      // Ensure 1.5 Flash is top
-      const flashIdx = modelsToTry.findIndex(m => m.includes('1.5-flash'));
-      if (flashIdx > 0) { // If found and not at 0
-          const [flashModel] = modelsToTry.splice(flashIdx, 1);
-          modelsToTry.unshift(flashModel);
-      }
+  try {
+    const modelName = useWeb ? MODELS.pro : MODELS.default;
+    console.log(`🤖 AI Call [SDK]: ${modelName} ${useWeb ? '(Web Search Enabled)' : ''}`);
+
+    const model = genAI.getGenerativeModel({
+      model: modelName,
+      systemInstruction: "IMPORTANTE: Siempre responde en español latinoamericano. Usa vocabulario neutro y claro de Latinoamérica. Sé profesional, analítico y directo.",
+    }, { apiVersion: 'v1beta' });
+
+    const generationConfig: any = {
+      temperature: 0.7,
+      topP: 0.95,
+      topK: 40,
+      maxOutputTokens: 8192,
+    };
+    
+    if (json) {
+      generationConfig.responseMimeType = "application/json";
+    }
+
+    const contents: any[] = [{ role: "user", parts: [{ text: prompt }] }];
+    const tools: any[] | undefined = useWeb ? [{ googleSearch: {} }] : undefined;
+
+    const result = await model.generateContent({
+      contents,
+      generationConfig,
+      tools
+    });
+
+    const response = result.response;
+    const text = response.text();
+
+    if (!text) throw new Error('Empty response from Gemini SDK');
+
+    if (!useWeb) cacheService.set(prompt, text);
+    return text;
+
+  } catch (error: any) {
+    console.error(`❌ Gemini SDK Error:`, error);
+    if (error.message?.includes('429')) {
+      console.warn('⚠️ Rate limited.');
+    }
+    throw error;
   }
-
-  let lastError: any = new Error('No models available');
-
-  // Loop through models until one works
-  for (const modelName of modelsToTry) {
-      try {
-          console.log(`🤖 Attempting AI call with model: ${modelName}`);
-          
-          const result = await retryWithBackoff(async () => {
-              const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${API_KEY}`;
-              
-              const body: any = {
-                system_instruction: {
-                  parts: [{
-                    text: "IMPORTANTE: Siempre responde en español latinoamericano (no español de España). Usa vocabulario neutro y claro de Latinoamérica."
-                  }]
-                },
-                contents: [{
-                  parts: [{
-                    text: prompt
-                  }]
-                }],
-                generationConfig: json ? {
-                  response_mime_type: "application/json"
-                } : {}
-              };
-
-              // INJECT TOOLS IF WEB ACCESS REQUESTED
-              if (useWeb) {
-                body.tools = [{ google_search: {} }];
-                console.log('🌐 Google Search Grounding ENABLED for this request');
-              }
-
-              const response = await fetch(endpoint, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(body)
-              });
-
-              if (!response.ok) {
-                const error: any = new Error(`API Error: ${response.status}`);
-                error.status = response.status;
-                
-                if (response.status === 429) {
-                  console.warn(`⚠️ Rate limit hit (429) on ${modelName}`);
-                  // Throw specific error to trigger backoff within retryWithBackoff, 
-                  // BUT we also want to fall through to next model if retries fail.
-                }
-                
-                throw error;
-              }
-
-              const data = await response.json();
-              
-              if (!data.candidates || data.candidates.length === 0) {
-                  // If blocked, try next model
-                  if (data.promptFeedback?.blockReason) {
-                      throw new Error(`Blocked: ${data.promptFeedback.blockReason}`);
-                  }
-                  throw new Error('No candidates returned');
-              }
-              
-              return data.candidates[0].content.parts[0].text;
-          }, 1, 1000); // 1 retry per model (quick failover is better than waiting)
-
-          // Success if we reached here
-          if (!useWeb) {
-             cacheService.set(prompt, result);
-          }
-          return result;
-
-      } catch (error: any) {
-          lastError = error;
-          
-          // Only switch models on Rate Limit (429) or Server Overload (503) or Blocked
-          const isRetryableModel = error.status === 429 || error.status === 503 || error.message?.includes('429') || error.message?.includes('Blocked');
-          
-          if (isRetryableModel) {
-              console.warn(`⚠️ Model ${modelName} failed/throttled. Switching to next fallback...`);
-              continue; // Try next model in loop
-          }
-          
-          // If it's a client error (400), check if we can retry with another model (e.g. tools not supported)
-          if (error.status >= 400 && error.status < 500 && error.status !== 429) {
-              if (useWeb && error.status === 400) {
-                 console.warn(`⚠️ Model ${modelName} rejected tools (400). Switching to next fallback...`);
-                 continue;
-              }
-              break; 
-          }
-      }
-  }
-
-  throw lastError;
 }
 
 

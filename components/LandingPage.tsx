@@ -7,7 +7,7 @@ import {
   Target, Lightbulb, TrendingUp, ChevronRight, Smartphone, Layers,
   Clock, DollarSign, Calculator, Sliders, Database, Cpu, Eye,
   FileUp, Scan, LayoutTemplate, MousePointer2, X, Mail, User, Briefcase,
-  ShoppingCart, Heart, Wallet, GraduationCap, Store, Upload, Mic, Globe, LockKeyhole
+  ShoppingCart, Heart, Wallet, GraduationCap, Store, Upload, Mic, Globe, LockKeyhole, Music
 } from 'lucide-react';
 import { saveLead } from '../services/firebase';
 
@@ -121,19 +121,19 @@ const LeadCaptureModal = ({ isOpen, onClose, onComplete }: { isOpen: boolean, on
                   <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-neon/30 to-emerald-500/30 mb-6">
                     <Sparkles size={28} className="text-neon" />
                   </div>
-                  <h3 className="text-3xl font-bold text-white mb-2">Acceso Exclusivo</h3>
-                  <p className="text-white/60 text-sm">Únete a la élite de fundadores que validan con ciencia.</p>
+                  <h3 className="text-3xl font-bold text-white mb-2">Exclusive Access</h3>
+                  <p className="text-white/60 text-sm">Join the elite founders validating with scientific precision.</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-5">
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-white/60 uppercase ml-1">Nombre</label>
+                    <label className="text-xs font-bold text-white/60 uppercase ml-1">Name</label>
                     <div className="relative">
                       <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" />
                       <input 
                         required
                         type="text" 
-                        placeholder="Tu nombre"
+                        placeholder="Your name"
                         className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/30 focus:border-neon/50 focus:outline-none focus:ring-2 focus:ring-neon/20 transition-all"
                         value={formData.name}
                         onChange={e => setFormData({...formData, name: e.target.value})}
@@ -147,7 +147,7 @@ const LeadCaptureModal = ({ isOpen, onClose, onComplete }: { isOpen: boolean, on
                       <input 
                         required
                         type="email" 
-                        placeholder="tu@empresa.com"
+                        placeholder="you@company.com"
                         className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/30 focus:border-neon/50 focus:outline-none focus:ring-2 focus:ring-neon/20 transition-all"
                         value={formData.email}
                         onChange={e => setFormData({...formData, email: e.target.value})}
@@ -155,39 +155,40 @@ const LeadCaptureModal = ({ isOpen, onClose, onComplete }: { isOpen: boolean, on
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-white/60 uppercase ml-1">¿Cuál es tu rol?</label>
+                    <label className="text-xs font-bold text-white/60 uppercase ml-1">What's your role?</label>
                     <select 
                       required
                       className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white focus:border-neon/50 focus:outline-none transition-all appearance-none"
                       value={formData.role}
                       onChange={e => setFormData({...formData, role: e.target.value})}
                     >
-                      <option value="" className="bg-black">Selecciona...</option>
-                      <option value="founder" className="bg-black">Fundador / CEO</option>
+                      <option value="" className="bg-black">Select...</option>
+                      <option value="founder" className="bg-black">Founder / CEO</option>
                       <option value="product" className="bg-black">Product Manager</option>
-                      <option value="investor" className="bg-black">Inversionista</option>
-                      <option value="other" className="bg-black">Innovador / Otro</option>
+                      <option value="investor" className="bg-black">Investor</option>
+                      <option value="other" className="bg-black">Innovator / Other</option>
                     </select>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-white/60 uppercase ml-1">¿En qué etapa está tu idea?</label>
+                    <label className="text-xs font-bold text-white/60 uppercase ml-1">Startup stage?</label>
                     <select 
                       required
                       className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white focus:border-neon/50 focus:outline-none transition-all appearance-none"
                       value={formData.stage}
                       onChange={e => setFormData({...formData, stage: e.target.value})}
                     >
-                      <option value="" className="bg-black">Selecciona...</option>
-                      <option value="idea" className="bg-black">Solo una idea</option>
-                      <option value="mvp" className="bg-black">Tengo un MVP</option>
-                      <option value="product" className="bg-black">Producto lanzado</option>
-                      <option value="scaling" className="bg-black">Buscando escalar</option>
+                      <option value="" className="bg-black">Select...</option>
+                      <option value="idea" className="bg-black">Ideation</option>
+                      <option value="mvp" className="bg-black">MVP Phase</option>
+                      <option value="product" className="bg-black">Post-Launch</option>
+                      <option value="scaling" className="bg-black">Scaling</option>
                     </select>
                   </div>
 
                   <button type="submit" disabled={isSaving} className="w-full py-5 bg-white text-black rounded-2xl font-bold text-lg hover:scale-[1.02] transition-transform mt-6 shadow-[0_0_30px_rgba(255,255,255,0.2)] flex items-center justify-center gap-2 disabled:opacity-50">
-                    {isSaving ? 'Guardando...' : 'Desbloquear Acceso'} <ArrowRight size={18} />
+                    {isSaving ? 'Saving...' : 'Unlock Access'} <ArrowRight size={18} />
                   </button>
+
                 </form>
               </>
             ) : (
@@ -199,8 +200,8 @@ const LeadCaptureModal = ({ isOpen, onClose, onComplete }: { isOpen: boolean, on
                 >
                   <CheckCircle size={48} className="text-black" />
                 </motion.div>
-                <h3 className="text-4xl font-bold text-white mb-3">¡Acceso Concedido!</h3>
-                <p className="text-white/60">Preparando tu experiencia...</p>
+                  <h3 className="text-4xl font-bold text-white mb-3">Access Granted!</h3>
+                <p className="text-white/60">Preparing your private experience...</p>
                 <div className="mt-8 flex justify-center gap-2">
                   <div className="w-3 h-3 bg-neon rounded-full animate-bounce"></div>
                   <div className="w-3 h-3 bg-neon rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
@@ -240,8 +241,8 @@ const ValidationSimulator = () => {
   return (
     <GlassCard className="p-8" glow>
       <div className="mb-6">
-        <h3 className="text-white font-semibold text-xl mb-1">Motor de Validación</h3>
-        <p className="text-white/50 text-sm">Mueve los deslizadores para simular el análisis.</p>
+        <h3 className="text-white font-semibold text-xl mb-1">Validation Engine</h3>
+        <p className="text-white/50 text-sm">Adjust the sliders to simulate professional analysis.</p>
       </div>
 
         <IntensityGauge value={intensity} onChange={setIntensity} />
@@ -249,8 +250,8 @@ const ValidationSimulator = () => {
         
         {/* Remaining Standard Sliders */}
         {[
-          { label: "Ajuste de Solución", val: fit, set: setFit, icon: Target },
-          { label: "Perfil Early Adopter", val: earlyAdopter, set: setEarlyAdopter, icon: Zap }
+          { label: "Solution Fit", val: fit, set: setFit, icon: Target },
+          { label: "Early Adopter Profile", val: earlyAdopter, set: setEarlyAdopter, icon: Zap }
         ].map((item, i) => (
           <div key={i} className="space-y-2">
             <div className="flex justify-between text-sm font-medium">
@@ -286,9 +287,9 @@ const IntensityGauge = ({ value, onChange }: { value: number, onChange: (val: nu
   return (
     <div className="space-y-2 mb-6">
        <div className="flex justify-between text-sm font-medium">
-          <span className="text-white/80 flex items-center gap-2"><Activity size={14} className="text-neon"/> Intensidad del Dolor</span>
+          <span className="text-white/80 flex items-center gap-2"><Activity size={14} className="text-neon"/> Pain Intensity</span>
           <span className={`font-mono font-bold ${value > 7 ? 'text-red-500' : value > 4 ? 'text-yellow-400' : 'text-emerald-400'}`}>
-             {value > 7 ? 'CRÍTICO' : value > 4 ? 'MODERADO' : 'LEVE'} ({value}/10)
+             {value > 7 ? 'CRITICAL' : value > 4 ? 'MODERATE' : 'MILD'} ({value}/10)
           </span>
        </div>
        <div className="relative h-6 bg-white/5 rounded-full p-1 cursor-pointer group">
@@ -309,8 +310,6 @@ const IntensityGauge = ({ value, onChange }: { value: number, onChange: (val: nu
 };
 
 const FinancialSelector = ({ value, onChange }: { value: number, onChange: (val: number) => void }) => {
-  // Mapping simplistic 0-10 range to money values for visual logic only, 
-  // keeping the internal state consistent with the simulator logic standard (0-10)
   const options = [
     { label: "$0", score: 0 },
     { label: "$10", score: 3 },
@@ -322,7 +321,7 @@ const FinancialSelector = ({ value, onChange }: { value: number, onChange: (val:
   return (
     <div className="space-y-2 mb-6">
        <div className="flex justify-between text-sm font-medium">
-          <span className="text-white/80 flex items-center gap-2"><DollarSign size={14} className="text-neon"/> Disposición a Pagar</span>
+          <span className="text-white/80 flex items-center gap-2"><DollarSign size={14} className="text-neon"/> Willingness to Pay</span>
        </div>
        <div className="flex gap-2 p-1 bg-white/5 rounded-xl border border-white/10">
           {options.map((opt) => (
@@ -330,7 +329,7 @@ const FinancialSelector = ({ value, onChange }: { value: number, onChange: (val:
                 key={opt.label}
                 onClick={() => onChange(opt.score)}
                 className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${
-                   value >= opt.score - 1 && value <= opt.score + 1 // Approximate matching for the simplified 5-step UI vs 10-step logic
+                   value >= opt.score - 1 && value <= opt.score + 1 
                    ? 'bg-neon text-black shadow-[0_0_15px_rgba(58,255,151,0.4)]' 
                    : 'text-white/40 hover:bg-white/10'
                 }`}
@@ -345,15 +344,19 @@ const FinancialSelector = ({ value, onChange }: { value: number, onChange: (val:
 
 // --- MAIN PAGE ---
 
-export const LandingPage = () => {
+export const LandingPage = ({ onLogin }: { onLogin?: () => void }) => {
   const [showModal, setShowModal] = useState(false);
 
   const handleLaunch = () => {
-    const lead = localStorage.getItem('valid_ai_lead');
-    if (lead) {
-      window.location.href = '/';
+    if (onLogin) {
+      onLogin();
     } else {
-      setShowModal(true);
+      const lead = localStorage.getItem('valid_ai_lead');
+      if (lead) {
+        window.location.href = '/';
+      } else {
+        setShowModal(true);
+      }
     }
   };
 
@@ -362,12 +365,12 @@ export const LandingPage = () => {
   };
 
   const templates = [
-    { name: 'SaaS B2B', icon: Server, desc: 'Software empresarial' },
-    { name: 'E-commerce', icon: ShoppingCart, desc: 'Tienda online' },
-    { name: 'HealthTech', icon: Heart, desc: 'Salud y bienestar' },
-    { name: 'FinTech', icon: Wallet, desc: 'Finanzas digitales' },
-    { name: 'EdTech', icon: GraduationCap, desc: 'Educación' },
-    { name: 'Marketplace', icon: Store, desc: 'Plataforma multi-vendor' }
+    { name: 'B2B SaaS', icon: Server, desc: 'Enterprise Software' },
+    { name: 'E-commerce', icon: ShoppingCart, desc: 'Full-stack Retail' },
+    { name: 'HealthTech', icon: Heart, desc: 'Health & Wellness' },
+    { name: 'FinTech', icon: Wallet, desc: 'Digital Finance' },
+    { name: 'EdTech', icon: GraduationCap, desc: 'Education Systems' },
+    { name: 'Marketplace', icon: Store, desc: 'Multi-vendor Platform' }
   ];
 
   return (
@@ -384,11 +387,15 @@ export const LandingPage = () => {
 
       {/* Navbar */}
       <nav className="fixed top-6 left-0 right-0 z-50 flex justify-center pointer-events-none">
-        <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-full px-6 py-3 flex items-center gap-8 shadow-2xl pointer-events-auto transition-all hover:scale-105">
-          <span className="font-semibold text-sm tracking-tight">Valid.AI</span>
+        <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-full px-6 py-3 flex items-center gap-6 shadow-2xl pointer-events-auto transition-all hover:scale-105">
+          <span className="font-semibold text-sm tracking-tight text-white/90">Valid.AI</span>
           <div className="w-px h-4 bg-white/20"></div>
-          <button onClick={handleLaunch} className="text-xs font-medium text-white hover:text-neon transition-colors">
-            Lanzar App
+          <button onClick={handleLaunch} className="text-xs font-medium text-white/70 hover:text-neon transition-colors">
+            Launch App
+          </button>
+          <div className="w-px h-4 bg-white/20"></div>
+          <button onClick={onLogin} className="text-xs font-medium text-white/70 hover:text-neon transition-colors">
+            Login
           </button>
         </div>
       </nav>
@@ -401,33 +408,110 @@ export const LandingPage = () => {
           transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
           className="relative z-10 text-center max-w-6xl mx-auto"
         >
-            <div className="mb-8 flex justify-center">
-             <div className="px-6 py-2 rounded-full border border-neon/50 bg-neon/10 backdrop-blur-md flex items-center gap-3 shadow-[0_0_20px_rgba(0,255,148,0.3)] animate-pulse-slow">
-              <Sparkles size={14} className="text-neon" />
-              <span className="text-xs font-bold uppercase tracking-widest text-white">Cascade Intelligence</span>
-              <span className="text-[10px] text-white/60">Claude + Gemini 2.5</span>
+            <div className="mb-12 flex justify-center">
+              <div className="px-5 py-2 rounded-full border border-neon/30 bg-neon/5 backdrop-blur-xl flex items-center gap-3 shadow-[0_0_20px_rgba(58,255,151,0.2)]">
+                <Sparkles size={14} className="text-neon" />
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/80">Cascade Intelligence</span>
+                <span className="text-[10px] text-white/40 font-mono tracking-tighter">Claude + Gemini 2.5</span>
+              </div>
             </div>
-          </div>
-
-          <h1 className="text-6xl md:text-8xl lg:text-[11rem] font-semibold tracking-tighter mb-8 leading-[0.85]">
-            <span className="text-white">Analista de VC</span> <br/>
-            <span className="relative inline-block">
-              <span className="bg-gradient-to-r from-neon via-emerald-400 to-neon bg-[length:200%_auto] animate-shimmer bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(58,255,151,0.5)]">
-                Digital.
+            <h1 className="text-[5rem] md:text-[8rem] lg:text-[11rem] font-semibold tracking-tighter mb-10 flex flex-col items-center gap-4 leading-none">
+              <span className="text-white block">Digital VC</span>
+              <span className="relative block">
+                <span 
+                  style={{ '--shimmer-color': '#3AFF97' } as React.CSSProperties}
+                  className="bg-gradient-to-r from-neon via-emerald-400 to-neon bg-[length:200%_auto] animate-shimmer bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(58,255,151,0.4)]"
+                >
+                  Analyst.
+                </span>
               </span>
-            </span>
-          </h1>
+            </h1>
           
           <p className="text-xl md:text-2xl font-medium text-white/60 max-w-3xl mx-auto mt-8 leading-relaxed">
-            No es solo una encuesta. Es un motor de validación científica que combina <span className="text-white">The Mom Test</span> con la potencia de <span className="text-white">Google Gemini</span>.
+            Not just a survey. A scientific validation engine merging <span className="text-white">The Mom Test</span> with the raw power of <span className="text-white">Claude & Gemini*</span>.
           </p>
-
+ 
           <div className="mt-16 flex flex-col sm:flex-row items-center justify-center gap-6">
              <button onClick={handleLaunch} className="px-10 py-5 bg-white text-black rounded-full font-bold text-xl hover:scale-105 transition-transform shadow-[0_0_40px_rgba(255,255,255,0.3)]">
-                Validar mi Idea
+                Validate My Idea
              </button>
           </div>
+
         </motion.div>
+      </section>
+
+      {/* --- THE VALUE PIPELINE: 0-TO-100 VALIDATION --- */}
+      <section className="py-24 px-6 relative z-10 border-t border-white/5 bg-black/20">
+        {/* Subtle Background Detail */}
+        <div className="absolute inset-0 bg-grid-surgical opacity-[0.05] pointer-events-none"></div>
+
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-20">
+             <div className="max-w-2xl">
+                <div className="text-neon text-xs font-mono uppercase tracking-[0.4em] mb-4">Strategic Logic</div>
+                <h2 className="text-3xl md:text-5xl font-bold text-white tracking-tight leading-tight">
+                   Stop Building <br />Based on <span className="text-white/40 italic">Polite Lies.</span>
+                </h2>
+             </div>
+             <div className="pb-2 text-white/40 font-medium max-w-sm text-sm leading-relaxed">
+                Most startups fail because they validate ideas with friends and family. Valid.AI kills the bias to save you months of R&D.
+             </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Reveal>
+              <GlassCard className="h-full p-8 border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-colors group">
+                <div className="text-[10px] font-mono text-white/30 mb-8 uppercase tracking-[0.2em]">Phase 01</div>
+                <div className="w-10 h-10 rounded-lg bg-neon/10 flex items-center justify-center text-neon mb-6 border border-neon/20 group-hover:bg-neon/20 transition-colors">
+                  <Shield size={20} />
+                </div>
+                <h3 className="text-lg font-bold text-white mb-3">Kill the Liar's Dividend</h3>
+                <p className="text-sm text-white/40 leading-relaxed">
+                  We use the <span className="text-white">Mom Test framework</span> to strip away politeness and reveal if people will actually pay for your solution.
+                </p>
+              </GlassCard>
+            </Reveal>
+
+            <Reveal delay={0.1}>
+              <GlassCard className="h-full p-8 border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-colors group">
+                <div className="text-[10px] font-mono text-white/30 mb-8 uppercase tracking-[0.2em]">Phase 02</div>
+                <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 mb-6 border border-emerald-500/20 group-hover:bg-emerald-500/20 transition-colors">
+                  <Activity size={20} />
+                </div>
+                <h3 className="text-lg font-bold text-white mb-3">Neural Truth Analysis</h3>
+                <p className="text-sm text-white/40 leading-relaxed">
+                  Capturing raw <span className="text-emerald-400 font-medium">voice conviction</span>. Our AI detects hesitation and micro-pauses that standard text surveys miss entirely.
+                </p>
+              </GlassCard>
+            </Reveal>
+
+            <Reveal delay={0.2}>
+              <GlassCard className="h-full p-8 border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-colors group">
+                <div className="text-[10px] font-mono text-white/30 mb-8 uppercase tracking-[0.2em]">Phase 03</div>
+                <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 mb-6 border border-blue-500/20 group-hover:bg-blue-500/20 transition-colors">
+                  <DollarSign size={20} />
+                </div>
+                <h3 className="text-lg font-bold text-white mb-3">Capital Efficiency</h3>
+                <p className="text-sm text-white/40 leading-relaxed">
+                  <span className="text-white font-medium">Save $20,000+</span> in wasted development and months of building for a market that doesn't exist.
+                </p>
+              </GlassCard>
+            </Reveal>
+
+            <Reveal delay={0.3}>
+              <GlassCard className="h-full p-8 border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-colors group">
+                <div className="text-[10px] font-mono text-white/30 mb-8 uppercase tracking-[0.2em]">Phase 04</div>
+                <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 mb-6 border border-purple-500/20 group-hover:bg-purple-500/20 transition-colors">
+                  <TrendingUp size={20} />
+                </div>
+                <h3 className="text-lg font-bold text-white mb-3">Instant Roadmap</h3>
+                <p className="text-sm text-white/40 leading-relaxed">
+                  Transform raw feedback into a <span className="text-purple-400 font-medium">prioritized technical backlog</span> and a production-ready roadmap in seconds.
+                </p>
+              </GlassCard>
+            </Reveal>
+          </div>
+        </div>
       </section>
 
       {/* --- NEW: VOICE INTELLIGENCE --- */}
@@ -436,42 +520,126 @@ export const LandingPage = () => {
             <Reveal>
                <div className="relative">
                   {/* Pulse Effect */}
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-neon/5 rounded-full blur-[100px] animate-pulse-slow pointer-events-none"></div>
-                  
-                  <GlassCard className="h-[400px] flex flex-col items-center justify-center relative overflow-hidden group" glow>
-                     <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-20"></div>
-                     
-                     <div className="w-24 h-24 rounded-full bg-black border border-neon/30 flex items-center justify-center relative z-10 group-hover:scale-110 transition-transform duration-500">
-                        <div className="absolute inset-0 bg-neon/20 rounded-full animate-ping"></div>
-                        <div className="absolute inset-0 bg-neon/10 rounded-full animate-pulse"></div>
-                        <Mic size={40} className="text-neon relative z-10" />
+                  <div className="w-full h-[580px] flex flex-col items-center justify-center relative overflow-hidden rounded-3xl border border-white/10 shadow-[0_0_50px_rgba(58,255,151,0.1)] group">
+                     {/* 100% Seamless Deep Background - Structural Bypass */}
+                     <div className="absolute inset-0 bg-[#070707] z-0"></div>
+                     <div className="absolute inset-0 bg-gradient-to-tr from-emerald-950/40 via-transparent to-blue-950/40 opacity-70 z-0"></div>
+                     <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-[0.15] contrast-[200%] brightness-125 mix-blend-overlay z-0"></div>
+                     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30 pointer-events-none z-0"></div>
+
+                     {/* PARTICLE ENGINES - Explicitly Centered Containers */}
+                     <div className="absolute inset-0 pointer-events-none z-10 flex items-center justify-center">
+                        <div className="relative w-full h-full">
+                           {/* INGESTION (Left-to-Center) */}
+                           {[...Array(8)].map((_, i) => (
+                              <motion.div
+                                 key={`music-${i}`}
+                                 className="absolute text-neon/30 p-2"
+                                 initial={{ x: -400, y: Math.random() * 80 - 40, opacity: 0, scale: 0 }}
+                                 animate={{ 
+                                    x: 0, 
+                                    y: 0, 
+                                    opacity: [0, 0.5, 0], 
+                                    scale: [0.4, 0.8, 0.4] 
+                                 }}
+                                 transition={{ 
+                                    duration: 3 + Math.random() * 2, 
+                                    repeat: Infinity, 
+                                    delay: i * 0.7,
+                                    ease: "easeInOut" 
+                                 }}
+                                 style={{ left: '50%', top: '50%' }}
+                              >
+                                 <Music size={18 + Math.random() * 10} />
+                              </motion.div>
+                           ))}
+
+                           {/* EJECTION (Center-to-Right) */}
+                           {[...Array(10)].map((_, i) => {
+                              const Icon = i % 2 === 0 ? DollarSign : (i % 3 === 0 ? Database : TrendingUp);
+                              return (
+                                 <motion.div
+                                    key={`value-${i}`}
+                                    className="absolute text-emerald-400/40 p-2"
+                                    initial={{ x: 0, y: 0, opacity: 0, scale: 0.2 }}
+                                    animate={{ 
+                                       x: 400, 
+                                       y: Math.random() * 80 - 40, 
+                                       opacity: [0, 0.7, 0], 
+                                       scale: [0.2, 1, 0.2],
+                                       rotate: 360
+                                    }}
+                                    transition={{ 
+                                       duration: 2.5 + Math.random() * 2, 
+                                       repeat: Infinity, 
+                                       delay: i * 0.5,
+                                       ease: "easeInOut" 
+                                    }}
+                                    style={{ left: '50%', top: '50%' }}
+                                 >
+                                    <Icon size={14 + Math.random() * 14} />
+                                 </motion.div>
+                              );
+                           })}
+                        </div>
+                     </div>
+
+                     {/* THE CONVERTER (AI Core) - Balanced & Imposing */}
+                     <div className="relative w-80 h-80 flex items-center justify-center z-20">
+                        {/* Orbital components */}
+                        <div className="absolute inset-0 border border-dashed border-neon/15 rounded-full animate-spin-slow"></div>
+                        <div className="absolute inset-8 border border-dashed border-neon/10 rounded-full animate-reverse-spin"></div>
+                        
+                        {/* Central Hub */}
+                        <div className="w-44 h-44 rounded-full bg-black/80 backdrop-blur-3xl border border-neon/40 flex items-center justify-center relative shadow-[0_0_120px_rgba(58,255,151,0.2)] group-hover:scale-110 transition-transform duration-1000">
+                           <div className="absolute inset-0 bg-gradient-to-tr from-neon/30 to-emerald-400/20 rounded-full blur-3xl animate-pulse"></div>
+                           <div className="w-24 h-24 rounded-full bg-neon/10 flex items-center justify-center border border-neon/20 backdrop-blur-md">
+                              <Mic size={48} className="text-neon drop-shadow-[0_0_15px_rgba(58,255,151,0.6)]" />
+                           </div>
+                        </div>
+
+                        {/* Symmetrical Visualizer Ring */}
+                        <div className="absolute inset-0 flex items-center justify-center">
+                           {[...Array(60)].map((_, i) => (
+                              <div key={i} className="absolute w-[1.5px] bg-neon/40 rounded-full origin-bottom" style={{
+                                 height: `${12 + Math.random() * 40}px`,
+                                 transform: `rotate(${i * (360/60)}deg) translateY(-175px)`,
+                                 animation: `sound-wave ${0.4 + Math.random() * 0.8}s ease-in-out infinite`,
+                                 animationDelay: `${i * 0.04}s`
+                              }}></div>
+                           ))}
+                        </div>
                      </div>
                      
-                     {/* Sound Wave Simulation */}
-                     <div className="flex gap-1 mt-8 h-8 items-center">
-                        {[...Array(10)].map((_, i) => (
-                           <div key={i} className="w-1 bg-neon/50 rounded-full animate-sound-wave" style={{
-                              height: Math.random() * 30 + 10 + 'px',
-                              animationDelay: i * 0.1 + 's'
-                           }}></div>
-                        ))}
+                     {/* Info Badges */}
+                     <div className="mt-12 flex flex-col items-center gap-6 z-30">
+                        <div className="flex items-center gap-5">
+                           <div className="h-[1px] w-12 bg-gradient-to-r from-transparent via-neon/20 to-neon/40"></div>
+                           <div className="px-5 py-1.5 bg-neon/5 border border-neon/20 rounded-sm text-[10px] font-mono text-neon uppercase tracking-[0.5em] backdrop-blur-xl">
+                              PROCESS: VOICE TO INSIGHT
+                           </div>
+                           <div className="h-[1px] w-12 bg-gradient-to-l from-transparent via-neon/20 to-neon/40"></div>
+                        </div>
+                        
+                        <div className="flex flex-col items-center">
+                           <div className="text-xs font-bold text-white uppercase tracking-[0.8em]">
+                              ANALYZING <span className="text-neon animate-pulse">LIVE</span>
+                           </div>
+                        </div>
                      </div>
-                     <div className="mt-4 text-xs font-mono text-neon uppercase tracking-widest animate-pulse">
-                        Escuchando...
-                     </div>
-                  </GlassCard>
+                  </div>
                </div>
             </Reveal>
 
             <Reveal delay={0.2}>
                <div>
-                  <div className="mb-4 text-neon font-mono text-xs uppercase tracking-widest">Nueva Función</div>
+                  <div className="mb-4 text-neon font-mono text-xs uppercase tracking-widest">New Feature</div>
                   <h2 className="text-4xl md:text-6xl font-semibold text-white mb-8 tracking-tight">
-                     No escribas. <br/>
-                     <span className="text-white/50">Solo habla.</span>
+                     Stop Typing. <br/>
+                     <span className="text-white/50">Start Talking.</span>
                   </h2>
                   <p className="text-lg text-white/60 leading-relaxed mb-8">
-                     La inspiración no espera al teclado. Hemos integrado un motor de <strong>Latenica Ultra-Baja</strong> que captura tus ideas al vuelo.
+                     Inspiration doesn't wait for your keyboard. We've integrated an <strong className="text-white">Ultra-Low Latency</strong> voice engine to capture your ideas in flow state.
                   </p>
                   <ul className="space-y-6">
                      <li className="flex items-start gap-4">
@@ -479,8 +647,8 @@ export const LandingPage = () => {
                            <Mic size={20} className="text-neon" />
                         </div>
                         <div>
-                           <h4 className="text-white font-bold mb-1">Entrevistas Híbridas</h4>
-                           <p className="text-sm text-white/50">Responde a tu consultor de IA con tu voz. Capturamos el tono, la duda y la emoción.</p>
+                           <h4 className="text-white font-bold mb-1">Hybrid Interviews</h4>
+                           <p className="text-sm text-white/50">Respond to your AI consultant with your voice. We capture tone, hesitation, and emotional conviction.</p>
                         </div>
                      </li>
                      <li className="flex items-start gap-4">
@@ -488,8 +656,8 @@ export const LandingPage = () => {
                            <Zap size={20} className="text-purple-400" />
                         </div>
                         <div>
-                           <h4 className="text-white font-bold mb-1">Dictado de Ideas</h4>
-                           <p className="text-sm text-white/50">Camina y habla. Baja tu idea de la nube a la tierra en segundos.</p>
+                           <h4 className="text-white font-bold mb-1">Voice-to-Insight</h4>
+                           <p className="text-sm text-white/50">Walk and talk. Bring your ideas from cloud to ground in seconds.</p>
                         </div>
                      </li>
                   </ul>
@@ -504,14 +672,14 @@ export const LandingPage = () => {
             
             <Reveal>
                <div>
-                  <div className="mb-4 text-blue-400 font-mono text-xs uppercase tracking-widest">Inteligencia Web</div>
+                  <div className="mb-4 text-blue-400 font-mono text-xs uppercase tracking-widest">Web Intelligence</div>
                   <h2 className="text-4xl md:text-6xl font-semibold text-white mb-8 tracking-tight">
-                     El Ojo Que <br/>
-                     <span className="text-white/50">Todo Lo Ve.</span>
+                     The Eye That <br/>
+                     <span className="text-white/50">Sees Everything.</span>
                   </h2>
                   <p className="text-lg text-white/60 leading-relaxed mb-8">
-                     Tu competencia usa datos del año pasado. Tú usas datos de <strong>HOY</strong>.
-                     Hemos conectado el cerebro de Gemini al buscador de Google en tiempo real.
+                     Your competition uses last year's data. You use <strong>TODAY'S</strong>.
+                     We've bridged Gemini's neural core with Google Search in real-time.
                   </p>
                   
                   <div className="p-6 rounded-2xl bg-blue-500/5 border border-blue-500/10 mb-8">
@@ -520,7 +688,7 @@ export const LandingPage = () => {
                         <span className="text-blue-400 font-bold text-sm">Google Search Grounding</span>
                      </div>
                      <p className="text-sm text-white/70">
-                        "Detectando picos de interés en 'SaaS B2B' en la última semana..."
+                        "Detecting trend spikes in 'B2B SaaS' over the last 7 days..."
                      </p>
                   </div>
                </div>
@@ -563,13 +731,13 @@ export const LandingPage = () => {
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
           <Reveal>
             <div className="lg:sticky lg:top-40">
-              <div className="mb-4 text-neon font-mono text-xs uppercase tracking-widest">Arquitectura</div>
+              <div className="mb-4 text-neon font-mono text-xs uppercase tracking-widest">Architecture</div>
               <h2 className="text-4xl md:text-6xl font-semibold text-white mb-8 tracking-tight">
                 The Void Engine. <br/>
-                <span className="text-white/50">Potencia Bruta.</span>
+                <span className="text-white/50">Mission-Critical Power.</span>
               </h2>
               <p className="text-lg text-white/60 leading-relaxed mb-8">
-                Construido sobre una arquitectura resiliente y estética. Combina la velocidad de <strong className="text-white">React + Vite</strong> con la potencia de <strong className="text-white">Cascade Intelligence</strong> (Claude + Gemini 2.5).
+                Built on a resilient and aesthetic foundation. Fusing the speed of <strong className="text-white">React + Vite</strong> with the raw intelligence of <strong className="text-white">Cascade Intelligence</strong> (Claude 3.5 + Gemini 2.0). 
               </p>
               <ul className="space-y-6">
                 <li className="flex items-start gap-4">
@@ -578,7 +746,7 @@ export const LandingPage = () => {
                   </div>
                   <div>
                     <h4 className="text-white font-bold mb-1">Chain-of-Thought Reasoning</h4>
-                    <p className="text-sm text-white/50">La IA sigue un protocolo estricto: Evalúa contexto, valida dolor, cruza soluciones y calcula scores.</p>
+                    <p className="text-sm text-white/50">The AI follows a strict cognitive protocol: Evaluate context, validate pain points, cross-reference solutions, and calculate viability scores.</p>
                   </div>
                 </li>
                 <li className="flex items-start gap-4">
@@ -586,8 +754,8 @@ export const LandingPage = () => {
                     <Database size={20} className="text-blue-400" />
                   </div>
                   <div>
-                    <h4 className="text-white font-bold mb-1">Resiliencia "Nuclear"</h4>
-                    <p className="text-sm text-white/50">Sistema híbrido Firestore + LocalStorage. Tus datos persisten incluso sin conexión.</p>
+                    <h4 className="text-white font-bold mb-1">Industrial-Grade Resilience</h4>
+                    <p className="text-sm text-white/50">Hybrid Firestore + LocalStorage system. Your data persists even in zero-connectivity environments.</p>
                   </div>
                 </li>
               </ul>
@@ -611,13 +779,13 @@ export const LandingPage = () => {
                     <div className="w-3 h-3 rounded-full bg-green-500"></div>
                     <span className="ml-2 text-white/40">valid.ai — protocol</span>
                  </div>
-                 <div className="text-green-400 mb-2">// Protocolo de Validación Iniciado</div>
+                 <div className="text-green-400 mb-2">// Validation Protocol Initiated</div>
                  <div className="text-white/60 space-y-1">
-                    <p><span className="text-neon">{">"}</span> Cargando contexto: Experto vs Novato...</p>
-                    <p><span className="text-neon">{">"}</span> Buscando evidencia de dolor real...</p>
-                    <p><span className="text-neon">{">"}</span> <span className="text-white">DETECTADO:</span> "Es urgente, pierdo dinero cada día."</p>
-                    <p><span className="text-neon">{">"}</span> Asignando peso: Intensidad (25%) → <span className="text-neon">ALTA</span></p>
-                    <p><span className="text-neon">{">"}</span> Generando veredicto...</p>
+                    <p><span className="text-neon">{">"}</span> Loading context: Expert vs Novice...</p>
+                    <p><span className="text-neon">{">"}</span> Scanning for raw pain evidence...</p>
+                    <p><span className="text-neon">{">"}</span> <span className="text-white">DETECTED:</span> "It's urgent, I'm losing money every day."</p>
+                    <p><span className="text-neon">{">"}</span> Assigning weight: Intensity (25%) → <span className="text-neon">HIGH</span></p>
+                    <p><span className="text-neon">{">"}</span> Generating verdict...</p>
                  </div>
               </div>
             </GlassCard>
@@ -650,13 +818,13 @@ export const LandingPage = () => {
           
           <Reveal>
             <div>
-              <div className="mb-4 text-purple-400 font-mono text-xs uppercase tracking-widest">Estética</div>
+              <div className="mb-4 text-purple-400 font-mono text-xs uppercase tracking-widest">Aesthetics</div>
               <h2 className="text-4xl md:text-6xl font-semibold text-white mb-8 tracking-tight">
                 Void UI. <br/>
-                <span className="text-white/50">Diseño que respira.</span>
+                <span className="text-white/50">Design that breathes.</span>
               </h2>
               <p className="text-lg text-white/60 leading-relaxed mb-8">
-                Olvida las hojas de cálculo. Olvida los formularios aburridos. Hemos creado una interfaz que se siente viva.
+                Forget boring spreadsheets. Forget stale forms. We've built an interface that feels alive and reactive.
               </p>
               <ul className="space-y-6">
                 <li className="flex items-start gap-4">
@@ -664,8 +832,8 @@ export const LandingPage = () => {
                     <Eye size={20} className="text-purple-400" />
                   </div>
                   <div>
-                    <h4 className="text-white font-bold mb-1">Inmersión Total</h4>
-                    <p className="text-sm text-white/50">Fondos oscuros profundos que eliminan distracciones y ponen el foco en tus datos.</p>
+                    <h4 className="text-white font-bold mb-1">Total Immersion</h4>
+                    <p className="text-sm text-white/50">Deep dark modes that eliminate noise, keeping the absolute focus on your strategic data.</p>
                   </div>
                 </li>
                 <li className="flex items-start gap-4">
@@ -673,8 +841,8 @@ export const LandingPage = () => {
                     <Layers size={20} className="text-blue-400" />
                   </div>
                   <div>
-                    <h4 className="text-white font-bold mb-1">Glassmorphism Dinámico</h4>
-                    <p className="text-sm text-white/50">Paneles de vidrio esmerilado que flotan, creando jerarquía visual natural.</p>
+                    <h4 className="text-white font-bold mb-1">Dynamic Glassmorphism</h4>
+                    <p className="text-sm text-white/50">Frosted glass panels that float over the workspace, creating a natural visual hierarchy.</p>
                   </div>
                 </li>
               </ul>
@@ -688,13 +856,13 @@ export const LandingPage = () => {
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
           <Reveal>
             <div>
-              <div className="mb-4 text-yellow-400 font-mono text-xs uppercase tracking-widest">Interactividad</div>
+              <div className="mb-4 text-yellow-400 font-mono text-xs uppercase tracking-widest">Interactivity</div>
               <h2 className="text-4xl md:text-6xl font-semibold text-white mb-8 tracking-tight">
                 Smart Widgets. <br/>
-                <span className="text-white/50">Datos que se sienten.</span>
+                <span className="text-white/50">Data you can feel.</span>
               </h2>
               <p className="text-lg text-white/60 leading-relaxed mb-8">
-                La recolección de datos no tiene por qué ser aburrida. Hemos reinventado los inputs.
+                Data collection doesn't have to be a chore. We've reinvented standard inputs for high-stakes research.
               </p>
               <ul className="space-y-6">
                 <li className="flex items-start gap-4">
@@ -702,8 +870,8 @@ export const LandingPage = () => {
                     <Sliders size={20} className="text-yellow-400" />
                   </div>
                   <div>
-                    <h4 className="text-white font-bold mb-1">Gauge de Intensidad</h4>
-                    <p className="text-sm text-white/50">No marques una casilla. Desliza para mostrar cuánto duele el problema.</p>
+                    <h4 className="text-white font-bold mb-1">Intensity Gauge</h4>
+                    <p className="text-sm text-white/50">Move the gauge to indicate real pain. Don't just check a box; indicate severity.</p>
                   </div>
                 </li>
                 <li className="flex items-start gap-4">
@@ -711,8 +879,8 @@ export const LandingPage = () => {
                     <DollarSign size={20} className="text-orange-400" />
                   </div>
                   <div>
-                    <h4 className="text-white font-bold mb-1">Selectores Financieros</h4>
-                    <p className="text-sm text-white/50">Rangos dinámicos que se adaptan a la realidad económica del usuario.</p>
+                    <h4 className="text-white font-bold mb-1">Financial Selectors</h4>
+                    <p className="text-sm text-white/50">Dynamic ranges that adapt to the user's economic reality in real-time.</p>
                   </div>
                 </li>
               </ul>
@@ -722,11 +890,11 @@ export const LandingPage = () => {
           <Reveal delay={0.2}>
             <GlassCard className="p-8" glow>
               {/* Interactive Demo */}
-              <div className="space-y-8">
+                  <div className="space-y-8">
                 <div>
                   <div className="flex justify-between text-sm mb-3">
-                    <span className="text-white/60">¿Qué tan urgente es el problema?</span>
-                    <span className="text-neon font-bold">Crítico</span>
+                    <span className="text-white/60">How urgent is this problem?</span>
+                    <span className="text-neon font-bold">Critical</span>
                   </div>
                   <div className="h-3 bg-white/10 rounded-full overflow-hidden">
                     <div className="h-full w-[85%] bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 rounded-full"></div>
@@ -735,11 +903,11 @@ export const LandingPage = () => {
                 
                 <div>
                   <div className="flex justify-between text-sm mb-3">
-                    <span className="text-white/60">Disposición a pagar</span>
-                    <span className="text-neon font-bold">$50-100/mes</span>
+                    <span className="text-white/60">Willingness to pay</span>
+                    <span className="text-neon font-bold">$100+/month</span>
                   </div>
                   <div className="flex gap-2">
-                    {['$0', '$10', '$50', '$100', '$500+'].map((val, i) => (
+                    {['$0', '$10', '$50', '$100', '$1000+'].map((val, i) => (
                       <div key={i} className={`flex-1 py-2 rounded-xl text-center text-xs font-bold ${i === 2 || i === 3 ? 'bg-neon/20 text-neon border border-neon/30' : 'bg-white/5 text-white/40'}`}>
                         {val}
                       </div>
@@ -749,8 +917,8 @@ export const LandingPage = () => {
                 
                 <div className="pt-6 border-t border-white/10">
                   <div className="text-center">
-                    <div className="text-white/40 text-xs uppercase tracking-widest mb-2">Señal Detectada</div>
-                    <div className="text-3xl font-bold text-neon">ALTA DEMANDA</div>
+                    <div className="text-white/40 text-xs uppercase tracking-widest mb-2">Signal Detected</div>
+                    <div className="text-3xl font-bold text-neon">HIGH DEMAND</div>
                   </div>
                 </div>
               </div>
@@ -770,14 +938,14 @@ export const LandingPage = () => {
                   <div className="w-10 h-10 rounded-xl bg-neon/20 flex items-center justify-center">
                     <Brain className="text-neon" size={20} />
                   </div>
-                  <div className="text-white font-semibold">Gemini 2.0 Flash — Analizando</div>
+                  <div className="text-white font-semibold">Gemini 2.0 Flash — Analyzing</div>
                 </div>
                 
                 {[
-                  { step: 1, text: 'Analizando contexto del entrevistado...', done: true },
-                  { step: 2, text: 'Buscando contradicciones en respuestas...', done: true },
-                  { step: 3, text: 'Detectando emociones ocultas en el texto...', done: true },
-                  { step: 4, text: 'Calculando probabilidad de éxito...', done: false }
+                  { step: 1, text: 'Analyzing interviewee context...', done: true },
+                  { step: 2, text: 'Searching for contradictions in responses...', done: true },
+                  { step: 3, text: 'Detecting hidden emotions in text analysis...', done: true },
+                  { step: 4, text: 'Calculating success probability...', done: false }
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-4 p-4 rounded-xl bg-white/5">
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center ${item.done ? 'bg-neon/20' : 'bg-white/10'}`}>
@@ -796,13 +964,13 @@ export const LandingPage = () => {
           
           <Reveal>
             <div>
-              <div className="mb-4 text-cyan-400 font-mono text-xs uppercase tracking-widest">Inteligencia</div>
+              <div className="mb-4 text-cyan-400 font-mono text-xs uppercase tracking-widest">Intelligence</div>
               <h2 className="text-4xl md:text-6xl font-semibold text-white mb-8 tracking-tight">
                 Chain-of-Thought. <br/>
-                <span className="text-white/50">No solo piensa. Razona.</span>
+                <span className="text-white/50">It doesn't just think. It reasons.</span>
               </h2>
               <p className="text-lg text-white/60 leading-relaxed mb-8">
-                Bajo el capó, Valid.AI corre con <strong className="text-white">Cascade Intelligence</strong> — Claude Sonnet 4.5 para razonamiento profundo + Gemini 2.5 para búsqueda web en tiempo real. Dos cerebros, una misión.
+                Under the hood, Valid.AI runs on <strong className="text-white">Cascade Intelligence</strong> — Claude 3.5 Sonnet for deep tactical reasoning + Gemini 2.0 per real-time web execution. Two minds, one mission. 
               </p>
               <ul className="space-y-6">
                 <li className="flex items-start gap-4">
@@ -810,8 +978,8 @@ export const LandingPage = () => {
                     <Brain size={20} className="text-cyan-400" />
                   </div>
                   <div>
-                    <h4 className="text-white font-bold mb-1">Cadena de Pensamiento</h4>
-                    <p className="text-sm text-white/50">La IA no "resume". Analiza, busca contradicciones y detecta emociones ocultas.</p>
+                    <h4 className="text-white font-bold mb-1">Reasoning Protocols</h4>
+                    <p className="text-sm text-white/50">The AI doesn't "summarize". It audits, finds contradictions, and detects hidden emotional conviction.</p>
                   </div>
                 </li>
                 <li className="flex items-start gap-4">
@@ -819,8 +987,8 @@ export const LandingPage = () => {
                     <Activity size={20} className="text-pink-400" />
                   </div>
                   <div>
-                    <h4 className="text-white font-bold mb-1">Análisis Probabilístico</h4>
-                    <p className="text-sm text-white/50">Calcula la probabilidad de éxito basándose en patrones de miles de startups.</p>
+                    <h4 className="text-white font-bold mb-1">Probabilistic Analysis</h4>
+                    <p className="text-sm text-white/50">Calculates success probability based on patterns from thousands of VC-backed startups.</p>
                   </div>
                 </li>
               </ul>
@@ -834,8 +1002,8 @@ export const LandingPage = () => {
         <div className="max-w-5xl mx-auto">
            <div className="text-center mb-24">
               <Reveal>
-                 <h2 className="text-5xl md:text-7xl font-semibold text-white mb-6 tracking-tight">De Idea a Plan.</h2>
-                 <p className="text-xl text-white/50">El viaje de la incertidumbre a la claridad.</p>
+                 <h2 className="text-5xl md:text-7xl font-semibold text-white mb-6 tracking-tight">From Idea to Plan.</h2>
+                 <p className="text-xl text-white/50">The journey from uncertainty to surgical clarity.</p>
               </Reveal>
            </div>
            
@@ -848,26 +1016,26 @@ export const LandingPage = () => {
                  {[
                     { 
                       step: "01", 
-                      title: "La Semilla", 
-                      desc: "Todo comienza con un pensamiento. Escribe tu idea en lenguaje natural, sin formalismos. La IA entiende tu visión.",
+                      title: "The Seed", 
+                      desc: "It all starts with a single thought. Write your idea in natural language, no formalisms needed. The AI aligns with your vision.",
                       icon: Lightbulb,
-                      example: '"Quiero una app que mida el estrés con el reloj..."',
+                      example: '"I want a wearable app that measures chronic stress..."',
                       typingEffect: true
                     },
                     { 
                       step: "02", 
-                      title: "El Interrogatorio", 
-                      desc: "La IA actúa como un consultor senior. No asume nada. Te hace preguntas dinámicas para desafiar tus suposiciones.",
+                      title: "Strategic Interrogation", 
+                      desc: "The AI acts as a senior consultant. It assumes nothing. It asks dynamic questions to challenge your core assumptions.",
                       icon: MessageSquare,
-                      example: '"¿B2B o B2C? ¿Qué hardware usarían? ¿Por qué ahora?"',
+                      example: '"B2B or B2C? What hardware constraint exists? Why now?"',
                       typingEffect: true
                     },
                     { 
                       step: "03", 
-                      title: "La Génesis", 
-                      desc: "En segundos, obtienes un Plan de Investigación completo: Objetivos claros, Personas y un Guion de Entrevista sin sesgos.",
+                      title: "The Genesis", 
+                      desc: "In seconds, you receive a complete Research Plan: Clear objectives, Personas, and a bias-free Interview Script.",
                       icon: FileText,
-                      example: '✅ Plan de Investigación generado',
+                      example: '✅ Research Plan generated',
                       typingEffect: false
                     }
                  ].map((item, i) => (
@@ -899,7 +1067,7 @@ export const LandingPage = () => {
                                    <div className="w-2 h-2 bg-neon rounded-full animate-pulse"></div>
                                 </div>
                                 <div className="text-xs text-neon font-mono uppercase tracking-widest mb-3 flex items-center gap-2">
-                                   <Cpu size={12} /> {item.typingEffect ? 'Input en tiempo real' : 'Output generado'}
+                                   <Cpu size={12} /> {item.typingEffect ? 'Real-time input simulation' : 'Automated output'}
                                 </div>
                                 <div className="text-white font-medium text-lg">
                                    {item.typingEffect ? (
@@ -940,21 +1108,21 @@ export const LandingPage = () => {
           <Reveal>
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-6xl font-semibold text-white mb-4 tracking-tight">
-                Galería de Plantillas
+                Template Gallery
               </h2>
-              <p className="text-xl text-white/50">No empieces desde cero. Empieza desde la cima.</p>
-              <p className="text-sm text-neon/60 mt-4 font-mono">Metodología Y Combinator + Lean Startup incluida</p>
+              <p className="text-xl text-white/50">Don't start from scratch. Start from the top.</p>
+              <p className="text-sm text-neon/60 mt-4 font-mono">Y Combinator + Lean Startup methodologies included</p>
             </div>
           </Reveal>
           
           <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
             {[
-              { name: 'SaaS B2B', icon: Server, desc: 'Software empresarial', questions: 24, focus: 'Enterprise' },
-              { name: 'E-commerce', icon: ShoppingCart, desc: 'Tienda online', questions: 18, focus: 'Retail' },
-              { name: 'HealthTech', icon: Heart, desc: 'Salud y bienestar', questions: 22, focus: 'Healthcare' },
-              { name: 'FinTech', icon: Wallet, desc: 'Finanzas digitales', questions: 26, focus: 'Finance' },
-              { name: 'EdTech', icon: GraduationCap, desc: 'Educación', questions: 20, focus: 'Education' },
-              { name: 'Marketplace', icon: Store, desc: 'Plataforma multi-vendor', questions: 28, focus: 'Platform' }
+              { name: 'SaaS B2B', icon: Server, desc: 'Enterprise software', questions: 24, focus: 'Enterprise' },
+              { name: 'E-commerce', icon: ShoppingCart, desc: 'Online store', questions: 18, focus: 'Retail' },
+              { name: 'HealthTech', icon: Heart, desc: 'Health & wellness', questions: 22, focus: 'Healthcare' },
+              { name: 'FinTech', icon: Wallet, desc: 'Digital finance', questions: 26, focus: 'Finance' },
+              { name: 'EdTech', icon: GraduationCap, desc: 'Education', questions: 20, focus: 'Education' },
+              { name: 'Marketplace', icon: Store, desc: 'Multi-vendor platform', questions: 28, focus: 'Platform' }
             ].map((template, i) => (
               <Reveal key={i} delay={i * 0.08}>
                 <GlassCard className="p-6 h-48 flex flex-col justify-between cursor-pointer hover:border-neon/50 transition-all group hover:scale-[1.03] relative overflow-hidden">
@@ -968,7 +1136,7 @@ export const LandingPage = () => {
                     </div>
                     {/* Question Count Badge */}
                     <div className="bg-white/5 group-hover:bg-neon/10 px-2 py-1 rounded-full text-[10px] font-mono text-white/40 group-hover:text-neon transition-all">
-                      {template.questions} preguntas
+                      {template.questions} questions
                     </div>
                   </div>
                   
@@ -996,20 +1164,20 @@ export const LandingPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
               <div>
                 <h2 className="text-4xl md:text-5xl font-semibold text-white mb-6 tracking-tight">
-                  Tus archivos, con cerebro.
+                  Your files, with a brain.
                 </h2>
                 <p className="text-lg text-white/60 mb-8 leading-relaxed">
-                  ¿Tienes un PDF con tu idea? ¿Un Word con notas? Arrastralo a Valid.AI. El sistema lo lee, extrae conceptos clave y genera un plan de validación instantáneo.
+                  Have a PDF of your idea? A Word doc with notes? Drag it into Valid.AI. The system reads it, extracts core concepts, and generates an instant validation plan.
                 </p>
                 <ul className="space-y-4">
                   <li className="flex items-center gap-3 text-white/80">
-                    <CheckCircle size={18} className="text-neon" /> Análisis semántico profundo
+                    <CheckCircle size={18} className="text-neon" /> Deep semantic analysis
                   </li>
                   <li className="flex items-center gap-3 text-white/80">
-                    <CheckCircle size={18} className="text-neon" /> Extracción de entidades
+                    <CheckCircle size={18} className="text-neon" /> Entity extraction
                   </li>
                   <li className="flex items-center gap-3 text-white/80">
-                    <CheckCircle size={18} className="text-neon" /> Generación automática de preguntas
+                    <CheckCircle size={18} className="text-neon" /> Automatic question generation
                   </li>
                 </ul>
               </div>
@@ -1019,7 +1187,7 @@ export const LandingPage = () => {
                   <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-white/10 flex items-center justify-center group-hover:bg-neon/20 transition-colors">
                     <Upload size={28} className="text-white/60 group-hover:text-neon transition-colors" />
                   </div>
-                  <h4 className="text-white font-semibold mb-2">Suelta tu archivo aquí</h4>
+                  <h4 className="text-white font-semibold mb-2">Drop your file here</h4>
                   <p className="text-sm text-white/40 mb-6">PDF, DOCX, TXT</p>
                   
                   {/* Simulated File */}
@@ -1028,8 +1196,8 @@ export const LandingPage = () => {
                       <FileText size={20} className="text-red-400" />
                     </div>
                     <div className="text-left flex-1">
-                      <div className="text-white text-sm font-medium">mi_idea_genial.pdf</div>
-                      <div className="text-white/40 text-xs">Analizando...</div>
+                      <div className="text-white text-sm font-medium">my_brilliant_idea.pdf</div>
+                      <div className="text-white/40 text-xs">Analyzing...</div>
                     </div>
                     <div className="w-6 h-6 border-2 border-neon border-t-transparent rounded-full animate-spin"></div>
                   </div>
@@ -1045,9 +1213,9 @@ export const LandingPage = () => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
             <Reveal>
-              <h2 className="text-4xl md:text-6xl font-semibold text-white mb-6 tracking-tight">Las 6 Dimensiones de la Verdad.</h2>
+              <h2 className="text-4xl md:text-6xl font-semibold text-white mb-6 tracking-tight">The 6 Dimensions of Truth.</h2>
               <p className="text-xl text-white/50 max-w-2xl mx-auto">
-                No adivinamos. Medimos.
+                We don't guess. We measure.
               </p>
             </Reveal>
           </div>
@@ -1059,7 +1227,7 @@ export const LandingPage = () => {
                 {/* Pulsing CTA */}
                 <div className="mt-6 flex items-center justify-center gap-3 animate-pulse">
                   <div className="w-3 h-3 bg-neon rounded-full shadow-[0_0_15px_rgba(0,255,148,0.8)]"></div>
-                  <span className="text-neon font-bold text-lg tracking-wide">Interactúa con el simulador</span>
+                  <span className="text-neon font-bold text-lg tracking-wide">Interact with the simulator</span>
                   <div className="w-3 h-3 bg-neon rounded-full shadow-[0_0_15px_rgba(0,255,148,0.8)]"></div>
                 </div>
               </div>
@@ -1069,22 +1237,22 @@ export const LandingPage = () => {
                 <GlassCard className="p-6 flex items-center gap-4">
                   <div className="w-4 h-4 rounded-full bg-neon"></div>
                   <div>
-                    <div className="text-white font-bold">GO (Construir)</div>
-                    <div className="text-sm text-white/40">Score {">"} 70 + Alta Disposición a Pagar.</div>
+                    <div className="text-white font-bold">GO (Build)</div>
+                    <div className="text-sm text-white/40">Score {">"} 70 + High Willingness to Pay.</div>
                   </div>
                 </GlassCard>
                 <GlassCard className="p-6 flex items-center gap-4">
                   <div className="w-4 h-4 rounded-full bg-yellow-400"></div>
                   <div>
-                    <div className="text-white font-bold">PIVOT (Ajustar)</div>
-                    <div className="text-sm text-white/40">Score {">"} 40. Problema real, solución incorrecta.</div>
+                    <div className="text-white font-bold">PIVOT (Adjust)</div>
+                    <div className="text-sm text-white/40">Score {">"} 40. Real problem, incorrect solution.</div>
                   </div>
                 </GlassCard>
                 <GlassCard className="p-6 flex items-center gap-4">
                   <div className="w-4 h-4 rounded-full bg-red-500"></div>
                   <div>
-                    <div className="text-white font-bold">NO GO (Descartar)</div>
-                    <div className="text-sm text-white/40">Score {"<"} 40. No hay mercado.</div>
+                    <div className="text-white font-bold">NO GO (Discard)</div>
+                    <div className="text-sm text-white/40">Score {"<"} 40. No market fit detected.</div>
                   </div>
                 </GlassCard>
               </div>
@@ -1104,10 +1272,10 @@ export const LandingPage = () => {
               </div>
               <h2 className="text-4xl md:text-6xl font-semibold text-white mb-8 tracking-tight">
                 Holo-Verify™ <br/>
-                <span className="text-white/50">Tu credencial forense.</span>
+                <span className="text-white/50">Your forensic credential.</span>
               </h2>
               <p className="text-lg text-white/60 leading-relaxed mb-8">
-                Cualquiera puede hacer un PowerPoint. Solo VALID.AI te da una <strong className="text-white">credencial verificable</strong> que demuestra tracción real ante inversores.
+                Anyone can build a PowerPoint. Only VALID.AI provides a <strong className="text-white">verifiable credential</strong> that proves real traction to investors.
               </p>
               <ul className="space-y-6">
                 <li className="flex items-start gap-4">
@@ -1116,7 +1284,7 @@ export const LandingPage = () => {
                   </div>
                   <div>
                     <h4 className="text-white font-bold mb-1">YC Readiness Score™</h4>
-                    <p className="text-sm text-white/50">Auditoría con severidad de Partner Y Combinator. Volumen, consistencia y performance.</p>
+                    <p className="text-sm text-white/50">Y Combinator Partner-level severity audit. Volume, consistency, and raw performance metrics.</p>
                   </div>
                 </li>
                 <li className="flex items-start gap-4">
@@ -1124,8 +1292,8 @@ export const LandingPage = () => {
                     <Lock size={20} className="text-neon" />
                   </div>
                   <div>
-                    <h4 className="text-white font-bold mb-1">Certificado Vivo</h4>
-                    <p className="text-sm text-white/50">Enlace cinemático y encriptado: valid.ai/verify/... Envíaselo a inversores.</p>
+                    <h4 className="text-white font-bold mb-1">Live Certificate</h4>
+                    <p className="text-sm text-white/50">Encrypted cinematic link: valid.ai/verify/... Share it directly with your VC network.</p>
                   </div>
                 </li>
               </ul>
@@ -1149,7 +1317,7 @@ export const LandingPage = () => {
                 <div className="text-sm text-neon font-mono uppercase tracking-widest mb-4">Viability Score</div>
                 <div className="inline-flex items-center gap-2 bg-neon/10 px-4 py-2 rounded-full border border-neon/30">
                   <div className="w-2 h-2 bg-neon rounded-full animate-pulse"></div>
-                  <span className="text-xs font-bold text-neon">VERIFICADO</span>
+                  <span className="text-xs font-bold text-neon">VERIFIED</span>
                 </div>
               </div>
             </GlassCard>
@@ -1164,9 +1332,9 @@ export const LandingPage = () => {
             <GlassCard className="h-[400px] relative overflow-hidden p-8" glow>
               {/* Token Usage Gauge */}
               <div className="text-center mb-8">
-                <div className="text-xs font-mono text-white/40 uppercase tracking-widest mb-2">Uso de Tokens</div>
+                <div className="text-xs font-mono text-white/40 uppercase tracking-widest mb-2">Token Usage</div>
                 <div className="text-5xl font-black text-white">2,847</div>
-                <div className="text-sm text-neon">/ 10,000 este mes</div>
+                <div className="text-sm text-neon">/ 10,000 this month</div>
               </div>
               
               {/* Gauge Visual */}
@@ -1177,12 +1345,12 @@ export const LandingPage = () => {
               {/* Mode Toggles */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 bg-neon/10 border border-neon/30 rounded-xl text-center">
-                  <div className="text-neon font-bold text-sm mb-1">Modo Eco</div>
-                  <div className="text-[10px] text-white/40">Análisis rápido</div>
+                  <div className="text-neon font-bold text-sm mb-1">Eco Mode</div>
+                  <div className="text-[10px] text-white/40">Fast analysis</div>
                 </div>
                 <div className="p-4 bg-white/5 border border-white/10 rounded-xl text-center">
                   <div className="text-white/60 font-bold text-sm mb-1">Deep Research</div>
-                  <div className="text-[10px] text-white/40">Con búsqueda web</div>
+                  <div className="text-[10px] text-white/40">With web search</div>
                 </div>
               </div>
             </GlassCard>
@@ -1190,13 +1358,13 @@ export const LandingPage = () => {
           
           <Reveal>
             <div>
-              <div className="mb-4 text-emerald-400 font-mono text-xs uppercase tracking-widest">Optimización</div>
+              <div className="mb-4 text-emerald-400 font-mono text-xs uppercase tracking-widest">Optimization</div>
               <h2 className="text-4xl md:text-6xl font-semibold text-white mb-8 tracking-tight">
                 Smart Budgets. <br/>
-                <span className="text-white/50">Inteligencia sin desperdicio.</span>
+                <span className="text-white/50">Intelligence without waste.</span>
               </h2>
               <p className="text-lg text-white/60 leading-relaxed mb-8">
-                Sabemos que cada dólar cuenta en pre-seed. Hemos diseñado un sistema de <strong className="text-white">Gestión de Recursos Líquida</strong> que maximiza tu ROI.
+                Every dollar counts in pre-seed. We've architected a <strong className="text-white">Liquid Resource Management</strong> system that maximizes your ROI.
               </p>
               <ul className="space-y-6">
                 <li className="flex items-start gap-4">
@@ -1204,8 +1372,8 @@ export const LandingPage = () => {
                     <Zap size={20} className="text-emerald-400" />
                   </div>
                   <div>
-                    <h4 className="text-white font-bold mb-1">Modo Eco</h4>
-                    <p className="text-sm text-white/50">Análisis estructurales sin consumo pesado. Validaciones rápidas con reglas predefinidas.</p>
+                    <h4 className="text-white font-bold mb-1">Eco Mode</h4>
+                    <p className="text-sm text-white/50">Structural analysis without heavy consumption. Rapid prototyping with pre-defined heuristics.</p>
                   </div>
                 </li>
                 <li className="flex items-start gap-4">
@@ -1214,7 +1382,7 @@ export const LandingPage = () => {
                   </div>
                   <div>
                     <h4 className="text-white font-bold mb-1">Deep Research on Demand</h4>
-                    <p className="text-sm text-white/50">Activa búsqueda web y análisis profundo solo cuando lo necesitas.</p>
+                    <p className="text-sm text-white/50">Activate deep web crawling and multi-factor analysis only when the stakes are high.</p>
                   </div>
                 </li>
               </ul>
@@ -1227,25 +1395,25 @@ export const LandingPage = () => {
       <section className="py-32 px-6 relative z-10">
          <div className="max-w-4xl mx-auto text-center mb-16">
             <Reveal>
-               <h2 className="text-4xl md:text-5xl font-semibold text-white mb-6">Probado por Maestros.</h2>
+               <h2 className="text-4xl md:text-5xl font-semibold text-white mb-6">Battle-Tested by Masters.</h2>
                <p className="text-lg text-white/50">
-                  Dos mentes brillantes están llevando nuestro algoritmo al límite. <br/>
-                  <span className="text-neon/80 font-mono text-sm uppercase tracking-widest block mt-2">Revelación Inminente</span>
+                  Two brilliant minds are pushing our algorithms to the absolute limit. <br/>
+                  <span className="text-neon/80 font-mono text-sm uppercase tracking-widest block mt-2">Imminent Reveal</span>
                </p>
             </Reveal>
          </div>
 
          <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
              {[
-               { title: "El Arquitecto de Unicornios", role: "Identidad Clasificada", desc: "Sometiendo el sistema a estándares de inversión de clase mundial." },
-               { title: "La Profeta de Datos", role: "Identidad Clasificada", desc: "Auditando la precisión científica de nuestros algoritmos de predicción." }
+              { title: "The Unicorn Architect", role: "Classified Identity", desc: "Subjecting the system to world-class investment standards." },
+              { title: "The Data Prophet", role: "Classified Identity", desc: "Auditing the scientific precision of our predictive algorithms." }
             ].map((profile, i) => (
                <Reveal key={i} delay={i * 0.2}>
                   <div className="relative group cursor-help">
                      <div className="absolute inset-0 bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 z-20 flex flex-col items-center justify-center p-8 text-center transition-opacity duration-500 group-hover:opacity-10">
                         <LockKeyhole size={48} className="text-white/20 mb-4" />
-                        <h3 className="text-2xl font-bold text-white mb-1 blur-[6px] select-none">Nombre Oculto</h3>
-                        <p className="text-white/40 blur-[4px]">Identidad Protegida</p>
+                        <h3 className="text-2xl font-bold text-white mb-1 blur-[6px] select-none">Classified Name</h3>
+                        <p className="text-white/40 blur-[4px]">Protected Identity</p>
                      </div>
                      <GlassCard className="p-8 h-64 flex flex-col items-center justify-center text-center bg-black/40 grayscale group-hover:grayscale-0 transition-all duration-500">
                          <User size={48} className="text-white/20 mb-4" />
@@ -1264,13 +1432,13 @@ export const LandingPage = () => {
          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
             <Reveal>
                <div>
-                  <div className="mb-4 text-blue-400 font-mono text-xs uppercase tracking-widest">Documentación</div>
+                  <div className="mb-4 text-blue-400 font-mono text-xs uppercase tracking-widest">Documentation</div>
                   <h2 className="text-4xl md:text-6xl font-semibold text-white mb-8 tracking-tight">
                      Business Lab. <br/>
-                     <span className="text-white/50">Tu laboratorio estratégico.</span>
+                     <span className="text-white/50">Your strategic laboratory.</span>
                   </h2>
                   <p className="text-lg text-white/60 leading-relaxed mb-8">
-                     Genera reportes profesionales listos para inversores con un solo clic. Desde Executive Summaries hasta Modelos Financieros.
+                     Generate investor-ready reports with a single click. From Executive Summaries to full Financial Models.
                   </p>
                   <div className="grid grid-cols-2 gap-4">
                      {[
@@ -1290,12 +1458,12 @@ export const LandingPage = () => {
                <GlassCard className="h-[400px] relative overflow-hidden flex items-center justify-center p-8 text-center group" glow>
                    <div className="absolute inset-0 bg-blue-600/5 group-hover:bg-blue-600/10 transition-colors"></div>
                    <FileText size={64} className="text-blue-400 mb-6 group-hover:scale-110 transition-transform duration-500" />
-                   <h3 className="text-2xl font-bold text-white mb-2">Reporte Inversor Serie A</h3>
+                   <h3 className="text-2xl font-bold text-white mb-2">Series A Investor Report</h3>
                    <p className="text-white/40 text-sm mb-8 max-w-xs mx-auto">
-                      Formato institucional. HTML Premium o PDF optimizado para impresión.
+                      Institutional format. Premium HTML or Print-optimized PDF.
                    </p>
                    <button className="px-6 py-3 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30 hover:bg-blue-500 hover:text-black transition-all font-bold text-sm flex items-center gap-2 mx-auto">
-                      <FileUp size={16} /> Generar Reporte Demo
+                      <FileUp size={16} /> Generate Demo Report
                    </button>
                </GlassCard>
             </Reveal>
@@ -1318,21 +1486,21 @@ export const LandingPage = () => {
                      </div>
                      <div className="flex-1 p-6 space-y-4 overflow-hidden">
                         <div className="bg-white/5 rounded-2xl rounded-tl-none p-4 max-w-[85%]">
-                           <p className="text-white/80 text-sm">He analizado tus últimas 5 entrevistas. Hay una contradicción importante en el tema del precio.</p>
+                           <p className="text-white/80 text-sm">I've analyzed your last 5 interviews. There is a critical contradiction regarding pricing strategy.</p>
                         </div>
                         <div className="bg-neon/10 border border-neon/20 rounded-2xl rounded-tr-none p-4 max-w-[85%] ml-auto">
-                           <p className="text-white text-sm">¿Cuál es la contradicción?</p>
+                           <p className="text-white text-sm">What's the contradiction?</p>
                         </div>
                         <div className="bg-white/5 rounded-2xl rounded-tl-none p-4 max-w-[85%]">
                            <p className="text-white/80 text-sm">
-                              Los usuarios dicen que es "caro" ($50), pero actualmente gastan $200 en soluciones manuales ineficientes. <br/><br/>
-                              <span className="text-neon font-bold">Sugerencia:</span> Reframea tu propuesta de valor como "Ahorro de costos" en lugar de "Nuevo gasto".
+                              Users claim $50 is "expensive", yet they currently spend $200+ on inefficient manual workarounds. <br/><br/>
+                              <span className="text-neon font-bold">Suggestion:</span> Reframe your value prop as "Cost Savings" rather than "New Expense".
                            </p>
                         </div>
                      </div>
                      <div className="p-4 border-t border-white/10">
                         <div className="w-full h-10 bg-white/5 rounded-full border border-white/10 flex items-center px-4 text-white/30 text-sm">
-                           Escribe un mensaje...
+                           Type a message...
                         </div>
                      </div>
                   </div>
@@ -1341,13 +1509,13 @@ export const LandingPage = () => {
 
             <Reveal>
                <div>
-                  <div className="mb-4 text-neon font-mono text-xs uppercase tracking-widest">Asistente</div>
+                  <div className="mb-4 text-neon font-mono text-xs uppercase tracking-widest">Assistant</div>
                   <h2 className="text-4xl md:text-6xl font-semibold text-white mb-8 tracking-tight">
                      Smart Chat. <br/>
-                     <span className="text-white/50">Tu Co-Piloto.</span>
+                     <span className="text-white/50">Your Co-Pilot.</span>
                   </h2>
                   <p className="text-lg text-white/60 leading-relaxed mb-8">
-                     No chateas con un bot genérico. Chateas con un asistente que conoce <strong className="text-white">TODO</strong> sobre tu proyecto: tus métricas, tus entrevistas y tus documentos.
+                     You aren't chatting with a generic bot. You're chatting with an assistant that knows <strong className="text-white">EVERYTHING</strong> about your project: metrics, interviews, and documents.
                   </p>
                   <ul className="space-y-6">
                     <li className="flex items-start gap-4">
@@ -1355,8 +1523,8 @@ export const LandingPage = () => {
                         <Database size={20} className="text-neon" />
                       </div>
                       <div>
-                        <h4 className="text-white font-bold mb-1">Contexto Total</h4>
-                        <p className="text-sm text-white/50">Recuerda cada detalle de tu sesión de validación.</p>
+                        <h4 className="text-white font-bold mb-1">Total Context</h4>
+                        <p className="text-sm text-white/50">Recalls every nuance of your validation sessions.</p>
                       </div>
                     </li>
                     <li className="flex items-start gap-4">
@@ -1364,8 +1532,8 @@ export const LandingPage = () => {
                         <LayoutTemplate size={20} className="text-purple-400" />
                       </div>
                       <div>
-                        <h4 className="text-white font-bold mb-1">Tablas & Datos</h4>
-                        <p className="text-sm text-white/50">Pídele que genere una tabla comparativa de competidores y la renderizará en Markdown.</p>
+                        <h4 className="text-white font-bold mb-1">Tables & Data</h4>
+                        <p className="text-sm text-white/50">Ask it to generate competitor comparison tables or financial slices in Markdown instantly.</p>
                       </div>
                     </li>
                   </ul>
@@ -1378,22 +1546,22 @@ export const LandingPage = () => {
       <section className="py-20 px-6 bg-white/[0.02] border-y border-white/5 relative z-10">
          <div className="max-w-4xl mx-auto text-center">
             <Reveal>
-               <h2 className="text-4xl md:text-5xl font-semibold text-white mb-8">Tus Datos, Tu Control.</h2>
+               <h2 className="text-4xl md:text-5xl font-semibold text-white mb-8">Your Data, Your Control.</h2>
                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-neon/30 transition-all group">
                      <FileText size={32} className="text-white/40 group-hover:text-neon mb-4 mx-auto" />
                      <h3 className="text-white font-bold mb-2">JSON</h3>
-                     <p className="text-white/40 text-sm">Datos estructurados para desarrolladores.</p>
+                     <p className="text-white/40 text-sm">Structured data for developers.</p>
                   </div>
                   <div className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-blue-400/30 transition-all group">
                      <LayoutTemplate size={32} className="text-white/40 group-hover:text-blue-400 mb-4 mx-auto" />
                      <h3 className="text-white font-bold mb-2">HTML</h3>
-                     <p className="text-white/40 text-sm">Reportes visuales interactivos.</p>
+                     <p className="text-white/40 text-sm">Interactive visual reports.</p>
                   </div>
                   <div className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-purple-400/30 transition-all group">
                      <FileUp size={32} className="text-white/40 group-hover:text-purple-400 mb-4 mx-auto" />
                      <h3 className="text-white font-bold mb-2">PDF Ready</h3>
-                     <p className="text-white/40 text-sm">Optimizado para impresión y lectura.</p>
+                     <p className="text-white/40 text-sm">Optimized for print and reading.</p>
                   </div>
                </div>
             </Reveal>
@@ -1405,30 +1573,30 @@ export const LandingPage = () => {
          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
             <Reveal>
                <div>
-                  <div className="mb-4 text-emerald-400 font-mono text-xs uppercase tracking-widest">Inversión</div>
+                  <div className="mb-4 text-emerald-400 font-mono text-xs uppercase tracking-widest">Investment</div>
                   <h2 className="text-5xl md:text-7xl font-semibold text-white mb-8 tracking-tight">
-                     Inteligencia <br/>
-                     <span className="text-white/50">Democratizada.</span>
+                     Intelligence <br/>
+                     <span className="text-white/50">Democratized.</span>
                   </h2>
                   <p className="text-lg text-white/60 leading-relaxed mb-8">
-                     Las firmas de consultoría cobran millones. Nosotros no.
-                     Accede al poder de Validación Híbrida por menos de lo que cuesta una cena.
+                     Consulting firms charge millions. We don't.
+                     Access the power of Hybrid Validation for less than the cost of a team dinner.
                   </p>
                   <ul className="space-y-4">
                      <li className="flex items-center gap-3 text-white/80">
-                        <CheckCircle size={18} className="text-emerald-400" /> Auditorías Ilimitadas
+                        <CheckCircle size={18} className="text-emerald-400" /> Unlimited Audits
                      </li>
                      <li className="flex items-center gap-3 text-white/80">
-                        <CheckCircle size={18} className="text-emerald-400" /> Deep Research con Google Data
+                        <CheckCircle size={18} className="text-emerald-400" /> Deep Research with Live Search
                      </li>
                      <li className="flex items-center gap-3 text-white/80">
-                        <CheckCircle size={18} className="text-emerald-400" /> Voice Command & Entrevistas Híbridas
+                        <CheckCircle size={18} className="text-emerald-400" /> Voice Commands & Hybrid Interviews
                      </li>
                      <li className="flex items-center gap-3 text-white/80">
-                        <CheckCircle size={18} className="text-emerald-400" /> Reportes Mensuales de Tendencias
+                        <CheckCircle size={18} className="text-emerald-400" /> Monthly Trend Reports
                      </li>
                      <li className="flex items-center gap-3 text-white/80">
-                        <CheckCircle size={18} className="text-emerald-400" /> Certificación Holo-Verify™
+                        <CheckCircle size={18} className="text-emerald-400" /> Holo-Verify™ Certification
                      </li>
                   </ul>
                </div>
@@ -1444,17 +1612,17 @@ export const LandingPage = () => {
                          </div>
                       </div>
                       
-                      <div className="text-white/40 text-sm font-bold uppercase tracking-widest mb-2">Lanzamiento</div>
+                      <div className="text-white/40 text-sm font-bold uppercase tracking-widest mb-2">Launch Offer</div>
                       <div className="flex items-baseline justify-center gap-1 mb-8">
                          <span className="text-xl text-white/60">$</span>
                          <span className="text-8xl font-black text-white tracking-tighter group-hover:scale-110 transition-transform duration-500">19</span>
-                         <span className="text-xl text-white/60">/mes</span>
+                         <span className="text-xl text-white/60">/mo</span>
                       </div>
                       
-                      <div className="text-emerald-400 font-mono text-sm mb-8">APROX. $75.000 COP</div>
+                      <div className="text-emerald-400 font-mono text-sm mb-8">APPROX. $75.000 COP</div>
                       
                       <button onClick={handleLaunch} className="w-full py-4 bg-white text-black rounded-xl font-bold hover:scale-[1.02] transition-transform shadow-[0_0_30px_rgba(255,255,255,0.2)]">
-                         Empezar Ahora
+                         Get Started Now
                       </button>
                   </GlassCard>
                </div>
@@ -1492,19 +1660,19 @@ export const LandingPage = () => {
             {/* Pre-launch Badge */}
             <div className="flex justify-center mb-8">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neon/10 border border-neon/30">
-                <span className="text-xs font-bold text-neon uppercase">Pre-Lanzamiento</span>
-                <span className="text-xs text-white/60">Diciembre 2025</span>
+                <span className="text-xs font-bold text-neon uppercase">Pre-Launch Edition</span>
+                <span className="text-xs text-white/60">December 2025</span>
               </div>
             </div>
             
             {/* Title */}
             <h2 className="text-4xl md:text-6xl font-bold text-white text-center mb-6 tracking-tight leading-tight">
-              Acceso Exclusivo
+              Exclusive Access
             </h2>
             
             {/* Description */}
             <p className="text-center text-white/60 mb-10 text-lg leading-relaxed max-w-md mx-auto">
-              Sé el primero en validar con ciencia. Estamos seleccionando a las primeras empresas para probar Valid.AI y demostrar el ROI. Asegura tu lugar.
+              Be the first to validate with science. We are selecting the first cohorts to pilot Valid.AI and demonstrate measurable ROI. Secure your spot.
             </p>
             
             {/* Email Input */}
@@ -1512,7 +1680,7 @@ export const LandingPage = () => {
               <div className="relative">
                 <input 
                   type="email" 
-                  placeholder="Ingresa tu email o el de tu colega interesado"
+                  placeholder="Enter your email or a colleague's"
                   className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 px-6 text-white placeholder:text-white/30 focus:border-neon/50 focus:outline-none focus:ring-2 focus:ring-neon/20 transition-all text-center"
                 />
               </div>
@@ -1522,14 +1690,14 @@ export const LandingPage = () => {
                 onClick={() => setShowModal(true)}
                 className="w-full py-5 bg-white text-black rounded-2xl font-bold text-lg hover:scale-[1.02] transition-all duration-300 shadow-[0_0_40px_rgba(255,255,255,0.2)] flex items-center justify-center gap-3 group"
               >
-                Quiero Validar mi Idea
+                I want to Validate my Idea
                 <ArrowRight className="group-hover:translate-x-1 transition-transform" size={20} />
               </button>
             </div>
             
             {/* Trust Badge */}
             <p className="mt-8 text-center text-xs text-white/30 uppercase tracking-widest">
-              Sin tarjeta de crédito • Acceso inmediato
+              No credit card required • Immediate access
             </p>
           </div>
         </motion.div>
@@ -1537,7 +1705,7 @@ export const LandingPage = () => {
 
       {/* --- FOOTER --- */}
       <footer className="py-20 text-center text-xs text-white/40 relative z-10 border-t border-white/5 bg-black">
-        <p className="mb-4">Diseñado con <span className="text-red-500">❤</span> en Colombia.</p>
+        <p className="mb-4">Designed with <span className="text-red-500">❤</span> in Colombia.</p>
         <p className="opacity-50">Copyright © 2025 Valid.AI Inc.</p>
       </footer>
     </div>
