@@ -4,54 +4,41 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 interface OnboardingProps {
   onClose: (action?: 'upload' | 'chat' | 'explore') => void;
+  lang?: 'en' | 'es';
 }
 
-// --- VISUAL COMPONENTS ---
+// ... Visual Components ... (ChoiceCard updated to receive lang if needed, but we'll use t here)
 
-const VoidBackground = ({ active }: { active: boolean }) => (
-  <div className={`absolute inset-0 transition-opacity duration-[2000ms] ${active ? 'opacity-100' : 'opacity-0'}`}>
-     <div className="absolute inset-0 bg-[#050505]">
-        <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-emerald-500/10 rounded-full blur-[120px] animate-pulse-slow"></div>
-        <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-purple-900/10 rounded-full blur-[120px] animate-pulse-slow" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-20 mix-blend-overlay"></div>
-     </div>
-  </div>
-);
-
-const ChoiceCard = ({ icon, title, desc, onClick, delay, gradient }: any) => (
-  <motion.button
-    initial={{ opacity: 0, y: 50 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay, duration: 0.8, type: "spring" }}
-    onClick={onClick}
-    className="group relative w-full h-full text-left"
-  >
-    <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500 rounded-3xl blur-xl`}></div>
-    <div className="relative h-full bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-8 hover:border-white/30 transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_0_50px_rgba(0,0,0,0.5)] flex flex-col justify-between overflow-hidden">
-       
-       {/* Accents */}
-       <div className="absolute top-0 right-0 p-4 opacity-50 group-hover:opacity-100 transition-opacity">
-          <ArrowRight className="text-white/20 group-hover:text-white transition-colors" />
-       </div>
-
-       <div>
-         <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500 border border-white/10">
-            {icon}
-         </div>
-         <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-neon transition-colors">{title}</h3>
-         <p className="text-sm text-slate-400 leading-relaxed group-hover:text-slate-200 transition-colors">{desc}</p>
-       </div>
-
-       <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between">
-          <span className="text-[10px] uppercase tracking-widest text-slate-500 font-bold group-hover:text-neon transition-colors">Iniciar</span>
-          <div className="w-2 h-2 bg-slate-700 rounded-full group-hover:bg-neon group-hover:shadow-[0_0_10px_rgba(58,255,151,0.8)] transition-all"></div>
-       </div>
-    </div>
-  </motion.button>
-);
-
-export const Onboarding: React.FC<OnboardingProps> = ({ onClose }) => {
+export const Onboarding: React.FC<OnboardingProps> = ({ onClose, lang = 'en' }) => {
   const [phase, setPhase] = useState<'blackout' | 'activation' | 'choices'>('blackout');
+
+  const t = lang === 'en' ? {
+    introTitle: "UNCERTAINTY",
+    introSubtitle: "IS DEAD.",
+    introCaption: "Welcome to the era of certainty",
+    title: "What do you have today?",
+    subtitle: "Select your starting point. The engine will recalibrate.",
+    docTitle: "Strategic Asset",
+    docDesc: "Import your PDF, Pitch Deck, or chaotic Whitepaper. VALID.AI will synthesize the structure and identify gaps.",
+    ideaTitle: "Visionary Seed",
+    ideaDesc: "Speak directly with the Idea Studio. Describe your vision and let the AI convert it into a clinical audit protocol.",
+    exploreTitle: "Market Research",
+    exploreDesc: "Browse our curated Sector Gallery. Mature SaaS, E-commerce, and B2B models ready for deployment.",
+    skip: "Skip Introduction"
+  } : {
+    introTitle: "LA INCERTIDUMBRE",
+    introSubtitle: "HA MUERTO.",
+    introCaption: "Bienvenido a la era de la certeza",
+    title: "¿Qué tienes hoy?",
+    subtitle: "Selecciona tu punto de partida. El sistema se adaptará.",
+    docTitle: "Archivo Estratégico",
+    docDesc: "Arrastra tu PDF, Word o Presentación caótica. VALID.AI extraerá la estructura y detectará huecos.",
+    ideaTitle: "Semilla de Visión",
+    ideaDesc: "Habla directamente con el Idea Studio. Describe tu visión en lenguaje natural y deja que la IA la convierta en estrategia.",
+    exploreTitle: "Investigación de Mercado",
+    exploreDesc: "Navega por nuestra Galería de Sectores curada. Modelos de SaaS, E-commerce y Servicios listos.",
+    skip: "Saltar Experiencia"
+  };
 
   useEffect(() => {
     // Phase 1: Blackout (Warning Text)
@@ -80,9 +67,9 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onClose }) => {
              className="absolute inset-0 flex flex-col items-center justify-center z-50 pointer-events-none"
            >
               <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight mb-4 text-center">
-                 LA INCERTIDUMBRE <br/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-500 to-slate-300">HA MUERTO.</span>
+                 {t.introTitle} <br/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-500 to-slate-300">{t.introSubtitle}</span>
               </h1>
-              <p className="text-slate-500 text-sm tracking-[0.3em] uppercase">Bienvenido a la era de la certeza</p>
+              <p className="text-slate-500 text-sm tracking-[0.3em] uppercase">{t.introCaption}</p>
            </motion.div>
         )}
       </AnimatePresence>
@@ -105,31 +92,31 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onClose }) => {
                  transition={{ delay: 0.5 }}
                  className="text-center mb-16"
                >
-                  <h2 className="text-5xl md:text-7xl font-bold text-white mb-6">¿Qué tienes hoy?</h2>
-                  <p className="text-xl text-slate-400 font-light">Selecciona tu punto de partida. El sistema se adaptará.</p>
+                  <h2 className="text-5xl md:text-7xl font-bold text-white mb-6 uppercase tracking-tighter">{t.title}</h2>
+                  <p className="text-xl text-slate-400 font-light max-w-2xl mx-auto">{t.subtitle}</p>
                </motion.div>
 
                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-[450px]">
                   <ChoiceCard 
                      icon={<FileText size={32} className="text-emerald-400" />}
-                     title="Tengo un Archivo"
-                     desc="Arrastra tu PDF, Word o Presentación caótica. VALID.AI extraerá la estructura, detectará huecos y generará un plan."
+                     title={t.docTitle}
+                     desc={t.docDesc}
                      gradient="from-emerald-500/20 to-transparent"
                      delay={0.8}
                      onClick={() => onClose('upload')}
                   />
                   <ChoiceCard 
                      icon={<MessageSquare size={32} className="text-neon" />}
-                     title="Tengo una Idea"
-                     desc="Habla directamente con el Idea Studio. Describe tu visión en lenguaje natural y deja que la IA la convierta en estrategia."
+                     title={t.ideaTitle}
+                     desc={t.ideaDesc}
                      gradient="from-neon/20 to-transparent"
                      delay={1.0}
                      onClick={() => onClose('chat')}
                   />
                   <ChoiceCard 
                      icon={<Compass size={32} className="text-purple-400" />}
-                     title="Estoy Explorando"
-                     desc="Navega por nuestra Galería de Plantillas curada. Modelos de SaaS, E-commerce y Servicios listos para usar."
+                     title={t.exploreTitle}
+                     desc={t.exploreDesc}
                      gradient="from-purple-500/20 to-transparent"
                      delay={1.2}
                      onClick={() => onClose('explore')}
@@ -143,7 +130,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onClose }) => {
                   onClick={() => onClose()}
                   className="absolute -bottom-24 left-1/2 -translate-x-1/2 text-slate-500 text-xs uppercase tracking-widest hover:text-white transition-colors"
                >
-                  Saltar Experiencia
+                  {t.skip}
                </motion.button>
             </motion.div>
          )}

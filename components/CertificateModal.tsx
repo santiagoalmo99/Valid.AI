@@ -8,20 +8,22 @@ interface CertificateModalProps {
   onClose: () => void;
   projectName: string;
   score: number;
+  lang?: 'en' | 'es';
 }
 
 export const CertificateModal: React.FC<CertificateModalProps> = ({ 
   isOpen, 
   onClose, 
   projectName, 
-  score 
+  score,
+  lang = 'en'
 }) => {
   const [theme, setTheme] = useState<'modern' | 'professional' | 'minimal'>('modern');
   const [copied, setCopied] = useState(false);
 
   if (!isOpen) return null;
 
-  const date = new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+  const date = new Date().toLocaleDateString(lang === 'en' ? 'en-US' : 'es-ES', { month: 'short', year: 'numeric' });
   
   // Create payload
   const payload = {
@@ -53,9 +55,11 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
           <div>
             <h2 className="text-2xl font-bold text-white flex items-center gap-2">
               <Share2 className="text-neon" size={24} /> 
-              Certificado de Validación
+              {lang === 'en' ? 'Validation Certificate' : 'Certificado de Validación'}
             </h2>
-            <p className="text-slate-400 text-sm">Comparte tu éxito con inversores y clientes.</p>
+            <p className="text-slate-400 text-sm">
+              {lang === 'en' ? 'Share your success with investors and clients.' : 'Comparte tu éxito con inversores y clientes.'}
+            </p>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full text-slate-400 hover:text-white transition-colors">
             <X size={24} />
@@ -101,10 +105,14 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
             
             <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="text-emerald-400 shrink-0 mt-0.5" size={20} />
+                  <CheckCircle className="text-emerald-400 shrink-0 mt-0.5" size={20} />
                   <div>
-                    <h4 className="text-emerald-400 font-bold text-sm">Score Verificado: {score}/100</h4>
-                    <p className="text-emerald-400/80 text-xs mt-1">Este proyecto cumple con los estándares de validación de mercado.</p>
+                    <h4 className="text-emerald-400 font-bold text-sm">
+                      {lang === 'en' ? 'Verified Score:' : 'Score Verificado:'} {score}/100
+                    </h4>
+                    <p className="text-emerald-400/80 text-xs mt-1">
+                      {lang === 'en' ? 'This project satisfies market validation institutional standards.' : 'Este proyecto cumple con los estándares de validación de mercado.'}
+                    </p>
                   </div>
                </div>
             </div>
@@ -128,10 +136,10 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
 
             {/* Download Button (Mock) */}
             <button className="w-full py-3 bg-neon text-black font-bold rounded-xl hover:bg-white hover:scale-[1.02] transition-all flex items-center justify-center gap-2 shadow-lg shadow-neon/20">
-               <Download size={18} /> Descargar PNG (HD)
+               <Download size={18} /> {lang === 'en' ? 'Download PNG (HD)' : 'Descargar PNG (HD)'}
             </button>
             <p className="text-center text-[10px] text-slate-500">
-               Disponible en formatos .PNG y .SVG transparente
+               {lang === 'en' ? 'Available in .PNG and transparent .SVG' : 'Disponible en formatos .PNG y .SVG transparente'}
             </p>
 
           </div>

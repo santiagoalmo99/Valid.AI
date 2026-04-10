@@ -54,8 +54,13 @@ export const useValidationScore = (project: ProjectTemplate, interviews: Intervi
     // In a real app, this should be defined in the template config
     const dimensionMap = questions.map(q => {
       const text = q.text.toLowerCase();
-      if (text.includes('precio') || text.includes('pagar') || text.includes('costo') || text.includes('compraría')) return 'willingnessToPay';
-      if (text.includes('dolor') || text.includes('problema') || text.includes('necesidad') || text.includes('difícil')) return 'problemIntensity';
+      // English & Spanish Keywords
+      if (text.includes('precio') || text.includes('pagar') || text.includes('costo') || text.includes('compraría') ||
+          text.includes('price') || text.includes('pay') || text.includes('cost') || text.includes('buy')) return 'willingnessToPay';
+          
+      if (text.includes('dolor') || text.includes('problema') || text.includes('necesidad') || text.includes('difícil') ||
+          text.includes('pain') || text.includes('problem') || text.includes('need') || text.includes('difficult')) return 'problemIntensity';
+          
       return 'other';
     });
 
@@ -115,15 +120,17 @@ function normalizeAnswerValue(answer: string, question: any): number {
   // 1. Text is NaN
   if (isNaN(Number(answer))) {
     // Boolean
-    if (answer.toLowerCase() === 'sí' || answer.toLowerCase() === 'si') return 100;
+    if (answer.toLowerCase() === 'sí' || answer.toLowerCase() === 'si' || answer.toLowerCase() === 'yes') return 100;
     if (answer.toLowerCase() === 'no') return 0;
     
     // Likert / Sentiment (Basic Keyword matching)
     const lower = answer.toLowerCase();
-    if (lower.includes('muy probable') || lower.includes('definitivamente')) return 100;
-    if (lower.includes('probable')) return 75;
-    if (lower.includes('indiferente') || lower.includes('tal vez')) return 50;
-    if (lower.includes('poco probable')) return 25;
+    if (lower.includes('muy probable') || lower.includes('definitivamente') || 
+        lower.includes('very likely') || lower.includes('definitely')) return 100;
+    if (lower.includes('probable') || lower.includes('likely')) return 75;
+    if (lower.includes('indiferente') || lower.includes('tal vez') || 
+        lower.includes('indifferent') || lower.includes('maybe') || lower.includes('perhaps')) return 50;
+    if (lower.includes('poco probable') || lower.includes('unlikely')) return 25;
     
     return 50; // Neutral default for text
   }

@@ -446,7 +446,7 @@ const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, 
             newOffline.push(updatedInterview);
             localStorage.setItem(offlineKey, JSON.stringify(newOffline));
             
-            alert("⚠️ No se pudo guardar en la nube. Se guardó LOCALMENTE.");
+            alert(lang === 'en' ? "⚠️ Synchronization Issue. Data saved locally." : "⚠️ No se pudo guardar en la nube. Se guardó LOCALMENTE.");
          }
 
          // Update Local State
@@ -462,7 +462,7 @@ const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, 
 
       } catch (e) {
          console.error("❌ Retry failed:", e);
-         alert(`Error al re-analizar: ${e instanceof Error ? e.message : String(e)}`);
+         alert(`${lang === 'en' ? 'Error recalibrating:' : 'Error al re-analizar:'} ${e instanceof Error ? e.message : String(e)}`);
          throw e;
       }
   };
@@ -580,9 +580,9 @@ const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, 
        // Show alert for blocked/timeout cases
        if (e.message && e.message.includes("Timeout")) {
           console.warn("⚠️ Firebase timeout, forcing local delete all");
-          alert("⚠️ Eliminado LOCALMENTE.\n\nTu navegador bloqueó Firebase.\nDesactiva el bloqueador de anuncios para sincronizar con la nube.");
+          alert(lang === 'en' ? "⚠️ Deleted LOCALLY.\n\nYour browser blocked Firebase Sync.\nDisable ad blockers to synchronize with the cloud." : "⚠️ Eliminado LOCALMENTE.\n\nTu navegador bloqueó Firebase.\nDesactiva el bloqueador de anuncios para sincronizar con la nube.");
        } else {
-          alert("Error al eliminar todo. Verifica tu conexión o desactiva el bloqueador de anuncios.");
+          alert(lang === 'en' ? "Error deleting all data. Verify your connection." : "Error al eliminar todo. Verifica tu conexión o desactiva el bloqueador de anuncios.");
        }
     } finally {
        // Update local state AND unlock after small delay
@@ -693,7 +693,7 @@ const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, 
                 </div>
              </div>
              <button onClick={() => setActiveTab('new_interview')} className="bg-white text-black font-bold px-5 py-2 rounded-full hover:scale-105 transition-transform flex items-center gap-2 text-xs shadow-lg shadow-white/10">
-                <Play size={14} fill="black" /> Nueva Entrevista
+                <Play size={14} fill="black" /> {t.newInterview}
              </button>
           </div>
 
@@ -752,7 +752,7 @@ const ProjectDetail = ({ project, onBack, onUpdateProject, onOpenProfile, lang, 
                    // Manually update local state to show it immediately
                    setInterviews(prev => [i, ...prev]);
                    
-                   alert("⚠️ Conexión inestable o bloqueada.\n\n✅ Entrevista guardada LOCALMENTE.\n\nTus datos están seguros.");
+                   alert(lang === 'en' ? "⚠️ Sync issues detected.\n\n✅ Interview saved LOCALLY.\n\nYour data is secure." : "⚠️ Conexión inestable o bloqueada.\n\n✅ Entrevista guardada LOCALMENTE.\n\nTus datos están seguros.");
                 }
                 setActiveTab('dashboard');
              }} onCancel={() => setActiveTab('dashboard')} onClose={(interview: any) => {
@@ -836,7 +836,7 @@ const CreateProjectModal = ({ onClose, onSave, lang, user, initialMode = 'manual
         });
      } catch (e) {
         console.error(e);
-        alert("Error parsing document");
+        alert(lang === 'en' ? "Error parsing document" : "Error al procesar el documento");
      }
      setLoading(false);
   };
@@ -875,7 +875,7 @@ const CreateProjectModal = ({ onClose, onSave, lang, user, initialMode = 'manual
 
             // Check if user is logged in
             if (!user) {
-              alert('❌ Debes iniciar sesión para crear un proyecto.');
+              alert(t.loginRequired);
               console.error('User not logged in');
               return;
             }
@@ -905,7 +905,7 @@ const CreateProjectModal = ({ onClose, onSave, lang, user, initialMode = 'manual
               console.log('✅ Project saved successfully');
             } catch (e) {
               console.error('❌ Error creating project:', e);
-              alert('Error al crear el proyecto. Intenta de nuevo.');
+              alert(t.errorCreatingProject);
             }
             setLoading(false);
           }}
@@ -946,7 +946,7 @@ const CreateProjectModal = ({ onClose, onSave, lang, user, initialMode = 'manual
               onSave(project);
             } catch (e) {
               console.error('❌ Error creating project:', e);
-              alert('Error al crear el proyecto. Intenta de nuevo.');
+              alert(t.errorCreatingProject);
             }
             setLoading(false);
           }}
@@ -968,7 +968,7 @@ const CreateProjectModal = ({ onClose, onSave, lang, user, initialMode = 'manual
             onSave(project);
           } catch (e) {
             console.error('❌ Error creating project from template:', e);
-            alert('Error al crear el proyecto. Intenta de nuevo.');
+            alert(t.errorCreatingProject);
           }
           setLoading(false);
         }}
@@ -994,13 +994,13 @@ const CreateProjectModal = ({ onClose, onSave, lang, user, initialMode = 'manual
                 <Plus size={16} /> Manual
              </button>
              <button onClick={() => setMode('document')} className={`py-3 rounded-xl border flex items-center justify-center gap-2 ${mode === 'document' ? 'border-neon bg-neon/10 text-white' : 'border-white/10 text-slate-400 hover:border-white/30'}`}>
-                <FileText size={16} /> Subir Documento
+                <FileText size={16} /> {t.importDoc}
              </button>
              <button onClick={() => setMode('idea')} className={`py-3 rounded-xl border flex items-center justify-center gap-2 ${mode === 'idea' ? 'border-neon bg-neon/10 text-white' : 'border-white/10 text-slate-400 hover:border-white/30'}`}>
-                <Zap size={16} /> De Idea a Plan
+                <Zap size={16} /> {t.fromIdeatoPlan}
              </button>
              <button onClick={() => setMode('template')} className={`py-3 rounded-xl border flex items-center justify-center gap-2 ${mode === 'template' ? 'border-neon bg-neon/10 text-white' : 'border-white/10 text-slate-400 hover:border-white/30'}`}>
-                <Sparkles size={16} /> Plantillas
+                <Sparkles size={16} /> {t.templates}
              </button>
           </div>
 
@@ -1015,7 +1015,7 @@ const CreateProjectModal = ({ onClose, onSave, lang, user, initialMode = 'manual
                     onChange={e => setFormData({...formData, name: e.target.value})} 
                   />
                   <input 
-                    placeholder="Región (ej. Colombia)" 
+                    placeholder={t.regionPlaceholder} 
                     className="w-full bg-black/30 border border-white/10 rounded-xl p-4 text-white focus:border-neon outline-none" 
                     value={formData.region || ''}
                     onChange={e => setFormData({...formData, region: e.target.value})} 
@@ -1030,21 +1030,21 @@ const CreateProjectModal = ({ onClose, onSave, lang, user, initialMode = 'manual
                 />
                 
                 <textarea 
-                  placeholder="Descripción Detallada (Opcional)" 
+                  placeholder={t.detailedDesc} 
                   className="w-full bg-black/30 border border-white/10 rounded-xl p-4 text-white focus:border-neon outline-none h-24 resize-none" 
                   value={formData.detailedDescription || ''}
                   onChange={e => setFormData({...formData, detailedDescription: e.target.value})} 
                 />
 
                 <input 
-                  placeholder="Público Objetivo" 
+                  placeholder={t.targetAudience} 
                   className="w-full bg-black/30 border border-white/10 rounded-xl p-4 text-white focus:border-neon outline-none" 
                   value={formData.targetAudience || ''}
                   onChange={e => setFormData({...formData, targetAudience: e.target.value})} 
                 />
 
                 <div className="space-y-2">
-                  <label className="text-xs text-slate-500 uppercase font-bold">Tipo de Producto</label>
+                  <label className="text-xs text-slate-500 uppercase font-bold">{t.productType}</label>
                   <div className="flex flex-wrap gap-2">
                     {PRODUCT_TYPES.map(type => (
                       <button
@@ -1063,7 +1063,7 @@ const CreateProjectModal = ({ onClose, onSave, lang, user, initialMode = 'manual
                 </div>
 
                 <button onClick={async () => {
-                   if(!formData.name || !formData.description) return alert("Nombre y descripción requeridos");
+                   if(!formData.name || !formData.description) return alert(lang === 'en' ? "Name and description are mandatory." : "Nombre y descripción requeridos");
                    
                    setLoading(true);
                    try {
@@ -1086,7 +1086,7 @@ const CreateProjectModal = ({ onClose, onSave, lang, user, initialMode = 'manual
                      onSave(p);
                    } catch (e) {
                      console.error(e);
-                     alert("Error creating project");
+                     alert(lang === 'en' ? "Critical error initializing session." : "Error crítico al inicializar la sesión.");
                    }
                    setLoading(false);
                 }} disabled={loading} className="w-full bg-white text-black font-bold py-4 rounded-xl hover:bg-neon transition-colors flex items-center justify-center gap-2">
@@ -1141,17 +1141,17 @@ const DeepResearchView = ({ project, interviews, onUpdate, t }: any) => {
    const runAnalysis = async () => {
      // Validation Rules (Heuristic UX/UI)
      const missingFields = [];
-     if (!project.detailedDescription) missingFields.push("Descripción Detallada");
-     if (!project.region) missingFields.push("Región");
-     if (!project.productTypes || project.productTypes.length === 0) missingFields.push("Tipo de Producto");
+     if (!project.detailedDescription) missingFields.push(t.detailedDesc);
+     if (!project.region) missingFields.push(t.regionPlaceholder);
+     if (!project.productTypes || project.productTypes.length === 0) missingFields.push(t.productType);
      
      if (missingFields.length > 0) {
-        alert(`⚠️ Perfil Incompleto\n\nPara un análisis de nivel VC, necesitamos más contexto.\nFalta: ${missingFields.join(', ')}.\n\nHaz clic en el título del proyecto para editar.`);
+        alert(`${lang === 'en' ? '⚠️ Incomplete Architecture' : '⚠️ Perfil Incompleto'}\n\n${t.vcContextNeeded}\n${lang === 'en' ? 'Missing' : 'Falta'}: ${missingFields.join(', ')}.\n\n${lang === 'en' ? 'Click on the project ID to edit.' : 'Haz clic en el título del proyecto para editar.'}`);
         return;
      }
 
      if (interviews.length < 5) {
-        alert(`⚠️ Data Insuficiente\n\nEl motor requiere al menos 5 entrevistas para detectar patrones estadísticamente relevantes.\n\nActual: ${interviews.length}/5`);
+        alert(`${lang === 'en' ? '⚠️ Insufficient Evidence' : '⚠️ Data Insuficiente'}\n\n${t.fiveInterviewsMinimum}\n\n${lang === 'en' ? 'Current' : 'Actual'}: ${interviews.length}/5`);
         return;
      }
 
@@ -1195,7 +1195,7 @@ const DeepResearchView = ({ project, interviews, onUpdate, t }: any) => {
        onUpdate(updated);
      } catch (e) {
        console.error("❌ Analysis Error:", e);
-       alert("Error en el análisis. Intenta de nuevo. Detalles en consola.");
+       alert(lang === 'en' ? "Critical analysis failure. Please retry. Check console for details." : "Error en el análisis. Intenta de nuevo. Detalles en consola.");
      }
      setLoading(false);
   };
@@ -1252,7 +1252,7 @@ const DeepResearchView = ({ project, interviews, onUpdate, t }: any) => {
                  </div>
 
                  <button onClick={runAnalysis} className="w-full bg-neon text-black font-bold py-5 rounded-xl hover:bg-white transition-all hover:scale-[1.01] hover:shadow-[0_0_30px_rgba(223,255,0,0.4)] flex items-center justify-center gap-3 text-lg">
-                    <Sparkles size={20} /> Iniciar Due Diligence
+                    <Sparkles size={20} /> {t.startDueDiligence}
                  </button>
               </div>
            </div>
@@ -1265,9 +1265,9 @@ const DeepResearchView = ({ project, interviews, onUpdate, t }: any) => {
      return (
         <div className="p-8 animate-fade-in">
            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-3xl font-bold text-white">ANÁLISIS PROFUNDO DEL PROYECTO</h2>
+              <h2 className="text-3xl font-bold text-white uppercase">{t.deepSessionTitle}</h2>
               <button onClick={runAnalysis} className="bg-neon text-black px-6 py-2 rounded-full font-bold hover:bg-white transition-colors flex items-center gap-2">
-                 <Sparkles size={16} /> Ejecutar Análisis
+                 <Sparkles size={16} /> {t.runAnalysis}
               </button>
            </div>
            
@@ -1275,13 +1275,13 @@ const DeepResearchView = ({ project, interviews, onUpdate, t }: any) => {
               <div className={`${GLASS_PANEL} p-6 rounded-2xl h-64 flex items-center justify-center border-dashed border-2 border-white/10`}>
                  <div className="text-center">
                     <BarChart3 size={48} className="text-slate-600 mx-auto mb-4" />
-                    <p className="text-slate-500">Resultados del Análisis aparecerán aquí</p>
+                    <p className="text-slate-500">{t.analysisResultsPlaceholder}</p>
                  </div>
               </div>
               <div className={`${GLASS_PANEL} p-6 rounded-2xl h-64 flex items-center justify-center border-dashed border-2 border-white/10`}>
                  <div className="text-center">
                     <PieChartIcon size={48} className="text-slate-600 mx-auto mb-4" />
-                    <p className="text-slate-500">Métricas de Mercado</p>
+                    <p className="text-slate-500">{t.marketMetrics}</p>
                  </div>
               </div>
            </div>
@@ -1302,7 +1302,7 @@ const DeepResearchView = ({ project, interviews, onUpdate, t }: any) => {
              </div>
 
              <h3 className="text-2xl font-bold text-white mb-2 animate-pulse">{status}</h3>
-             <p className="text-slate-400 text-sm mb-8">Esto puede tomar unos momentos. No cierres la ventana.</p>
+             <p className="text-slate-400 text-sm mb-8">{t.loadingLong}</p>
 
              {/* Progress Bar */}
              <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden relative">
@@ -1314,7 +1314,7 @@ const DeepResearchView = ({ project, interviews, onUpdate, t }: any) => {
                 </div>
              </div>
              <div className="flex justify-between text-xs text-slate-500 mt-2 font-mono">
-                <span>PROCESANDO DATOS</span>
+                <span>{t.processingData}</span>
                 <span>{Math.round(progress)}%</span>
              </div>
           </div>
@@ -1329,10 +1329,10 @@ const DeepResearchView = ({ project, interviews, onUpdate, t }: any) => {
            <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-6">
              <Search size={40} className="text-slate-600" />
            </div>
-           <h3 className="text-xl font-bold text-white mb-2">Sin Análisis Aún</h3>
-           <p className="text-slate-400 mb-6 max-w-md">Ejecuta el Deep Research para obtener insights de nivel VC sobre tu proyecto.</p>
+           <h3 className="text-xl font-bold text-white mb-2">{t.noAnalysis}</h3>
+           <p className="text-slate-400 mb-6 max-w-md">{t.runDeepResearchDesc}</p>
            <button onClick={runAnalysis} className="bg-neon text-black font-bold px-8 py-3 rounded-xl hover:scale-105 transition-transform shadow-[0_0_30px_rgba(223,255,0,0.2)]">
-              Iniciar Análisis
+              {t.startAnalysis}
            </button>
            <ExportButton type="deep_research" project={project} interviews={interviews} deepAnalysis={report} variant="secondary" size="md" />
         </div>
@@ -1347,7 +1347,7 @@ const DeepResearchView = ({ project, interviews, onUpdate, t }: any) => {
           <div>
             <div className="text-xs font-bold text-neon mb-2 uppercase tracking-widest flex items-center gap-2">
               <RefreshCw size={12} className="animate-spin-slow"/> 
-              Última actualización: {new Date(report.lastUpdated).toLocaleDateString()}
+              {t.lastUpdated}: {new Date(report.lastUpdated).toLocaleDateString()}
             </div>
             <h2 className="text-4xl font-bold text-white">
               Viability Score: <span className={report.viabilityScore > 70 ? 'text-neon drop-shadow-[0_0_10px_rgba(223,255,0,0.5)]' : 'text-red-400'}>{report.viabilityScore}/100</span>
@@ -1359,11 +1359,8 @@ const DeepResearchView = ({ project, interviews, onUpdate, t }: any) => {
                   <YCReadinessBadge result={calculateYCReadiness(interviews)} size="sm" />
                </div>
                
-               {/* CERTIFICATE BUTTON (If Passing) */}
-
-
                <button onClick={runAnalysis} className="bg-white/5 hover:bg-white/10 text-white px-6 py-3 rounded-xl text-sm font-bold border border-white/10 flex items-center gap-2 transition-all hover:border-white/30">
-                  <RefreshCw size={16} /> Re-Analizar
+                  <RefreshCw size={16} /> {t.reAnalyze}
                </button>
           </div>
        </div>
@@ -1372,11 +1369,11 @@ const DeepResearchView = ({ project, interviews, onUpdate, t }: any) => {
        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className={`${GLASS_PANEL} p-8 relative overflow-hidden group`}>
              <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity"><Zap size={120} /></div>
-             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><Target className="text-neon"/> Veredicto de Mercado</h3>
+             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><Target className="text-neon"/> {t.marketVerdict}</h3>
              <p className="text-lg text-slate-200 leading-relaxed font-medium">{report.marketVerdict}</p>
           </div>
           <div className={`${GLASS_PANEL} p-8`}>
-             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><Users className="text-blue-400"/> Perfil Early Adopter</h3>
+             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><Users className="text-blue-400"/> {t.earlyAdopterProfile}</h3>
              <p className="text-slate-300 leading-relaxed">{report.earlyAdopterProfile}</p>
           </div>
        </div>
@@ -1384,16 +1381,16 @@ const DeepResearchView = ({ project, interviews, onUpdate, t }: any) => {
        {/* Benchmark Table (New) */}
        {report.benchmark && report.benchmark.length > 0 && (
          <div className={`${GLASS_PANEL} p-8 overflow-hidden`}>
-            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2"><Globe className="text-purple-400"/> Benchmark Competitivo</h3>
+            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2"><Globe className="text-purple-400"/> {t.competitiveBenchmark}</h3>
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="text-xs text-slate-500 uppercase border-b border-white/10">
-                    <th className="p-4 font-bold">Competidor</th>
-                    <th className="p-4 font-bold">Fortaleza</th>
-                    <th className="p-4 font-bold">Debilidad</th>
-                    <th className="p-4 font-bold">Modelo</th>
-                    <th className="p-4 font-bold text-neon">Diferenciación</th>
+                    <th className="p-4 font-bold">{t.competitor}</th>
+                    <th className="p-4 font-bold">{t.strength}</th>
+                    <th className="p-4 font-bold">{t.weakness}</th>
+                    <th className="p-4 font-bold">{t.model}</th>
+                    <th className="p-4 font-bold text-neon">{t.differentiation}</th>
                   </tr>
                 </thead>
                 <tbody className="text-sm text-slate-300">
@@ -1428,7 +1425,7 @@ const DeepResearchView = ({ project, interviews, onUpdate, t }: any) => {
        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Market Trends - SVG Line Chart */}
           <div className={`${GLASS_PANEL} p-6`}>
-             <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2"><BarChart3 className="text-neon"/> Tendencia de Mercado (Proyección)</h3>
+             <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2"><BarChart3 className="text-neon"/> {t.marketTrends}</h3>
              <div className="h-64 w-full flex items-end justify-between gap-2 px-2 relative">
                {/* Grid Lines */}
                <div className="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-20">
@@ -1520,7 +1517,7 @@ const DeepResearchView = ({ project, interviews, onUpdate, t }: any) => {
 
            {/* Demographics - CSS Chart Replacement */}
            <div className={`${GLASS_PANEL} p-6 col-span-1 md:col-span-2`}>
-              <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2"><Globe className="text-purple-400"/> Demografía Objetivo</h3>
+              <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2"><Globe className="text-purple-400"/> {lang === 'en' ? 'Target Demographics' : 'Demografía Objetivo'}</h3>
               <div className="h-48 w-full overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-white/10 space-y-3">
                  {report.audienceDemographics?.map((item: any, i: number) => {
                     const max = Math.max(...report.audienceDemographics.map((d: any) => d.value)) || 1;
@@ -1550,12 +1547,12 @@ const DeepResearchView = ({ project, interviews, onUpdate, t }: any) => {
 
        {/* SWOT Analysis */}
        <div className={`${GLASS_PANEL} p-8`}>
-          <h3 className="text-xl font-bold text-white mb-8 flex items-center gap-2"><LayoutGrid className="text-amber-400"/> Análisis SWOT</h3>
+          <h3 className="text-xl font-bold text-white mb-8 flex items-center gap-2"><LayoutGrid className="text-amber-400"/> {lang === 'en' ? 'SWOT ANALYSIS' : 'ANÁLISIS SWOT'}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-             <SwotSection title="Fortalezas" items={report.swot.strengths} color="text-emerald-400" icon={<CheckCircle size={16}/>} />
-             <SwotSection title="Debilidades" items={report.swot.weaknesses} color="text-red-400" icon={<X size={16}/>} />
-             <SwotSection title="Oportunidades" items={report.swot.opportunities} color="text-blue-400" icon={<Sparkles size={16}/>} />
-             <SwotSection title="Amenazas" items={report.swot.threats} color="text-amber-400" icon={<Zap size={16}/>} />
+             <SwotSection title={lang === 'en' ? 'Strengths' : 'Fortalezas'} items={report.swot.strengths} color="text-emerald-400" icon={<CheckCircle size={16}/>} />
+             <SwotSection title={lang === 'en' ? 'Weaknesses' : 'Debilidades'} items={report.swot.weaknesses} color="text-red-400" icon={<X size={16}/>} />
+             <SwotSection title={lang === 'en' ? 'Opportunities' : 'Oportunidades'} items={report.swot.opportunities} color="text-blue-400" icon={<Sparkles size={16}/>} />
+             <SwotSection title={lang === 'en' ? 'Threats' : 'Amenazas'} items={report.swot.threats} color="text-amber-400" icon={<Zap size={16}/>} />
           </div>
        </div>
 
@@ -1563,7 +1560,7 @@ const DeepResearchView = ({ project, interviews, onUpdate, t }: any) => {
        {report.strategicAdvice && report.strategicAdvice.length > 0 && (
          <div className={`${GLASS_PANEL} p-8 border-t-4 border-t-neon`}>
             <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-              <TrendingUp className="text-neon"/> Estrategia y Recomendaciones de Pivote
+              <TrendingUp className="text-neon"/> {lang === 'en' ? 'Strategic Vectors & Pivot Roadmaps' : 'Estrategia y Recomendaciones de Pivote'}
             </h3>
             <div className="space-y-4">
                {report.strategicAdvice.map((advice: string, i: number) => (
@@ -1693,7 +1690,7 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
 
   const handleNext = async () => {
      if(step === -1) {
-        if(!regData.name) return alert("Name required");
+        if(!regData.name) return alert(lang === 'en' ? "Full Name required" : "Nombre requerido");
         setStep(0);
         return;
      }
@@ -1752,7 +1749,7 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
                   // USE CONTINUOUS ANALYSIS
                   // We pass the full transcript + the structured answers (which contain notes/text)
                   const observationText = Object.values(newAnswers).map((a: any) => `[Question ${a.questionId} Notes]: ${a.observation}`).join('\n');
-                  const combinedNotes = `ENTREVISTADOR NOTES:\n${observationText}\n\nUSER ANSWERS (Typed): ${Object.values(newAnswers).map((a: any) => a.rawValue).join(' | ')}`;
+                  const combinedNotes = `INTERVIEWER NOTES:\n${observationText}\n\nUSER ANSWERS (Typed): ${Object.values(newAnswers).map((a: any) => a.rawValue).join(' | ')}`;
                   
                   const result = await Gemini.analyzeContinuousInterview(project, fullTranscript, combinedNotes, regData);
                   
@@ -1775,7 +1772,7 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
             }
             
             if (!aiSuccess) {
-               alert("⚠️ El análisis de IA falló. Se guardará sin resultados detallados.");
+               alert(lang === 'en' ? "⚠️ AI Semantic Synthesis failed. Interview will be saved without detailed insights." : "⚠️ El análisis de IA falló. Se guardará sin resultados detallados.");
             }
 
             // Sanitize and construct interview object
@@ -1824,13 +1821,13 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
 
            } catch (saveError) {
               console.error("Database save failed:", saveError);
-              alert("Error al guardar. Intenta nuevamente.");
+              alert(lang === 'en' ? "Failed to save. Please retry." : "Error al guardar. Intenta nuevamente.");
               setIsSaving(false);
               return; 
            }
         } catch (error) {
            console.error("Error processing interview:", error);
-           alert("Error crítico. Revisa la consola.");
+           alert(lang === 'en' ? "Critical error. Audit console logs." : "Error crítico. Revisa la consola.");
            setIsSaving(false);
            return;
         }
@@ -1857,23 +1854,23 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
               <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-6 mx-auto">
                  <RefreshCw className="text-neon w-8 h-8" />
               </div>
-              <h3 className="text-2xl font-bold text-white mb-2 text-center">Sesión Recuperada</h3>
+              <h3 className="text-2xl font-bold text-white mb-2 text-center">{lang === 'en' ? 'Session Restored' : 'Sesión Recuperada'}</h3>
               <p className="text-slate-400 mb-8 text-center leading-relaxed">
-                 Encontramos una entrevista en progreso ({draftData?.regData?.name || 'Candidato'}). 
-                 <br/>¿Deseas continuar donde la dejaste?
+                 {lang === 'en' ? `We found an interview in progress (${draftData?.regData?.name || 'Candidate'}).` : `Encontramos una entrevista en progreso (${draftData?.regData?.name || 'Candidato'}).`}
+                 <br/>{lang === 'en' ? 'Would you like to continue?' : '¿Deseas continuar donde la dejaste?'}
               </p>
               <div className="flex gap-4">
                  <button 
                   onClick={handleDiscardDraft} 
                   className="flex-1 py-4 bg-white/5 hover:bg-white/10 text-slate-300 rounded-xl font-bold transition-colors uppercase tracking-wider text-xs"
                  >
-                    Reiniciar
+                    {lang === 'en' ? 'Restart' : 'Reiniciar'}
                  </button>
                  <button 
                   onClick={handleRestoreDraft} 
                   className="flex-1 py-4 bg-neon hover:bg-emerald-400 text-black rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(58,255,151,0.3)] uppercase tracking-wider text-xs"
                  >
-                    Continuar
+                    {lang === 'en' ? 'Continue' : 'Continuar'}
                  </button>
               </div>
            </div>
@@ -1892,20 +1889,20 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                  <div className="space-y-4">
-                    <label className="text-xs text-slate-400 uppercase font-bold">Información Personal</label>
+                    <label className="text-xs text-slate-400 uppercase font-bold">{lang === 'en' ? 'Personal Information' : 'Información Personal'}</label>
                     <input className="w-full bg-black/30 border border-white/10 rounded-xl p-4 text-white focus:border-neon outline-none" placeholder={t.fullName} value={regData.name} onChange={e => setRegData({...regData, name: e.target.value})} />
                     <input className="w-full bg-black/30 border border-white/10 rounded-xl p-4 text-white focus:border-neon outline-none" placeholder={t.email} value={regData.email} onChange={e => setRegData({...regData, email: e.target.value})} />
                     <input className="w-full bg-black/30 border border-white/10 rounded-xl p-4 text-white focus:border-neon outline-none" placeholder={t.phone} value={regData.phone} onChange={e => setRegData({...regData, phone: e.target.value})} />
                  </div>
                  <div className="space-y-4">
-                    <label className="text-xs text-slate-400 uppercase font-bold">Redes & Contexto</label>
-                    <input className="w-full bg-black/30 border border-white/10 rounded-xl p-4 text-white focus:border-neon outline-none" placeholder="Instagram (@usuario)" value={regData.instagram} onChange={e => setRegData({...regData, instagram: e.target.value})} />
-                    <input className="w-full bg-black/30 border border-white/10 rounded-xl p-4 text-white focus:border-neon outline-none" placeholder="TikTok (@usuario)" value={regData.tiktok} onChange={e => setRegData({...regData, tiktok: e.target.value})} />
-                    <input className="w-full bg-black/30 border border-white/10 rounded-xl p-4 text-white focus:border-neon outline-none" placeholder="Rol / Cargo" value={regData.role} onChange={e => setRegData({...regData, role: e.target.value})} />
+                    <label className="text-xs text-slate-400 uppercase font-bold">{lang === 'en' ? 'Socials & Context' : 'Redes & Contexto'}</label>
+                    <input className="w-full bg-black/30 border border-white/10 rounded-xl p-4 text-white focus:border-neon outline-none" placeholder="Instagram (@username)" value={regData.instagram} onChange={e => setRegData({...regData, instagram: e.target.value})} />
+                    <input className="w-full bg-black/30 border border-white/10 rounded-xl p-4 text-white focus:border-neon outline-none" placeholder="TikTok (@username)" value={regData.tiktok} onChange={e => setRegData({...regData, tiktok: e.target.value})} />
+                    <input className="w-full bg-black/30 border border-white/10 rounded-xl p-4 text-white focus:border-neon outline-none" placeholder={t.role} value={regData.role} onChange={e => setRegData({...regData, role: e.target.value})} />
                  </div>
                  <div className="space-y-4 md:col-span-2 grid grid-cols-2 gap-6">
-                    <input className="w-full bg-black/30 border border-white/10 rounded-xl p-4 text-white focus:border-neon outline-none" placeholder="Ciudad" value={regData.city} onChange={e => setRegData({...regData, city: e.target.value})} />
-                    <input className="w-full bg-black/30 border border-white/10 rounded-xl p-4 text-white focus:border-neon outline-none" placeholder="País" value={regData.country} onChange={e => setRegData({...regData, country: e.target.value})} />
+                    <input className="w-full bg-black/30 border border-white/10 rounded-xl p-4 text-white focus:border-neon outline-none" placeholder={lang === 'en' ? 'City' : 'Ciudad'} value={regData.city} onChange={e => setRegData({...regData, city: e.target.value})} />
+                    <input className="w-full bg-black/30 border border-white/10 rounded-xl p-4 text-white focus:border-neon outline-none" placeholder={lang === 'en' ? 'Country' : 'País'} value={regData.country} onChange={e => setRegData({...regData, country: e.target.value})} />
                  </div>
               </div>
 
@@ -1962,7 +1959,7 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
                         <div>
                            <div className="flex items-center gap-2">
                               <span className={`text-xs font-bold uppercase tracking-wider ${isGlobalRecording ? 'text-red-400' : 'text-slate-400'}`}>
-                                 {isGlobalRecording ? 'Grabando Sesión Completa' : 'Grabación Pausada'}
+                                 {isGlobalRecording ? (lang === 'en' ? 'Recording Session' : 'Grabando Sesión Completa') : (lang === 'en' ? 'Recording Paused' : 'Grabación Pausada')}
                               </span>
                               {isGlobalRecording && (
                                 <span className="flex h-2 w-2 relative">
@@ -2002,14 +1999,14 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
                              onClick={() => { setIsGlobalRecording(true); }}
                              className="px-4 py-2 bg-red-500 hover:bg-red-400 text-white rounded-lg text-xs font-bold uppercase tracking-wider transition-all shadow-lg shadow-red-500/20 flex items-center gap-2"
                            >
-                              <Play size={12} fill="currentColor" /> Iniciar Grabación
+                              <Play size={12} fill="currentColor" /> {lang === 'en' ? 'Start Recording' : 'Iniciar Grabación'}
                            </button>
                         ) : (
                            <button 
                              onClick={() => setIsGlobalRecording(false)}
                              className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 border border-white/5"
                            >
-                              <Pause size={12} fill="currentColor" /> Pausar
+                              <Pause size={12} fill="currentColor" /> {lang === 'en' ? 'Pause' : 'Pausar'}
                            </button>
                         )}
                      </div>
@@ -2027,15 +2024,15 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
            <div className="flex justify-between items-center mb-2 flex-shrink-0">
               <div className="flex gap-2">
                  <button onClick={handleBack} className="text-slate-400 hover:text-white flex items-center gap-2 text-xs font-bold uppercase tracking-wider bg-white/5 px-3 py-2 rounded-lg hover:bg-white/10 transition-colors">
-                    <ArrowLeft size={14}/> Atrás
+                    <ArrowLeft size={14}/> {lang === 'en' ? 'Back' : 'Atrás'}
                  </button>
                  {step < project.questions.length - 1 && (
                     <button onClick={handleNext} className="text-slate-400 hover:text-neon flex items-center gap-2 text-xs font-bold uppercase tracking-wider bg-white/5 px-3 py-2 rounded-lg hover:bg-white/10 transition-colors">
-                       Siguiente <ArrowRight size={14}/>
+                       {lang === 'en' ? 'Next' : 'Siguiente'} <ArrowRight size={14}/>
                     </button>
                  )}
               </div>
-              <div className="text-neon font-bold tracking-widest text-[10px] uppercase">Pregunta {step+1}/{project.questions.length}</div>
+              <div className="text-neon font-bold tracking-widest text-[10px] uppercase">{lang === 'en' ? 'Question' : 'Pregunta'} {step+1}/{project.questions.length}</div>
            </div>
            
            <div className={`${GLASS_PANEL} p-4 flex-1 flex flex-col min-h-0 overflow-hidden`}>
@@ -2062,7 +2059,7 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
               <div className="mt-auto pt-6 border-t border-white/5 flex-shrink-0">
                  <div className="flex items-center gap-2 mb-3 text-xs text-slate-400 uppercase font-bold tracking-wider">
                     <Sparkles size={12} className="text-neon"/> 
-                    Observaciones / Emociones Detectadas
+                    {lang === 'en' ? 'Observations / Detected Emotions' : 'Observaciones / Emociones Detectadas'}
                  </div>
                  <div className="relative group">
                     <div className="absolute -inset-0.5 bg-gradient-to-r from-neon/20 to-blue-500/20 rounded-xl blur opacity-0 group-hover:opacity-100 transition duration-500"></div>
@@ -2081,22 +2078,22 @@ const InterviewForm = ({ project, onSave, onCancel, onClose, t, lang }: any) => 
                        <span className="flex items-center gap-2 animate-pulse">
                           <RefreshCw className="animate-spin" size={20} /> 
                           <span className="animate-shimmer bg-gradient-to-r from-white via-slate-400 to-white bg-[length:200%_auto] bg-clip-text text-transparent">
-                             Finalizando & Analizando...
+                             {lang === 'en' ? 'Finalizing & Analyzing...' : 'Finalizando & Analizando...'}
                           </span>
                        </span>
                     ) : (
                        step < project.questions.length - 1 ? (
-                          <span className="relative z-10 flex items-center gap-2">Siguiente <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform"/></span>
+                          <span className="relative z-10 flex items-center gap-2">{lang === 'en' ? 'Next' : 'Siguiente'} <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform"/></span>
                        ) : (
-                          <span className="relative z-10 flex items-center gap-2">Finalizar Entrevista <CheckCircle size={16} className="text-black"/></span>
+                          <span className="relative z-10 flex items-center gap-2">{lang === 'en' ? 'Finish Interview' : 'Finalizar Entrevista'} <CheckCircle size={16} className="text-black"/></span>
                        )
                     )}
                  </button>
                  {isSaving && (
                     <div className="mt-4 text-center space-y-2 animate-fade-in">
-                       <p className="text-sm text-neon font-bold uppercase tracking-widest drop-shadow-[0_0_10px_rgba(58,255,151,0.5)]">Generando Reporte Científico</p>
+                       <p className="text-sm text-neon font-bold uppercase tracking-widest drop-shadow-[0_0_10px_rgba(58,255,151,0.5)]">{lang === 'en' ? 'Generating Scientific Report' : 'Generando Reporte Científico'}</p>
                        <p className="text-xs text-slate-400 max-w-xs mx-auto leading-relaxed">
-                          Esto puede tardar unos segundos mientras la IA procesa los patrones...
+                          {lang === 'en' ? 'This may take a few seconds while the AI processes patterns...' : 'Esto puede tardar unos segundos mientras la IA procesa los patrones...'}
                        </p>
                        {/* Fake Countdown for UX */}
                        <div className="w-full h-1 bg-white/10 rounded-full mt-2 overflow-hidden">
@@ -2119,7 +2116,7 @@ const DashboardMetrics = ({ totalInterviews, avgScore, status }: any) => (
   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 col-span-1 md:col-span-3 mb-6 relative z-10">
      <div className={`${GLASS_PANEL} p-6 rounded-2xl flex flex-col items-center justify-center border border-white/5 bg-white/5`}>
         <div className="text-4xl font-bold text-white mb-1">{totalInterviews}</div>
-        <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Entrevistas</div>
+        <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">{t.interviews}</div>
      </div>
      
      {/* NEW: Gauge Component */}
@@ -2127,7 +2124,7 @@ const DashboardMetrics = ({ totalInterviews, avgScore, status }: any) => (
         <button 
            onClick={() => setShareModalOpen(true)}
            className="absolute top-2 right-2 p-1.5 rounded-lg bg-white/5 hover:bg-neon/20 hover:text-neon text-slate-400 transition-all opacity-0 group-hover:opacity-100 z-50"
-           title="Share Score"
+           title={lang === 'en' ? "Share Score" : "Compartir Puntuación"}
         >
            <Share2 size={16} />
         </button>
@@ -2138,9 +2135,9 @@ const DashboardMetrics = ({ totalInterviews, avgScore, status }: any) => (
 
      <div className={`${GLASS_PANEL} p-6 rounded-2xl flex flex-col items-center justify-center border border-white/5 bg-white/5`}>
         <div className={`text-2xl font-bold mb-1 ${status === 'High Potential' ? 'text-emerald-400' : 'text-amber-400'}`}>
-           {status === 'High Potential' ? 'ALTA' : 'VALIDAR'}
+           {status === 'High Potential' ? (lang === 'en' ? 'HIGH' : 'ALTA') : (lang === 'en' ? 'AUDIT' : 'VALIDAR')}
         </div>
-        <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Potencial</div>
+        <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">{t.marketVerdict}</div>
      </div>
   </div>
 );
@@ -2165,7 +2162,7 @@ const DashboardView = ({ project, interviews, t }: any) => {
       if (active && payload && payload.length) {
         return (
           <div className="bg-black/90 border border-white/20 px-3 py-2 rounded-lg text-xs text-white shadow-xl backdrop-blur-md">
-            <p className="font-bold">{`${payload[0].value} Interviews`}</p>
+            <p className="font-bold">{`${payload[0].value} ${lang === 'en' ? 'Interviews' : 'Entrevistas'}`}</p>
           </div>
         );
       }
@@ -2179,30 +2176,30 @@ const DashboardView = ({ project, interviews, t }: any) => {
          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 col-span-1 md:col-span-3 mb-6 relative z-10">
             <div className={`${GLASS_PANEL} p-6 rounded-2xl flex flex-col items-center justify-center border border-white/5 bg-white/5`}>
                <div className="text-4xl font-bold text-white mb-1">{totalInterviews}</div>
-               <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Entrevistas</div>
+               <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">{t.interviews}</div>
             </div>
             <div className={`${GLASS_PANEL} p-6 rounded-2xl flex flex-col items-center justify-center border border-white/5 bg-white/5 relative group`}>
                <button 
                   onClick={() => setShareModalOpen(true)}
                   className="absolute top-2 right-2 p-1.5 rounded-lg bg-white/5 hover:bg-neon/20 hover:text-neon text-slate-400 transition-all opacity-0 group-hover:opacity-100"
-                  title="Share Score"
+                  title={lang === 'en' ? "Share Score" : "Compartir Puntuación"}
                >
                   <Share2 size={14} />
                </button>
                <div className="text-4xl font-bold text-neon mb-1 drop-shadow-[0_0_10px_rgba(58,255,151,0.5)] cursor-pointer hover:scale-105 transition-transform" onClick={() => setShareModalOpen(true)}>{avgScore}</div>
-               <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Viabilidad</div>
+               <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">{lang === 'en' ? 'Viability' : 'Viabilidad'}</div>
             </div>
             <div className={`${GLASS_PANEL} p-6 rounded-2xl flex flex-col items-center justify-center border border-white/5 bg-white/5`}>
                <div className={`text-2xl font-bold mb-1 ${Number(avgScore) > 60 ? 'text-emerald-400' : 'text-amber-400'}`}>
-                  {Number(avgScore) > 60 ? 'ALTA' : 'VALIDAR'}
+                  {Number(avgScore) > 60 ? (lang === 'en' ? 'HIGH' : 'ALTA') : (lang === 'en' ? 'AUDIT' : 'VALIDAR')}
                </div>
-               <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Potencial</div>
+               <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">{t.marketVerdict}</div>
             </div>
          </div>
 
          {/* Main Chart */}
          <div className={`${GLASS_PANEL} p-8 rounded-3xl col-span-1 md:col-span-2 h-[400px] relative z-50 overflow-visible`}>
-             <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2"><BarChart3 className="text-neon" /> Score Distribution (Final v3.0)</h3>
+             <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2"><BarChart3 className="text-neon" /> {lang === 'en' ? 'Score Distribution' : 'Distribución de Puntuación'}</h3>
              
              <div className="w-full h-[85%]">
                 <ResponsiveContainer width="100%" height="100%">
@@ -2237,22 +2234,22 @@ const DashboardView = ({ project, interviews, t }: any) => {
 
          {/* Quick Insights / AI Placeholder */}
          <div className={`${GLASS_PANEL} p-8 rounded-3xl col-span-1 flex flex-col relative z-20`}>
-             <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2"><Sparkles className="text-neon" /> Insights Rápidos IA</h3>
+             <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2"><Sparkles className="text-neon" /> {t.lastInsight} IA</h3>
              {totalInterviews > 0 ? (
                 <div className="space-y-4 overflow-y-auto pr-2 custom-scrollbar">
                    <div className="bg-white/5 p-4 rounded-xl border border-white/5">
-                      <p className="text-xs text-slate-400 mb-1 uppercase font-bold">Tendencia</p>
-                      <p className="text-sm text-slate-200">Alto interés en la solución, aunque la sensibilidad al precio es una barrera clave.</p>
+                      <p className="text-xs text-slate-400 mb-1 uppercase font-bold">{lang === 'en' ? 'Trend' : 'Tendencia'}</p>
+                      <p className="text-sm text-slate-200">{lang === 'en' ? 'High interest in solution, though price sensitivity is a key barrier.' : 'Alto interés en la solución, aunque la sensibilidad al precio es una barrera clave.'}</p>
                    </div>
                    <div className="bg-white/5 p-4 rounded-xl border border-white/5">
-                      <p className="text-xs text-slate-400 mb-1 uppercase font-bold">Oportunidad</p>
-                      <p className="text-sm text-slate-200">Considera un modelo "Freemium" para capturar a los early adopters identificados.</p>
+                      <p className="text-xs text-slate-400 mb-1 uppercase font-bold">{lang === 'en' ? 'Opportunity' : 'Oportunidad'}</p>
+                      <p className="text-sm text-slate-200">{lang === 'en' ? 'Consider a "Freemium" model to capture identified early adopters.' : 'Considera un modelo "Freemium" para capturar a los early adopters identificados.'}</p>
                    </div>
                 </div>
              ) : (
                 <div className="flex-1 flex flex-col items-center justify-center text-center text-slate-500">
-                   <p>No interviews yet.</p>
-                   <p className="text-xs mt-2">Start interviewing to get AI insights.</p>
+                   <p>{lang === 'en' ? 'No interviews yet.' : 'No hay entrevistas registradas aún.'}</p>
+                   <p className="text-xs mt-2">{lang === 'en' ? 'Start interviewing to get AI insights.' : 'Empieza a entrevistar para obtener insights de IA.'}</p>
                 </div>
              )}
          </div>
@@ -2276,7 +2273,7 @@ const InterviewsView = ({ interviews, onDelete, onDeleteAll, onSelect, onRetry }
                onClick={onDeleteAll}
                className="text-red-400 hover:text-red-500 hover:bg-red-500/10 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-all"
             >
-               <Trash2 size={14} /> Eliminar Todo
+               <Trash2 size={14} /> {lang === 'en' ? 'Delete All' : 'Eliminar Todo'}
             </button>
          </div>
       )}
@@ -2298,12 +2295,12 @@ const InterviewsView = ({ interviews, onDelete, onDeleteAll, onSelect, onRetry }
                <button 
                   onClick={async (e) => { 
                      e.stopPropagation(); 
-                     if(window.confirm("Re-analyze this interview with AI?")) {
+                     if(window.confirm(lang === 'en' ? "Re-analyze this interview with AI?" : "Re-analizar esta entrevista con IA?")) {
                         const btn = e.currentTarget;
                         btn.classList.add('animate-spin');
                         try {
                            if(onRetry) await onRetry(i);
-                           alert("✅ Análisis actualizado correctamente");
+                           alert(lang === 'en' ? "✅ Audit successfully recalibrated" : "✅ Análisis actualizado correctamente");
                         } catch(err) {
                            // Error handled in parent
                         } finally {
@@ -2312,14 +2309,14 @@ const InterviewsView = ({ interviews, onDelete, onDeleteAll, onSelect, onRetry }
                      }
                   }}
                   className="p-2 bg-black/60 hover:bg-neon hover:text-black text-slate-400 rounded-lg backdrop-blur-md border border-white/10 transition-all shadow-lg"
-                  title="Re-analizar con IA"
+                  title={lang === 'en' ? "Recalibrate with AI" : "Re-analizar con IA"}
                >
                   <RefreshCw size={16} />
                </button>
                <button 
                   onClick={(e) => { e.stopPropagation(); onDelete(i.id); }}
                   className="p-2 bg-black/60 hover:bg-red-500 hover:text-white text-slate-400 rounded-lg backdrop-blur-md border border-white/10 transition-all shadow-lg"
-                  title="Eliminar entrevista"
+                  title={lang === 'en' ? "Eradicate interview" : "Eliminar entrevista"}
                >
                   <Trash2 size={16} />
                </button>
@@ -2417,6 +2414,7 @@ function AppContent() {
   const [lang, setLang] = useState<Language>('en');
   const [theme, setTheme] = useState<'dark' | 'light'>('dark'); 
   const [notification, setNotification] = useState<NotificationPayload | null>(null);
+  const t = TRANSLATIONS[lang];
 
   // --- ROUTING LOGIC (GLOBAL) ---
   // Moved here so it works for BOTH Logged In and Logged Out users
@@ -2568,7 +2566,7 @@ function AppContent() {
       setShowTrendNotification(false);
     } catch (error) {
       console.error("Failed to generate trends", error);
-      alert(`Error conectando con la inteligencia global: ${error instanceof Error ? error.message : 'Unknown error'}. Intente más tarde.`);
+      alert(`${lang === 'en' ? 'Error connecting to global intelligence:' : 'Error conectando con la inteligencia global:'} ${error instanceof Error ? error.message : 'Unknown error'}. ${lang === 'en' ? 'Try again later.' : 'Intente más tarde.'}`);
     }
     setIsGeneratingTrends(false);
   };
@@ -2619,7 +2617,7 @@ function AppContent() {
   };
 
   const handleSaveNewProject = async (newProject: ProjectTemplate) => {
-    if (!user) return alert("Inicia sesión primero");
+    if (!user) return alert(t.loginRequired);
     
     // Use Hook to add project (Handles Local + Cloud + State)
     await addProject(newProject);
@@ -2633,7 +2631,7 @@ function AppContent() {
 
 
   if (!user) {
-    return <LandingPage onLogin={loginWithGoogle} />;
+    return <LandingPage onLogin={loginWithGoogle} lang={lang} />;
   }
 
   return (
@@ -2765,6 +2763,7 @@ function AppContent() {
             onClose={() => setShowCertModal(false)}
             projectName={activeProject.name}
             score={calculateYCReadiness(interviews).totalScore}
+            lang={lang}
         />
       )}
 

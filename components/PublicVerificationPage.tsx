@@ -47,9 +47,9 @@ export const PublicVerificationPage = () => {
       <div className="min-h-screen bg-black flex items-center justify-center text-center p-8">
         <div className="max-w-md">
            <Shield size={64} className="text-red-500 mx-auto mb-6" />
-           <h1 className="text-2xl font-bold text-white mb-2">Error de Verificación</h1>
-           <p className="text-slate-400 mb-8">El enlace es inválido o ha expirado. Asegúrate de tener la URL completa.</p>
-           <a href="/" className="text-neon hover:underline text-sm">Volver a VALID.AI</a>
+           <h1 className="text-2xl font-bold text-white mb-2">Verification Error</h1>
+           <p className="text-slate-400 mb-8">This verification link is invalid or has expired. Please ensure you have the complete URL sequence.</p>
+           <a href="/" className="text-neon hover:underline text-sm">Return to VALID.AI</a>
         </div>
       </div>
     );
@@ -110,7 +110,7 @@ export const PublicVerificationPage = () => {
                  
                  {/* 3D Floating Elements */}
                  <div className="absolute top-0 right-0 p-4 bg-black/80 backdrop-blur border border-neon/30 rounded-2xl shadow-xl -rotate-12 translate-x-4 -translate-y-4">
-                    <div className="text-[10px] text-slate-400 uppercase">Total Score</div>
+                    <div className="text-[10px] text-slate-400 uppercase">Audit Score</div>
                     <div className="text-2xl font-black text-neon">{data.score}/100</div>
                  </div>
               </div>
@@ -126,10 +126,10 @@ export const PublicVerificationPage = () => {
                    transition={{ delay: 0.2 }}
                  >
                    <h2 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
-                     {data.name} <span className="text-slate-500 text-3xl font-light block mt-2">ha sido validado.</span>
+                     {data.name} <span className="text-slate-500 text-3xl font-light block mt-2">has been validated.</span>
                    </h2>
                    <p className="text-lg text-slate-300 leading-relaxed max-w-xl">
-                     Este proyecto ha superado el riguroso proceso de validación de mercado de VALID.AI, demostrando una fuerte demanda y viabilidad económica.
+                     This project has surpassed VALID.AI\'s rigorous market audit protocol, demonstrating significant demand signal and strategic viability.
                    </p>
                  </motion.div>
               </div>
@@ -137,10 +137,10 @@ export const PublicVerificationPage = () => {
               {/* STATS GRID */}
               <div className="grid grid-cols-2 gap-4">
                  {[
-                    { label: "Validación de Mercado", val: "Alta", icon: TrendingUp, color: "text-emerald-400" },
-                    { label: "Interés de Compra", val: "Fuerte", icon: Zap, color: "text-amber-400" },
-                    { label: "Consistencia de Datos", val: "98%", icon: Target, color: "text-blue-400" },
-                    { label: "Fecha de Auditoría", val: data.date, icon: Globe, color: "text-slate-300" }
+                    { label: "Market Validation", val: "High", icon: TrendingUp, color: "text-emerald-400" },
+                    { label: "Purchase Intent", val: "Strong", icon: Zap, color: "text-amber-400" },
+                    { label: "Data Integrity", val: "98%", icon: Target, color: "text-blue-400" },
+                    { label: "Audit Date", val: data.date, icon: Globe, color: "text-slate-300" }
                  ].map((stat, i) => (
                     <motion.div 
                       key={i}
@@ -165,10 +165,10 @@ export const PublicVerificationPage = () => {
               >
                  <div className="absolute top-0 right-0 p-6 opacity-10"><Shield size={80} /></div>
                  <h3 className="text-emerald-400 font-bold mb-2 flex items-center gap-2">
-                    <CheckCircle2 size={18}/> Veredicto Algorítmico: APROBADO
+                    <CheckCircle2 size={18}/> Algorithmic Verdict: APPROVED
                  </h3>
                  <p className="text-sm text-emerald-100/80 leading-relaxed relative z-10">
-                    El análisis de inteligencia artificial ha detectado patrones consistentes de Product-Market Fit. La desviación estándar de las respuestas es baja, indicando un consenso de mercado claro.
+                    Neural engine analysis has detected consistent Product-Market Fit velocity. Survey deviation remains low, indicating highly stabilized market consensus.
                  </p>
               </motion.div>
 
@@ -182,12 +182,12 @@ export const PublicVerificationPage = () => {
           transition={{ delay: 1.5 }}
           className="mt-24 pt-12 border-t border-white/10 text-center"
         >
-           <h3 className="text-2xl font-bold text-white mb-4">¿Tienes una idea de negocio?</h3>
-           <p className="text-slate-400 mb-8">Únete a {data.name} y valida tu idea antes de invertir.</p>
+           <h3 className="text-2xl font-bold text-white mb-4">Have a disruptive vision?</h3>
+           <p className="text-slate-400 mb-8">Join {data.name} and audit your hypothesis before capital deployment.</p>
            
            <a href="/" className="inline-flex items-center gap-3 bg-white text-black px-8 py-4 rounded-full font-bold text-lg hover:scale-105 transition-transform shadow-[0_0_30px_rgba(255,255,255,0.2)]">
               <Sparkles size={20} className="text-purple-600" />
-              Validar mi Idea Gratis <ArrowRight size={20} />
+              Audit My Idea For Free <ArrowRight size={20} />
            </a>
            
            <div className="mt-12 text-[10px] text-slate-600 uppercase tracking-widest">

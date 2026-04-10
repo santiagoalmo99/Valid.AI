@@ -17,7 +17,7 @@ export const useCredits = (userId: string | undefined) => {
       setCredits(data);
     } catch (e: any) {
       console.error("[useCredits] Failed to load:", e);
-      setError("Error cargando créditos");
+      setError("Failed to load credits");
     } finally {
       setLoading(false);
     }
@@ -28,7 +28,7 @@ export const useCredits = (userId: string | undefined) => {
     
     // Optimistic check
     if (credits && credits.available < amount) {
-       setError("Créditos insuficientes");
+       setError("Insufficient credits");
        return false;
     }
 

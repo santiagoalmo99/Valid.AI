@@ -344,7 +344,8 @@ const FinancialSelector = ({ value, onChange }: { value: number, onChange: (val:
 
 // --- MAIN PAGE ---
 
-export const LandingPage = ({ onLogin }: { onLogin?: () => void }) => {
+export const LandingPage = ({ onLogin, lang = 'en' }: { onLogin?: () => void, lang?: Language }) => {
+  const t = TRANSLATIONS[lang];
   const [showModal, setShowModal] = useState(false);
 
   const handleLaunch = () => {
@@ -364,151 +365,163 @@ export const LandingPage = ({ onLogin }: { onLogin?: () => void }) => {
     window.location.href = '/';
   };
 
-  const templates = [
-    { name: 'B2B SaaS', icon: Server, desc: 'Enterprise Software' },
-    { name: 'E-commerce', icon: ShoppingCart, desc: 'Full-stack Retail' },
-    { name: 'HealthTech', icon: Heart, desc: 'Health & Wellness' },
-    { name: 'FinTech', icon: Wallet, desc: 'Digital Finance' },
-    { name: 'EdTech', icon: GraduationCap, desc: 'Education Systems' },
-    { name: 'Marketplace', icon: Store, desc: 'Multi-vendor Platform' }
-  ];
-
   return (
-    <div className="bg-[#000000] text-[#f5f5f7] font-sans selection:bg-neon/30 selection:text-white overflow-x-hidden relative">
+    <div className="bg-[#030303] text-white selection:bg-neon selection:text-black font-sans overflow-x-hidden relative">
       
       <LeadCaptureModal isOpen={showModal} onClose={() => setShowModal(false)} onComplete={handleModalComplete} />
 
       {/* --- ANIMATED BACKGROUND --- */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-         <div className="absolute top-[-20%] left-[-10%] w-[90vw] h-[90vw] bg-emerald-500/10 rounded-full blur-[120px] animate-chaos-slow mix-blend-screen"></div>
-         <div className="absolute bottom-[-20%] right-[-10%] w-[80vw] h-[80vw] bg-blue-600/10 rounded-full blur-[140px] animate-chaos-slow mix-blend-screen" style={{animationDelay: '-5s', animationDirection: 'reverse'}}></div>
-         <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
+         <div className="absolute top-[-20%] left-[-10%] w-[90vw] h-[90vw] bg-emerald-500/5 rounded-full blur-[140px] animate-chaos-slow mix-blend-screen"></div>
+         <div className="absolute bottom-[-20%] right-[-10%] w-[80vw] h-[80vw] bg-blue-600/5 rounded-full blur-[140px] animate-chaos-slow mix-blend-screen" style={{animationDelay: '-5s', animationDirection: 'reverse'}}></div>
       </div>
 
       {/* Navbar */}
-      <nav className="fixed top-6 left-0 right-0 z-50 flex justify-center pointer-events-none">
-        <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-full px-6 py-3 flex items-center gap-6 shadow-2xl pointer-events-auto transition-all hover:scale-105">
-          <span className="font-semibold text-sm tracking-tight text-white/90">Valid.AI</span>
-          <div className="w-px h-4 bg-white/20"></div>
-          <button onClick={handleLaunch} className="text-xs font-medium text-white/70 hover:text-neon transition-colors">
-            Launch App
-          </button>
-          <div className="w-px h-4 bg-white/20"></div>
-          <button onClick={onLogin} className="text-xs font-medium text-white/70 hover:text-neon transition-colors">
-            Login
-          </button>
+      <nav className="fixed top-8 left-0 right-0 z-50 flex justify-center px-6">
+        <div className="w-full max-w-5xl bg-black/40 backdrop-blur-3xl border border-white/10 rounded-full px-8 py-4 flex items-center justify-between shadow-2xl pointer-events-auto group hover:border-white/20 transition-all">
+          <div className="flex items-center gap-4">
+             <div className="w-8 h-8 bg-white text-black flex items-center justify-center font-black text-sm rounded shadow-[0_0_20px_rgba(255,255,255,0.2)]">V</div>
+             <span className="font-bold text-lg tracking-tighter text-white">VALID.AI</span>
+          </div>
+          <div className="flex items-center gap-10">
+            <button onClick={onLogin} className="text-[10px] font-bold text-white/40 hover:text-white transition-colors uppercase tracking-[0.3em]">
+              {t.login}
+            </button>
+            <button onClick={handleLaunch} className="px-6 py-2 bg-white text-black rounded-full font-bold text-sm hover:bg-neon transition-all hover:scale-105 shadow-[0_0_30px_rgba(255,255,255,0.2)]">
+              {t.launchApp}
+            </button>
+          </div>
         </div>
       </nav>
 
       {/* --- HERO --- */}
       <section className="relative min-h-screen flex flex-col items-center justify-center px-6 pt-20">
         <motion.div 
-          initial={{ opacity: 0, scale: 0.9, filter: "blur(20px)" }}
-          animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-          transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-          className="relative z-10 text-center max-w-6xl mx-auto"
+          initial={{ opacity: 0, scale: 0.95, y: 30 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+          className="relative z-10 text-center max-w-7xl mx-auto"
         >
             <div className="mb-12 flex justify-center">
-              <div className="px-5 py-2 rounded-full border border-neon/30 bg-neon/5 backdrop-blur-xl flex items-center gap-3 shadow-[0_0_20px_rgba(58,255,151,0.2)]">
-                <Sparkles size={14} className="text-neon" />
-                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/80">Cascade Intelligence</span>
-                <span className="text-[10px] text-white/40 font-mono tracking-tighter">Claude + Gemini 2.5</span>
+              <div className="px-6 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-3xl flex items-center gap-4 shadow-2xl">
+                <div className="w-2 h-2 rounded-full bg-neon animate-pulse"></div>
+                <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/60">Institutional Validation Protocol</span>
+                <span className="text-[10px] text-white/20 font-mono">v3.2</span>
               </div>
             </div>
-            <h1 className="text-[5rem] md:text-[8rem] lg:text-[11rem] font-semibold tracking-tighter mb-10 flex flex-col items-center gap-4 leading-none">
-              <span className="text-white block">Digital VC</span>
+            
+            <h1 className="text-[5rem] md:text-[9rem] lg:text-[12rem] font-bold tracking-tighter mb-12 flex flex-col items-center leading-[0.8]">
+              <span className="text-white block">Surgical</span>
               <span className="relative block">
-                <span 
-                  style={{ '--shimmer-color': '#3AFF97' } as React.CSSProperties}
-                  className="bg-gradient-to-r from-neon via-emerald-400 to-neon bg-[length:200%_auto] animate-shimmer bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(58,255,151,0.4)]"
-                >
-                  Analyst.
-                </span>
+                 <span className="italic font-light text-white/30">Validation.</span>
               </span>
             </h1>
           
-          <p className="text-xl md:text-2xl font-medium text-white/60 max-w-3xl mx-auto mt-8 leading-relaxed">
-            Not just a survey. A scientific validation engine merging <span className="text-white">The Mom Test</span> with the raw power of <span className="text-white">Claude & Gemini*</span>.
-          </p>
- 
-          <div className="mt-16 flex flex-col sm:flex-row items-center justify-center gap-6">
-             <button onClick={handleLaunch} className="px-10 py-5 bg-white text-black rounded-full font-bold text-xl hover:scale-105 transition-transform shadow-[0_0_40px_rgba(255,255,255,0.3)]">
-                Validate My Idea
-             </button>
-          </div>
+            <div className="max-w-3xl mx-auto border-l-2 border-neon/30 pl-10 text-left mt-10">
+               <p className="text-xl md:text-2xl font-medium text-white/60 leading-relaxed">
+                  {t.stopPoliteLies}. <br />
+                  Combining <span className="text-white">Clinical Behavioral Audits</span> with the predictive raw power of <span className="text-white">Cascade Intelligence</span>.
+               </p>
+            </div>
 
+            <div className="mt-20 flex items-center justify-center">
+               <button onClick={handleLaunch} className="group relative px-12 py-6 bg-white text-black rounded-full font-black text-2xl hover:scale-110 transition-transform shadow-[0_0_80px_rgba(255,255,255,0.4)] overflow-hidden">
+                  <div className="absolute inset-0 bg-neon translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
+                  <span className="relative z-10">{t.launchApp}</span>
+               </button>
+            </div>
+
+            <div className="mt-20 flex justify-center gap-16 text-white/20 grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-1000">
+               <div className="flex items-center gap-2 font-black tracking-tighter text-xl">CLAUDE</div>
+               <div className="flex items-center gap-2 font-black tracking-tighter text-xl">GEMINI</div>
+               <div className="flex items-center gap-2 font-black tracking-tighter text-xl">FIREBASE</div>
+            </div>
         </motion.div>
       </section>
 
-      {/* --- THE VALUE PIPELINE: 0-TO-100 VALIDATION --- */}
-      <section className="py-24 px-6 relative z-10 border-t border-white/5 bg-black/20">
-        {/* Subtle Background Detail */}
-        <div className="absolute inset-0 bg-grid-surgical opacity-[0.05] pointer-events-none"></div>
-
+      {/* --- REDESIGNED: STRATEGIC VALUE PIPELINE --- */}
+      <section className="py-40 px-6 relative z-10 border-t border-white/5 bg-[#050505]">
+        <div className="absolute inset-0 bg-grid-surgical opacity-[0.02] pointer-events-none"></div>
+        
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-20">
-             <div className="max-w-2xl">
-                <div className="text-neon text-xs font-mono uppercase tracking-[0.4em] mb-4">Strategic Logic</div>
-                <h2 className="text-3xl md:text-5xl font-bold text-white tracking-tight leading-tight">
-                   Stop Building <br />Based on <span className="text-white/40 italic">Polite Lies.</span>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 mb-32 items-end">
+             <div className="lg:col-span-8">
+                <div className="text-neon text-[10px] font-bold uppercase tracking-[0.5em] mb-8 block font-mono">{t.logicHeader}</div>
+                <h2 className="text-5xl md:text-8xl font-black text-white tracking-tighter leading-[0.85]">
+                   Eradicate the <br /><span className="text-white/40 italic font-medium">Liar's Dividend.</span>
                 </h2>
              </div>
-             <div className="pb-2 text-white/40 font-medium max-w-sm text-sm leading-relaxed">
-                Most startups fail because they validate ideas with friends and family. Valid.AI kills the bias to save you months of R&D.
+             <div className="lg:col-span-4 pb-4">
+                <p className="text-white/40 font-medium text-xl leading-relaxed border-l-2 border-neon/50 pl-10 h-full flex flex-col justify-end">
+                   Most startups die because they validate ideas with polite lies. Valid.AI neutrality exposes the friction before you spend a single dollar on engineering.
+                </p>
              </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-white/5 border border-white/5 rounded-[4rem] overflow-hidden">
             <Reveal>
-              <GlassCard className="h-full p-8 border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-colors group">
-                <div className="text-[10px] font-mono text-white/30 mb-8 uppercase tracking-[0.2em]">Phase 01</div>
-                <div className="w-10 h-10 rounded-lg bg-neon/10 flex items-center justify-center text-neon mb-6 border border-neon/20 group-hover:bg-neon/20 transition-colors">
-                  <Shield size={20} />
+              <div className="h-full p-16 bg-[#030303] hover:bg-[#070707] transition-all group relative">
+                <div className="text-[10px] font-mono text-white/20 mb-16 uppercase tracking-[0.4em]">Protocol 01</div>
+                <div className="w-16 h-16 rounded-3xl bg-neon/10 flex items-center justify-center text-neon mb-10 border border-neon/20 group-hover:scale-110 transition-transform glow-neon">
+                  <Shield size={28} />
                 </div>
-                <h3 className="text-lg font-bold text-white mb-3">Kill the Liar's Dividend</h3>
-                <p className="text-sm text-white/40 leading-relaxed">
-                  We use the <span className="text-white">Mom Test framework</span> to strip away politeness and reveal if people will actually pay for your solution.
+                <h3 className="text-2xl font-bold text-white mb-6 tracking-tight">{t.killLiarDividend}</h3>
+                <p className="text-lg text-white/40 leading-relaxed font-medium">
+                   We deploy <span className="text-white">The Mom Test framework</span> at scale. Stripping away politeness to reveal if users will actually pay or just be "nice".
                 </p>
-              </GlassCard>
+              </div>
             </Reveal>
 
             <Reveal delay={0.1}>
-              <GlassCard className="h-full p-8 border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-colors group">
-                <div className="text-[10px] font-mono text-white/30 mb-8 uppercase tracking-[0.2em]">Phase 02</div>
-                <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 mb-6 border border-emerald-500/20 group-hover:bg-emerald-500/20 transition-colors">
-                  <Activity size={20} />
+              <div className="h-full p-16 bg-[#030303] hover:bg-[#070707] transition-all group relative border-l border-white/5">
+                <div className="text-[10px] font-mono text-white/20 mb-16 uppercase tracking-[0.4em]">Protocol 02</div>
+                <div className="w-16 h-16 rounded-3xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 mb-10 border border-emerald-500/20 group-hover:scale-110 transition-transform">
+                  <Activity size={28} />
                 </div>
-                <h3 className="text-lg font-bold text-white mb-3">Neural Truth Analysis</h3>
-                <p className="text-sm text-white/40 leading-relaxed">
-                  Capturing raw <span className="text-emerald-400 font-medium">voice conviction</span>. Our AI detects hesitation and micro-pauses that standard text surveys miss entirely.
+                <h3 className="text-2xl font-bold text-white mb-6 tracking-tight">{t.neuralTruth}</h3>
+                <p className="text-lg text-white/40 leading-relaxed font-medium">
+                   Semantic friction intelligence. We analyze <span className="text-emerald-400">voice tonality</span> and micro-hesitations that text surveys miss entirely.
                 </p>
-              </GlassCard>
+              </div>
             </Reveal>
 
             <Reveal delay={0.2}>
-              <GlassCard className="h-full p-8 border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-colors group">
-                <div className="text-[10px] font-mono text-white/30 mb-8 uppercase tracking-[0.2em]">Phase 03</div>
-                <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 mb-6 border border-blue-500/20 group-hover:bg-blue-500/20 transition-colors">
-                  <DollarSign size={20} />
+              <div className="h-full p-16 bg-[#030303] hover:bg-[#070707] transition-all group relative border-l border-white/5">
+                <div className="text-[10px] font-mono text-white/20 mb-16 uppercase tracking-[0.4em]">Protocol 03</div>
+                <div className="w-16 h-16 rounded-3xl bg-blue-500/10 flex items-center justify-center text-blue-400 mb-10 border border-blue-500/20 group-hover:scale-110 transition-transform">
+                  <DollarSign size={28} />
                 </div>
-                <h3 className="text-lg font-bold text-white mb-3">Capital Efficiency</h3>
-                <p className="text-sm text-white/40 leading-relaxed">
-                  <span className="text-white font-medium">Save $20,000+</span> in wasted development and months of building for a market that doesn't exist.
+                <h3 className="text-2xl font-bold text-white mb-6 tracking-tight">{t.capitalEfficiency}</h3>
+                <p className="text-lg text-white/40 leading-relaxed font-medium">
+                   Direct <span className="text-white">Capital Allocation ROI</span>. Save $20,000+ in development on ideas that the market has already rejected via a clinical audit.
                 </p>
-              </GlassCard>
+              </div>
             </Reveal>
 
             <Reveal delay={0.3}>
-              <GlassCard className="h-full p-8 border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-colors group">
-                <div className="text-[10px] font-mono text-white/30 mb-8 uppercase tracking-[0.2em]">Phase 04</div>
-                <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 mb-6 border border-purple-500/20 group-hover:bg-purple-500/20 transition-colors">
-                  <TrendingUp size={20} />
-                </div>
-                <h3 className="text-lg font-bold text-white mb-3">Instant Roadmap</h3>
-                <p className="text-sm text-white/40 leading-relaxed">
-                  Transform raw feedback into a <span className="text-purple-400 font-medium">prioritized technical backlog</span> and a production-ready roadmap in seconds.
-                </p>
-              </GlassCard>
+               <div className="md:col-span-2 lg:col-span-3 h-full p-16 bg-[#030303] hover:bg-[#070707] transition-all group relative border-t border-white/5 flex flex-col md:flex-row items-center gap-16 justify-between">
+                  <div className="max-w-2xl">
+                     <div className="text-[10px] font-mono text-white/20 mb-16 uppercase tracking-[0.4em]">Integration 04</div>
+                     <div className="w-16 h-16 rounded-3xl bg-purple-500/10 flex items-center justify-center text-purple-400 mb-10 border border-purple-500/20 group-hover:scale-110 transition-transform">
+                        <TrendingUp size={28} />
+                     </div>
+                     <h3 className="text-4xl font-bold text-white mb-6 tracking-tighter">{t.instantRoadmap}</h3>
+                     <p className="text-2xl text-white/40 leading-relaxed font-medium">
+                        Transformation of raw field data into a <span className="text-purple-400">prioritized technical backlog</span> ready for engineering sprints in seconds.
+                     </p>
+                  </div>
+                  <div className="flex-1 w-full max-w-md p-8 border border-white/10 bg-white/5 rounded-[3rem] shadow-2xl skew-y-3 hover:skew-y-0 transition-transform duration-700">
+                     <div className="space-y-4">
+                        <div className="h-4 w-3/4 bg-white/10 rounded-full animate-pulse"></div>
+                        <div className="h-4 w-full bg-white/10 rounded-full"></div>
+                        <div className="h-4 w-5/6 bg-white/10 rounded-full animate-pulse"></div>
+                        <div className="pt-6 flex justify-between">
+                           <div className="h-8 w-20 bg-neon/20 rounded-lg"></div>
+                           <div className="h-8 w-32 bg-purple-500/20 rounded-lg"></div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
             </Reveal>
           </div>
         </div>
@@ -1002,7 +1015,7 @@ export const LandingPage = ({ onLogin }: { onLogin?: () => void }) => {
         <div className="max-w-5xl mx-auto">
            <div className="text-center mb-24">
               <Reveal>
-                 <h2 className="text-5xl md:text-7xl font-semibold text-white mb-6 tracking-tight">From Idea to Plan.</h2>
+                 <h2 className="text-5xl md:text-7xl font-semibold text-white mb-6 tracking-tight">{t.fromIdeatoPlan}.</h2>
                  <p className="text-xl text-white/50">The journey from uncertainty to surgical clarity.</p>
               </Reveal>
            </div>
@@ -1108,10 +1121,10 @@ export const LandingPage = ({ onLogin }: { onLogin?: () => void }) => {
           <Reveal>
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-6xl font-semibold text-white mb-4 tracking-tight">
-                Template Gallery
+                {t.templates}
               </h2>
               <p className="text-xl text-white/50">Don't start from scratch. Start from the top.</p>
-              <p className="text-sm text-neon/60 mt-4 font-mono">Y Combinator + Lean Startup methodologies included</p>
+              <p className="text-sm text-neon/60 mt-4 font-mono">Institutional Frameworks & YC methodologies included</p>
             </div>
           </Reveal>
           
@@ -1164,10 +1177,10 @@ export const LandingPage = ({ onLogin }: { onLogin?: () => void }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
               <div>
                 <h2 className="text-4xl md:text-5xl font-semibold text-white mb-6 tracking-tight">
-                  Your files, with a brain.
+                  Your files, with a spine.
                 </h2>
                 <p className="text-lg text-white/60 mb-8 leading-relaxed">
-                  Have a PDF of your idea? A Word doc with notes? Drag it into Valid.AI. The system reads it, extracts core concepts, and generates an instant validation plan.
+                  Have a proprietary document? A YC application draft? Drag it into Valid.AI. Our engine performs a deep semantic scan, architects your project scope, and generates an institutional-grade validation plan.
                 </p>
                 <ul className="space-y-4">
                   <li className="flex items-center gap-3 text-white/80">
@@ -1187,7 +1200,7 @@ export const LandingPage = ({ onLogin }: { onLogin?: () => void }) => {
                   <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-white/10 flex items-center justify-center group-hover:bg-neon/20 transition-colors">
                     <Upload size={28} className="text-white/60 group-hover:text-neon transition-colors" />
                   </div>
-                  <h4 className="text-white font-semibold mb-2">Drop your file here</h4>
+                  <h4 className="text-white font-semibold mb-2">{t.dragDrop}</h4>
                   <p className="text-sm text-white/40 mb-6">PDF, DOCX, TXT</p>
                   
                   {/* Simulated File */}
@@ -1213,9 +1226,9 @@ export const LandingPage = ({ onLogin }: { onLogin?: () => void }) => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
             <Reveal>
-              <h2 className="text-4xl md:text-6xl font-semibold text-white mb-6 tracking-tight">The 6 Dimensions of Truth.</h2>
+              <h2 className="text-4xl md:text-6xl font-semibold text-white mb-6 tracking-tight">{t.marketVerdict} Dimensions.</h2>
               <p className="text-xl text-white/50 max-w-2xl mx-auto">
-                We don't guess. We measure.
+                We don't speculate. We audit.
               </p>
             </Reveal>
           </div>
@@ -1227,7 +1240,7 @@ export const LandingPage = ({ onLogin }: { onLogin?: () => void }) => {
                 {/* Pulsing CTA */}
                 <div className="mt-6 flex items-center justify-center gap-3 animate-pulse">
                   <div className="w-3 h-3 bg-neon rounded-full shadow-[0_0_15px_rgba(0,255,148,0.8)]"></div>
-                  <span className="text-neon font-bold text-lg tracking-wide">Interact with the simulator</span>
+                  <span className="text-neon font-bold text-lg tracking-wide">{t.validationEngine}</span>
                   <div className="w-3 h-3 bg-neon rounded-full shadow-[0_0_15px_rgba(0,255,148,0.8)]"></div>
                 </div>
               </div>
@@ -1272,7 +1285,7 @@ export const LandingPage = ({ onLogin }: { onLogin?: () => void }) => {
               </div>
               <h2 className="text-4xl md:text-6xl font-semibold text-white mb-8 tracking-tight">
                 Holo-Verify™ <br/>
-                <span className="text-white/50">Your forensic credential.</span>
+                <span className="text-white/50">Clinical institutional credibility.</span>
               </h2>
               <p className="text-lg text-white/60 leading-relaxed mb-8">
                 Anyone can build a PowerPoint. Only VALID.AI provides a <strong className="text-white">verifiable credential</strong> that proves real traction to investors.
@@ -1360,8 +1373,8 @@ export const LandingPage = ({ onLogin }: { onLogin?: () => void }) => {
             <div>
               <div className="mb-4 text-emerald-400 font-mono text-xs uppercase tracking-widest">Optimization</div>
               <h2 className="text-4xl md:text-6xl font-semibold text-white mb-8 tracking-tight">
-                Smart Budgets. <br/>
-                <span className="text-white/50">Intelligence without waste.</span>
+                Resource Allocation. <br/>
+                <span className="text-white/50">{t.capitalEfficiency} protocol.</span>
               </h2>
               <p className="text-lg text-white/60 leading-relaxed mb-8">
                 Every dollar counts in pre-seed. We've architected a <strong className="text-white">Liquid Resource Management</strong> system that maximizes your ROI.

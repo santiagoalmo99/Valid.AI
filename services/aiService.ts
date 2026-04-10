@@ -87,7 +87,7 @@ export async function callGeminiAPI(prompt: string, json: boolean = false, useWe
 
     const model = genAI.getGenerativeModel({
       model: modelName,
-      systemInstruction: "IMPORTANTE: Siempre responde en español latinoamericano. Usa vocabulario neutro y claro de Latinoamérica. Sé profesional, analítico y directo.",
+      systemInstruction: "IMPORTANT: Always respond in professional, senior-grade English. Use concise, analytical, and strategic language. Act as an institutional-grade venture capital auditor.",
     }, { apiVersion: 'v1beta' });
 
     const generationConfig: any = {
@@ -231,6 +231,7 @@ export const smartParseDocument = async (context: string, lang: 'es'|'en'): Prom
        - If Open Text -> 'keyword_cloud'
        - Otherwise -> 'default'
     5. 'imageKeyword' must be a prompt for a realistic photo.
+    6. TONE: Senior Venture Capital.
     
     OUTPUT FORMAT (JSON ONLY):
     {
@@ -290,7 +291,7 @@ export const performDeepResearch = async (project: ProjectTemplate, interviews: 
     INTERVIEW DATA (${interviews.length} validated interviews):
     ${JSON.stringify(richInterviews, null, 2)}
     
-    LANGUAGE: ${lang === 'es' ? 'Spanish (Latin American)' : 'English'}
+    LANGUAGE: English (Institutional Grade)
     
     📊 ANALYSIS FRAMEWORK - MULTI-PASS APPROACH:
     
@@ -489,50 +490,50 @@ export const analyzeFullInterview = async (project: ProjectTemplate, answers: an
     });
 
     const prompt = `
-    ROL: Eres un Analista Senior de Venture Capital y Psicólogo Conductual experto en validación de productos. Tu trabajo es analizar entrevistas de descubrimiento de clientes para determinar la viabilidad real de una idea de negocio.
+    ROLE: You are a Senior Venture Capital Analyst and Behavioral Psychologist expert in product validation. Your job is to analyze customer discovery interviews to determine the real viability of a business idea.
     
-    CONTEXTO DEL PROYECTO:
-    Nombre: "${project.name}"
-    Descripción: "${project.description}"
+    PROJECT CONTEXT:
+    Name: "${project.name}"
+    Description: "${project.description}"
     
-    DATOS DEL ENTREVISTADO:
+    RESPONDENT DATA:
     ${JSON.stringify(regData, null, 2)}
     
-    TRANSCRIPCIÓN DE LA ENTREVISTA (Pregunta -> Respuesta):
+    INTERVIEW TRANSCRIPT (Question -> Answer):
     ${JSON.stringify(enrichedAnswers, null, 2)}
     
-    TAREA:
-    Realiza un análisis crítico y profundo de las respuestas. No seas complaciente. Busca evidencias reales de dolor (pain points), presupuesto y comportamiento pasado, no solo intenciones futuras.
+    TASK:
+    Perform a critical and deep analysis of the responses. Do not be complacent. Look for real evidence of pain points, budget, and past behavior, not just future intentions.
     
-    SISTEMA DE CALIFICACIÓN (0-10):
-    - Problem Intensity (40%): ¿Qué tan agudo es el problema para este usuario? (0=Irrelevante, 10=Crítico/Urgente)
-    - Solution Fit (30%): ¿Qué tanto resuena la solución propuesta con su necesidad real? (0=Nada, 10=Perfecto)
-    - Willingness to Pay (30%): ¿Hay evidencia de capacidad y voluntad de pago? (0=Gratis/Tacaño, 10=Alto valor/Ya paga por alternativas)
+    SCORING SYSTEM (0-10):
+    - Problem Intensity (40%): How sharp is the problem for this user? (0=Irrelevant, 10=Critical/Urgent)
+    - Solution Fit (30%): How much does the proposed solution resonate with their actual need? (0=None, 10=Perfect)
+    - Willingness to Pay (30%): Is there evidence of capacity and willingness to pay? (0=Free/Cheap, 10=High value/Already pays for alternatives)
     
-    FORMATO DE SALIDA (JSON PURO):
+    OUTPUT FORMAT (PURE JSON):
     {
-      "totalScore": number, // Promedio ponderado (0.0 - 10.0) con 1 decimal.
-      "summary": "string", // Resumen ejecutivo detallado (100-150 palabras) en 3ra persona. Analiza profundamente la psicología del usuario, sus motivaciones ocultas, barreras de adopción y su perfil conductual. No seas genérico.
+      "totalScore": number, // Weighted average (0.0 - 10.0) with 1 decimal.
+      "summary": "string", // Detailed executive summary (100-150 words) in 3rd person. Deeply analyze user psychology, hidden motivations, adoption barriers, and behavioral profile. Do not be generic.
       "dimensionScores": {
         "problemIntensity": number,
         "solutionFit": number,
         "willingnessToPay": number,
-        "currentBehavior": number, // 0-10: ¿Ya está tomando acciones para resolverlo?
-        "painPoint": number, // 0-10: Nivel de dolor explícito
-        "earlyAdopter": number // 0-10: Probabilidad de ser Early Adopter
+        "currentBehavior": number, // 0-10: Are they already taking action to solve it?
+        "painPoint": number, // 0-10: Explicit pain level
+        "earlyAdopter": number // 0-10: Probability of being an Early Adopter
       },
       "keyInsights": [
-        "Insight 1: Observación profunda sobre su comportamiento o barrera.",
-        "Insight 2: Oportunidad específica detectada o riesgo latente.",
-        "Insight 3: Veredicto sobre su perfil (ej. 'Cliente ideal', 'Usuario confundido', 'Falso positivo')."
+        "Insight 1: Deep observation about behavior or barrier.",
+        "Insight 2: Specific detected opportunity or latent risk.",
+        "Insight 3: Verdict on their profile (e.g., 'Ideal customer', 'Confused user', 'False positive')."
       ]
     }
     
-    REGLAS CRÍTICAS:
-    1. IDIOMA: 100% Español Latinoamericano Profesional (Neutro, corporativo pero moderno).
-    2. FORMATO: JSON válido minificado. Sin markdown, sin bloques de código.
-    3. ACTITUD: Sé escéptico. Valora los hechos sobre las opiniones.
-    4. PRECISIÓN: El 'totalScore' debe ser matemáticamente coherente con los puntajes de dimensión.
+    CRITICAL RULES:
+    1. LANGUAGE: 100% Professional Institutional English.
+    2. FORMAT: Valid minified JSON. No markdown, no code blocks.
+    3. ATTITUDE: Be skeptical. Value facts over opinions.
+    4. PRECISION: 'totalScore' must be mathematically consistent with dimension scores.
     `;
 
        const response = await callGeminiAPI(prompt, true);
@@ -611,34 +612,34 @@ export const analyzeFullInterviewEnhanced = async (project: ProjectTemplate, ans
      });
  
      const prompt = `
-     ROL: Eres un CONSULTOR DE ÉLITE (ex-McKinsey, ex-Y Combinator) y Psicólogo Conductual.
-     Tu trabajo NO es validar la idea, es DESTRUIRLA para ver si sobrevive.
-     Sé BRUTALMENTE HONESTO. Los falsos positivos matan startups.
+     ROLE: You are an ELITE CONSULTANT (ex-McKinsey, ex-Y Combinator) and Behavioral Psychologist.
+     Your job is NOT to validate the idea, but to DESTROY it to see if it survives.
+     Be BRUTALLY HONEST. False positives kill startups.
      
-     CONTEXTO DEL PROYECTO:
-     Nombre: "${project.name}"
-     Descripción: "${project.description}"
+     PROJECT CONTEXT:
+     Name: "${project.name}"
+     Description: "${project.description}"
      
-     DATOS DEL ENTREVISTADO:
+     RESPONDENT DATA:
      ${JSON.stringify(regData, null, 2)}
      
-     TRANSCRIPCIÓN DE LA ENTREVISTA (Pregunta -> Respuesta):
+     INTERVIEW TRANSCRIPT (Question -> Answer):
      ${JSON.stringify(enrichedAnswers, null, 2)}
      
-     TAREA:
-     Realiza una auditoría forense de estas respuestas.
-     Detecta "Mom Test failures" (cuando el usuario miente por amabilidad).
-     Busca COMPROMISO REAL (Dinero, Tiempo, Reputación).
+     TASK:
+     Perform a forensic audit of these responses.
+     Detect "Mom Test failures" (when the user lies out of politeness).
+     Look for REAL COMMITMENT (Money, Time, Reputation).
      
-     SISTEMA DE CALIFICACIÓN (0-10) - SÉ ESTRICTO:
-     - Problem Intensity (40%): ¿Se está desangrando el usuario por este problema o es solo una molestia leve?
-     - Solution Fit (30%): ¿Gritó "SÍ, ESTO ES"? ¿O solo dijo "se ve interesante"?
-     - Willingness to Pay (30%): ¿Mencionó precios concretos? ¿Ya paga por algo similar? (0 si solo dijo "pagaría" sin monto).
+     SCORING SYSTEM (0-10) - BE STRICT:
+     - Problem Intensity (40%): Is the user bleeding from this problem or is it just a minor annoyance?
+     - Solution Fit (30%): Did they scream "YES, THIS IS IT"? Or just say "looks interesting"?
+     - Willingness to Pay (30%): Did they mention specific prices? Do they already pay for something similar? (0 if they only said "would pay" without a concrete amount).
      
-     FORMATO DE SALIDA (JSON PURO):
+     OUTPUT FORMAT (PURE JSON):
      {
        "scores": {
-         "totalScore": number, // Promedio ponderado (0.0 - 10.0) 
+         "totalScore": number, // Weighted average (0.0 - 10.0)
          "dimensionScores": {
            "problemIntensity": number,
            "solutionFit": number,
@@ -648,22 +649,22 @@ export const analyzeFullInterviewEnhanced = async (project: ProjectTemplate, ans
            "earlyAdopter": number
          }
        },
-       "summary": "string", // Resumen ejecutivo CRÍTICO (100-150 palabras). Habla de hechos, no de deseos.
+       "summary": "string", // CRITICAL executive summary (100-150 words). Talk facts, not wishes.
        "keyInsights": [
-          "INSIGHT 1: (Hecho observado)",
-          "INSIGHT 2: (Patrón conductual)",
-          "INSIGHT 3: (Veredicto brutal)"
+          "INSIGHT 1: (Observed fact)",
+          "INSIGHT 2: (Behavioral pattern)",
+          "INSIGHT 3: (Brutal verdict)"
        ],
-       "oneLinerVerdict": "string", // Ej: "Falso Positivo - Solo quiere ser amable" o "Cliente Potencial Real - Dolor agudo confirmado"
+       "oneLinerVerdict": "string", // e.g., "False Positive - Just being nice" or "Real Potential Customer - Acute pain confirmed"
        "signals": { 
-          "buying": ["string"] // Frases exactas que demuestran intención de compra o mentiras detectadas
+          "buying": ["string"] // Exact phrases demonstrating purchase intent or detected lies
        }
      }
      
-     REGLAS:
-     1. IDIOMA: 100% Español Latinoamericano Profesional.
-     2. FORMATO: JSON válido minificado.
-     3. ACTITUD: Sé el "Bad Cop". Si el usuario es tibio, califica BAJO.
+     RULES:
+     1. LANGUAGE: 100% Professional Institutional English.
+     2. FORMAT: Valid minified JSON.
+     3. ATTITUDE: Be the "Bad Cop". If the user is lukewarm, score LOW.
      `;
  
      const response = await callGeminiAPI(prompt, true);
@@ -703,55 +704,54 @@ export const analyzeFullInterviewEnhanced = async (project: ProjectTemplate, ans
  };
 
 
-export const analyzeContinuousInterview = async (project: ProjectTemplate, transcript: string, notes: string, regData: any): Promise<EnhancedAnalysisResult> => {
-     try {
-     const prompt = `
-     ROL: Eres un Analista Senior de Venture Capital y Psicólogo Conductual experto en validación de productos. Tu trabajo es analizar entrevistas de descubrimiento de clientes para determinar la viabilidad real de una idea de negocio.
+export const analyzeContinuousInterview = async (project: ProjectTemplate, transcript: string, n     ROLE: You are a Senior Venture Capital Analyst and Behavioral Psychologist expert in product validation. Your job is to analyze customer discovery interviews to determine the real viability of a business idea.
      
-     CONTEXTO DEL PROYECTO:
-     Nombre: "${project.name}"
-     Descripción: "${project.description}"
+     PROJECT CONTEXT:
+     Name: "${project.name}"
+     Description: "${project.description}"
      
-     DATOS DEL ENTREVISTADO:
+     RESPONDENT DATA:
      ${JSON.stringify(regData, null, 2)}
      
-     TRANSCRIPCIÓN + NOTAS DE LA ENTREVISTA:
+     INTERVIEW TRANSCRIPT + NOTES:
      ${transcript}
      ${notes}
      
-     TAREA:
-     Realiza un análisis crítico y profundo basado en la conversación completa.
-     Identifica patrones de comportamiento, validación de problemas y disposición real a pagar.
+     TASK:
+     Perform a critical and deep analysis based on the complete conversation.
+     Identify behavioral patterns, problem validation, and actual willingness to pay.
      
-     SISTEMA DE CALIFICACIÓN (0-10):
-     - Problem Intensity (40%): ¿Qué tan agudo es el problema para este usuario?
-     - Solution Fit (30%): ¿Qué tanto resuena la solución?
-     - Willingness to Pay (30%): ¿Hay evidencia de capacidad de pago?
+     SCORING SYSTEM (0-10):
+     - Problem Intensity (40%): How sharp is the problem for this user?
+     - Solution Fit (30%): How much does the solution resonate?
+     - Willingness to Pay (30%): Is there evidence of payment capacity?
      
-     FORMATO DE SALIDA (JSON PURO):
+     OUTPUT FORMAT (PURE JSON):
      {
        "scores": {
-         "totalScore": number, // Promedio ponderado (0.0 - 10.0) 
+         "totalScore": number, // Weighted average (0.0 - 10.0) 
          "dimensionScores": {
            "problemIntensity": number,
            "solutionFit": number,
            "willingnessToPay": number,
-           "currentBehavior": number, // 0-10: ¿Ya está tomando acciones para resolverlo?
-           "painPoint": number, // 0-10: Nivel de dolor explícito
-           "earlyAdopter": number // 0-10: Probabilidad de ser Early Adopter
+           "currentBehavior": number, // 0-10: Already taking action?
+           "painPoint": number, // 0-10: Explicit pain level
+           "earlyAdopter": number // 0-10: Early Adopter Propensity
          }
        },
-       "summary": "string", // Resumen ejecutivo detallado (100-150 palabras)
-       "keyInsights": ["string"], // 3-5 Insights clave
-       "oneLinerVerdict": "string", // Veredicto en una frase corta
+       "summary": "string", // Detailed executive summary (100-150 words)
+       "keyInsights": ["string"], // 3-5 Key Insights
+       "oneLinerVerdict": "string", // Case verdict in a short sentence
        "signals": { 
-          "buying": ["string"] // Señales de compra detectadas
+          "buying": ["string"] // Purchase signals detected
        }
      }
      
-     REGLAS:
-     1. IDIOMA: 100% Español Latinoamericano Profesional.
-     2. FORMATO: JSON válido minificado.
+     RULES:
+     1. LANGUAGE: 100% Professional Institutional English.
+     2. FORMAT: Valid minified JSON.
+     3. ANALYSIS: Integrate both what was said (transcript) and what the interviewer observed (notes).
+do minificado.
      3. ANALISIS: Integra tanto lo que dijo (transcripción) como lo que observó el entrevistador (notas).
      `;
  
