@@ -21,11 +21,10 @@ export default defineConfig(({ mode }) => {
         dedupe: ['react', 'react-dom'],
       },
       build: {
-        cssCodeSplit: false, // Ensure shared CSS bundle for multi-entry
+        cssCodeSplit: false,
         rollupOptions: {
           input: {
             main: path.resolve(__dirname, 'index.html'),
-            landing: path.resolve(__dirname, 'landing.html'),
           },
         },
       }
